@@ -1,69 +1,184 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="UTF-8">
-<title>Game Hub</title>
+<meta charset="UTF-8" />
+<title>Game Hub — Astral Employment</title>
+<meta name="viewport" content="width=device-width,initial-scale=1" />
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;800&display=swap" rel="stylesheet">
 
 <style>
-  body { margin:0; font-family: "Inter", Arial, sans-serif; background:#0e0e0e; color:#eee; }
-  /* Home screen */
-  #homeScreen { height:100vh; display:flex; flex-direction:column; justify-content:center; align-items:center; background: linear-gradient(135deg,#1a1a1a,#000); text-align:center; }
-  #homeScreen h1 { font-size:3rem; font-weight:700; margin-bottom:1rem; }
-  #passwordInput { padding:.7rem 1rem; border-radius:8px; border:none; outline:none; width:250px; background:#222; color:#fff; font-size:1rem; margin-bottom:1rem; }
-  #enterBtn { padding:.7rem 1rem; width:200px; border:none; border-radius:8px; background:#008cff; color:#fff; font-size:1.2rem; cursor:pointer; transition:.15s; }
-  #enterBtn:hover { background:#0a9dff; }
-  #errorMsg { margin-top:.5rem; color:#ff5f5f; }
+  :root{
+    --bg:#0e0e0e;
+    --panel:#121212;
+    --muted:#bfc7d0;
+    --accent:#0a9dff;
+    --card:#1c1c1c;
+    --glass: rgba(255,255,255,0.03);
+    --radius:14px;
+  }
+  *{box-sizing:border-box}
+  body{
+    margin:0;
+    font-family:Inter, system-ui, -apple-system, "Segoe UI", Roboto, Arial;
+    background: linear-gradient(180deg,#070707 0%, #0e0e0e 100%);
+    color:#e9eef6;
+    min-height:100vh;
+    -webkit-font-smoothing:antialiased;
+    -moz-osx-font-smoothing:grayscale;
+  }
 
-  /* Header */
-  header { display:none; background:#1a1a1a; padding:1rem 2rem; position:sticky; top:0; z-index:10; box-shadow:0 2px 10px rgba(0,0,0,.5); display:flex; justify-content:space-between; align-items:center; gap:1rem; }
-  #searchBox { padding:.6rem 1rem; width:250px; background:#242424; border:none; outline:none; border-radius:6px; color:#fff; font-size:1rem; }
-  #categorySelect { background:#242424; border:none; outline:none; padding:.6rem; border-radius:6px; color:#fff; font-size:1rem; }
-  #navLinks { display:flex; gap:1rem; }
-  #navLinks a { color:#9cf; text-decoration:none; font-size:1rem; transition:.15s; }
-  #navLinks a:hover { color:#0a9dff; }
+  /* Home / Password */
+  #homeScreen, #landingScreen { height:100vh; display:flex; align-items:center; justify-content:center; padding:2rem; }
+  #homeScreen{ flex-direction:column; gap:1rem; text-align:center; background:linear-gradient(135deg,#050507,#0b0b0b); }
+  #homeScreen h1 { font-size:2.2rem; margin:0; letter-spacing:1px; }
+  #passwordInput { padding:.75rem 1rem; border-radius:10px; border:none; outline:none; width:260px; background:#151515; color:#fff; font-size:1rem; box-shadow:0 6px 18px rgba(0,0,0,.6); }
+  #enterBtn { padding:.75rem 1rem; width:220px; border:none; border-radius:10px; background:var(--accent); color:#fff; font-weight:600; cursor:pointer; font-size:1rem; transition:transform .15s ease; }
+  #enterBtn:active{ transform:translateY(1px) }
+  #errorMsg { color:#ff7b7b; height:1.2rem; }
 
-  /* Game list */
-  .game-list { display:grid; grid-template-columns:repeat(auto-fill,minmax(160px,1fr)); gap:1rem; padding:1rem; }
-  .game-card { background:#1c1c1c; border-radius:8px; overflow:hidden; cursor:pointer; transition:.15s ease-in-out; }
-  .game-card:hover { transform:scale(1.04); background:#242424; }
-  .game-card img { width:100%; height:120px; object-fit:cover; }
-  .title { text-align:center; padding:.6rem; font-size:.95rem; height:2.8em; overflow:hidden; }
+  /* Landing hero */
+  #landingScreen { display:none; color:var(--muted); background:
+    radial-gradient(600px 300px at 10% 10%, rgba(10,157,255,0.06), transparent 8%),
+    radial-gradient(500px 250px at 90% 85%, rgba(160,80,255,0.03), transparent 6%); }
+  .hero { max-width:1100px; width:100%; display:grid; grid-template-columns: 1fr 420px; gap:2.2rem; align-items:center; padding:2rem; }
+  .hero-left { padding:2.2rem; background:linear-gradient(180deg, rgba(255,255,255,0.02), transparent); border-radius:18px; box-shadow:0 12px 50px rgba(0,0,0,.6); }
+  .hero-left h1 { margin:0; font-size:2.6rem; line-height:1.03; letter-spacing:0.5px; color:#fff; }
+  .hero-left p { margin-top:.7rem; margin-bottom:1.4rem; color:var(--muted); }
+  .feature-list { display:flex; flex-direction:column; gap:.6rem; color:var(--muted); }
+  .feature-list span { display:inline-block; padding:.45rem .7rem; background:var(--glass); border-radius:10px; font-size:.95rem; width:max-content; box-shadow:0 6px 18px rgba(0,0,0,.5); }
 
-  .container { padding:1rem; }
-  .back-link { display:inline-block; margin-bottom:1rem; color:#9cf; font-size:1.1rem; cursor:pointer; }
+  .hero-right { padding:1.2rem; border-radius:14px; background:linear-gradient(180deg, rgba(255,255,255,0.012), transparent); text-align:center; }
+  .hero-right .preview { height:220px; border-radius:12px; background:linear-gradient(135deg,#0f1530, #071026); display:flex; align-items:center; justify-content:center; color:var(--muted); padding:1rem; }
+  .cta-row { display:flex; gap:.6rem; margin-top:1rem; justify-content:center; }
+  .btn-ghost { padding:.6rem 1rem; border-radius:10px; border:1px solid rgba(255,255,255,0.06); background:transparent; color:var(--muted); cursor:pointer; }
+  .btn-primary { padding:.6rem 1rem; border-radius:10px; border:none; background:var(--accent); color:#fff; cursor:pointer; font-weight:600; }
 
-  iframe { width:100%; height:80vh; border:none; border-radius:8px; background:#000; }
+  /* Header (main app) */
+  header { display:none; position:sticky; top:0; z-index:40; padding:.9rem 1.2rem; background:linear-gradient(180deg, rgba(8,8,8,0.6), rgba(8,8,8,0.35)); backdrop-filter: blur(6px); display:flex; gap:1rem; align-items:center; justify-content:space-between; border-bottom:1px solid rgba(255,255,255,0.02); }
+  .left-controls { display:flex; gap:1rem; align-items:center; }
+  #logo { font-weight:700; font-size:1.05rem; color:#fff; letter-spacing:0.6px; }
+  #categoryBar { display:flex; gap:.5rem; overflow-x:auto; -webkit-overflow-scrolling:touch; padding:.2rem 0; }
+  .cat-btn { display:flex; gap:.45rem; align-items:center; padding:.45rem .65rem; border-radius:999px; cursor:pointer; background:transparent; border:1px solid transparent; color:var(--muted); font-weight:600; white-space:nowrap; transition:all .18s ease; }
+  .cat-btn:hover{ transform:translateY(-3px); }
+  .cat-btn.active{ background:linear-gradient(90deg, rgba(10,157,255,0.12), rgba(10,157,255,0.06)); color:#fff; border-color:rgba(10,157,255,0.12); box-shadow:0 8px 24px rgba(10,157,255,0.06); }
 
-  /* Chatroom */
-  #chatContainer { display:flex; flex-direction:column; height:80vh; gap:.5rem; }
-  #chatMessages { flex:1; overflow-y:auto; background:#1c1c1c; padding:.5rem; border-radius:6px; }
+  #searchBox { padding:.6rem .9rem; width:320px; border-radius:12px; border:none; outline:none; background:#151515; color:#fff; }
+  #navLinks a { color:var(--muted); text-decoration:none; margin-left:.8rem; font-weight:600; }
+
+  /* App area */
+  #app { padding:1rem; padding-top:1.6rem; max-width:1200px; margin:0 auto; }
+
+  /* Featured row */
+  .featured-row { display:flex; gap:1rem; margin-bottom:1rem; align-items:stretch; }
+  .featured-card { flex:1; min-height:140px; border-radius:12px; background:linear-gradient(180deg, rgba(255,255,255,0.015), transparent); padding:1rem; display:flex; gap:1rem; align-items:center; }
+  .featured-card img { width:140px; height:100px; object-fit:cover; border-radius:8px; }
+
+  /* Grid list */
+  .game-list { display:grid; grid-template-columns: repeat(auto-fill, minmax(210px,1fr)); gap:1rem; }
+  .game-card { background:var(--card); border-radius:12px; overflow:hidden; position:relative; cursor:pointer; transition:transform .18s ease, box-shadow .18s ease; box-shadow:0 8px 30px rgba(0,0,0,.6); height:260px; display:flex; flex-direction:column; }
+  .game-card:hover{ transform:translateY(-6px); box-shadow:0 18px 70px rgba(0,0,0,.7); }
+
+  .game-card img.thumbnail { width:100%; height:120px; object-fit:cover; display:block; }
+  .card-body { padding:.8rem; display:flex; flex-direction:column; gap:.5rem; flex:1; position:relative; }
+
+  .title { font-weight:700; font-size:1rem; color:#fff; line-height:1.1; height:2.4em; overflow:hidden; }
+  .tags { display:flex; gap:.4rem; flex-wrap:wrap; margin-top:auto; }
+  .tag { font-size:.75rem; padding:.25rem .45rem; border-radius:8px; background:rgba(255,255,255,0.03); color:var(--muted); border:1px solid rgba(255,255,255,0.02); }
+
+  /* Hover overlay details */
+  .hover-details { position:absolute; inset:0; background:linear-gradient(180deg, rgba(5,5,5,0.0), rgba(2,2,2,0.8)); opacity:0; transform:translateY(6px); transition:all .2s ease; display:flex; flex-direction:column; justify-content:flex-end; padding:1rem; }
+  .game-card:hover .hover-details { opacity:1; transform:translateY(0); }
+  .hover-desc { color:var(--muted); font-size:.9rem; margin-bottom:.6rem; max-height:3.6em; overflow:hidden; }
+  .hover-actions { display:flex; gap:.5rem; align-items:center; }
+  .play-btn { padding:.5rem .8rem; border-radius:8px; background:var(--accent); color:white; border:none; cursor:pointer; font-weight:700; }
+
+  /* No results */
+  .no-results { text-align:center; padding:3rem 1rem; color:var(--muted); font-size:1.05rem; }
+
+  /* Chat */
+  #chatContainer { display:flex; flex-direction:column; height:70vh; gap:.5rem; }
+  #chatMessages { flex:1; overflow-y:auto; background:#0f0f10; padding:.8rem; border-radius:8px; }
   #chatInputContainer { display:flex; gap:.5rem; }
-  #chatInput { flex:1; padding:.5rem; border-radius:6px; border:none; background:#242424; color:#fff; }
-  #chatSend { padding:.5rem 1rem; border:none; border-radius:6px; background:#008cff; color:#fff; cursor:pointer; }
+  #chatInput { flex:1; padding:.6rem .8rem; border-radius:8px; border:none; background:#151515; color:#fff; }
+  #chatSend { padding:.55rem .8rem; border-radius:8px; border:none; background:var(--accent); color:#fff; cursor:pointer; }
+
+  /* Misc */
+  .back-link { display:inline-block; margin-bottom:1rem; color:var(--muted); font-size:1.1rem; cursor:pointer; }
+  a { color:var(--accent) }
+  @media (max-width:900px){
+    .hero { grid-template-columns:1fr; padding:1rem; gap:1rem; }
+    header { padding:.6rem; }
+    #searchBox{ width:160px; }
+    .game-card{ height:280px; }
+  }
 </style>
 </head>
 <body>
 
-<!-- HOME SCREEN -->
+<!-- PASSWORD SCREEN -->
 <div id="homeScreen">
-  <h1>Welcome to Game Hub</h1>
-  <input id="passwordInput" type="password" placeholder="Enter password...">
-  <button id="enterBtn">Enter</button>
+  <h1>Enter Access Code</h1>
+  <input id="passwordInput" type="password" placeholder="Enter password..." aria-label="password">
+  <button id="enterBtn">Unlock</button>
   <div id="errorMsg"></div>
 </div>
 
-<!-- MAIN APP -->
-<header id="mainHeader">
-  <div id="navLinks">
-    <a href="#" onclick="showGameList(gamesCache)">Games</a>
-    <a href="https://docs.google.com/forms/d/e/1FAIpQLSeCfC4vHF_dR_iV-9n9Af6X3SrYsWwFG3CjAsbuoHBwOH3nUg/viewform?usp=dialog" target="_blank">Requests</a>
-    <a href="#" onclick="showChat()">Chatroom</a>
-    <a href="#" onclick="showOtherWebsites()">Other Websites</a>
+<!-- LANDING / HERO (hidden until correct password) -->
+<div id="landingScreen" aria-hidden="true">
+  <div class="hero">
+    <div class="hero-left">
+      <h1>Welcome to Astral Employment</h1>
+      <p>Discover curated games, chat with others, and explore featured picks — all in one sleek hub.</p>
+
+      <div style="margin-top:1rem" class="feature-list">
+        <span>Game card hover details</span>
+        <span>Featured games sections</span>
+        <span>Smarter search with highlights</span>
+        <span>Category icon buttons (emoji)</span>
+        <span>Animation polish</span>
+        <span>Game tags visible on cards</span>
+      </div>
+
+      <div style="margin-top:1.2rem; display:flex; gap:.6rem;">
+        <button id="enterHubBtn" class="btn-primary">Enter Hub</button>
+        <button id="tourBtn" class="btn-ghost">Preview Featured</button>
+      </div>
+    </div>
+
+    <div class="hero-right">
+      <div class="preview">
+        <div>
+          <div style="font-weight:700; font-size:1.05rem; margin-bottom:.4rem;">Featured Preview</div>
+          <div style="color:var(--muted); max-width:300px;">Quick look at top picks and what’s hot — click "Enter Hub" to explore all games and features.</div>
+        </div>
+      </div>
+      <div style="margin-top:1rem; display:flex; justify-content:center; gap:.6rem;">
+        <button class="btn-ghost" id="viewFeatures">What’s New</button>
+        <button class="btn-ghost" id="viewChat">Open Chat</button>
+      </div>
+    </div>
   </div>
-  <select id="categorySelect"><option value="all">All Categories</option></select>
-  <input id="searchBox" type="text" placeholder="Search games...">
+</div>
+
+<!-- MAIN APP HEADER (hidden until site entered) -->
+<header id="mainHeader" aria-hidden="true">
+  <div class="left-controls">
+    <div id="logo">Astral Employment</div>
+    <div id="categoryBar" role="tablist" aria-label="categories"></div>
+  </div>
+
+  <div style="display:flex; align-items:center; gap:.8rem;">
+    <input id="searchBox" type="text" placeholder="Search games..." aria-label="search games">
+    <div id="navLinks">
+      <a href="#" onclick="showGameList(gamesCache)">Games</a>
+      <a href="#" onclick="showChat()">Chatroom</a>
+      <a href="#" onclick="showOtherWebsites()">Other Websites</a>
+    </div>
+  </div>
 </header>
 
+<!-- APP -->
 <div id="app"></div>
 
 <!-- Firebase -->
@@ -71,163 +186,376 @@
 <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-database-compat.js"></script>
 
 <script>
-  const PASSWORD = "DIHALB";
-  const GAMES_JSON_URL = "https://raw.githubusercontent.com/swarmintelli/Unblocked-Games-CDN/main/games.json";
+/* -------------------------
+   Config & Constants
+   ------------------------- */
+const PASSWORD = "DIHALB"; // keep same as original
+const GAMES_JSON_URL = "https://raw.githubusercontent.com/swarmintelli/Unblocked-Games-CDN/main/games.json";
 
-  const firebaseConfig = {
-    apiKey: "AIzaSyAyHooV5floB-DdLAFdczfgEuDPEWtfGgA",
-    authDomain: "chatroom-4e6e4.firebaseapp.com",
-    databaseURL: "https://chatroom-4e6e4-default-rtdb.firebaseio.com",
-    projectId: "chatroom-4e6e4",
-    storageBucket: "chatroom-4e6e4.firebasestorage.app",
-    messagingSenderId: "352956674536",
-    appId: "1:352956674536:web:1942c8198827e8f5f6b45d"
-  };
+const emojiMap = {
+  "action":"🎯",
+  "adventure":"🗺️",
+  "puzzle":"🧩",
+  "racing":"🚗",
+  "multiplayer":"🤝",
+  "strategy":"♟️",
+  "sports":"🏅",
+  "classics":"🎮",
+  // fallback:
+  "default":"🔹"
+};
 
-  firebase.initializeApp(firebaseConfig);
-  const database = firebase.database();
+// Firebase config (unchanged)
+const firebaseConfig = {
+  apiKey: "AIzaSyAyHooV5floB-DdLAFdczfgEuDPEWtfGgA",
+  authDomain: "chatroom-4e6e4.firebaseapp.com",
+  databaseURL: "https://chatroom-4e6e4-default-rtdb.firebaseio.com",
+  projectId: "chatroom-4e6e4",
+  storageBucket: "chatroom-4e6e4.firebasestorage.app",
+  messagingSenderId: "352956674536",
+  appId: "1:352956674536:web:1942c8198827e8f5f6b45d"
+};
 
-  let gamesCache = [];
-  let categories = [];
+firebase.initializeApp(firebaseConfig);
+const database = firebase.database();
 
-  // ===== PASSWORD =====
-  document.getElementById("enterBtn").addEventListener("click", () => {
-    const pw = document.getElementById("passwordInput").value;
-    if (pw === PASSWORD) {
-      document.getElementById("homeScreen").style.display = "none";
-      document.getElementById("mainHeader").style.display = "flex";
-      loadGames().then(() => showGameList(gamesCache));
-    } else {
-      document.getElementById("errorMsg").textContent = "Incorrect password.";
-    }
-  });
+/* -------------------------
+   State
+   ------------------------- */
+let gamesCache = [];
+let categories = ["all","action","adventure","puzzle","racing","multiplayer","strategy","sports","classics"];
+let activeCategory = "all";
 
-  // ===== LOAD GAMES =====
-  async function loadGames() {
+/* -------------------------
+   UI Bindings
+   ------------------------- */
+const homeScreen = document.getElementById("homeScreen");
+const landingScreen = document.getElementById("landingScreen");
+const mainHeader = document.getElementById("mainHeader");
+const enterBtn = document.getElementById("enterBtn");
+const enterHubBtn = document.getElementById("enterHubBtn");
+const passwordInput = document.getElementById("passwordInput");
+const errorMsg = document.getElementById("errorMsg");
+const app = document.getElementById("app");
+const categoryBar = document.getElementById("categoryBar");
+const searchBox = document.getElementById("searchBox");
+
+/* -------------------------
+   Password and flow
+   ------------------------- */
+enterBtn.addEventListener("click", () => {
+  const pw = passwordInput.value;
+  if (pw === PASSWORD) {
+    errorMsg.textContent = "";
+    homeScreen.style.display = "none";
+    // show landing hero
+    landingScreen.style.display = "flex";
+    landingScreen.setAttribute("aria-hidden","false");
+  } else {
+    errorMsg.textContent = "Incorrect password.";
+    // shake animation
+    passwordInput.animate([{transform:'translateX(0)'},{transform:'translateX(-6px)'},{transform:'translateX(6px)'},{transform:'translateX(0)'}], {duration:240});
+  }
+});
+
+enterHubBtn.addEventListener("click", async () => {
+  // hide landing, show header & load games
+  landingScreen.style.display = "none";
+  mainHeader.style.display = "flex";
+  mainHeader.setAttribute("aria-hidden","false");
+  await loadGames();
+  showGameList(gamesCache);
+});
+
+/* quick preview buttons */
+document.getElementById("tourBtn").addEventListener("click", async () => {
+  landingScreen.querySelector(".preview").animate([{transform:"translateY(0)"},{transform:"translateY(-6px)"},{transform:"translateY(0)"}], {duration:450, iterations:1});
+});
+document.getElementById("viewChat").addEventListener("click", ()=> {
+  landingScreen.style.display = "none";
+  mainHeader.style.display = "flex";
+  showChat();
+});
+
+/* -------------------------
+   Load Games JSON
+   ------------------------- */
+async function loadGames(){
+  try {
     const resp = await fetch(GAMES_JSON_URL);
     const data = await resp.json();
-    gamesCache = data;
+    gamesCache = data || [];
 
-    // Extract categories
-    categories = ["all"];
-    data.forEach(g => {
+    // Add categories found in JSON (but keep our emoji list order)
+    gamesCache.forEach(g => {
       if (Array.isArray(g.tags)) {
-        g.tags.forEach(t => { if(!categories.includes(t)) categories.push(t); });
+        g.tags.forEach(t => {
+          const key = (typeof t === 'string') ? t.toLowerCase() : "";
+          if (key && !categories.includes(key)) categories.push(key);
+        });
       }
     });
 
-    const sel = document.getElementById("categorySelect");
-    categories.forEach(cat => {
-      const op = document.createElement("option");
-      op.value = cat;
-      op.textContent = cat.charAt(0).toUpperCase()+cat.slice(1);
-      sel.append(op);
+    buildCategoryBar();
+    return gamesCache;
+  } catch (e) {
+    console.error("Failed to load games.json", e);
+    gamesCache = [];
+    buildCategoryBar();
+    return [];
+  }
+}
+
+/* -------------------------
+   Category Bar (emoji icons)
+   ------------------------- */
+function buildCategoryBar(){
+  categoryBar.innerHTML = "";
+  categories.forEach(cat => {
+    const btn = document.createElement("button");
+    btn.className = "cat-btn" + (cat===activeCategory ? " active" : "");
+    btn.title = cat === "all" ? "All" : cat.charAt(0).toUpperCase() + cat.slice(1);
+    const emoji = emojiMap[cat] || emojiMap[cat.toLowerCase()] || emojiMap.default;
+    btn.innerHTML = `<span style="font-size:1.05rem">${emoji}</span><span style="opacity:.95;margin-left:.45rem">${cat === "all" ? "All" : cat.charAt(0).toUpperCase()+cat.slice(1)}</span>`;
+    btn.onclick = () => {
+      activeCategory = cat;
+      document.querySelectorAll(".cat-btn").forEach(n=>n.classList.remove("active"));
+      btn.classList.add("active");
+      filterGames();
+    };
+    categoryBar.appendChild(btn);
+  });
+}
+
+/* -------------------------
+   Search: smarter highlight
+   ------------------------- */
+function highlightMatch(text, q){
+  if(!q) return escapeHtml(text);
+  const idx = text.toLowerCase().indexOf(q.toLowerCase());
+  if(idx === -1) return escapeHtml(text);
+  const before = escapeHtml(text.slice(0, idx));
+  const match = escapeHtml(text.slice(idx, idx + q.length));
+  const after = escapeHtml(text.slice(idx + q.length));
+  return `${before}<mark style="background:rgba(10,157,255,0.18);padding:.05rem .12rem;border-radius:4px;color:#fff">${match}</mark>${after}`;
+}
+function escapeHtml(s){ return (s + "").replace(/[&<>"']/g, function(m){ return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[m]; }); }
+
+/* -------------------------
+   Show Game List
+   ------------------------- */
+function showGameList(games){
+  app.innerHTML = "";
+
+  // Featured row (take up to 3 featured)
+  const featured = games.filter(g => g.featured).slice(0,3);
+  if(featured.length){
+    const featuredRow = document.createElement("div");
+    featuredRow.className = "featured-row";
+    featured.forEach(f => {
+      const fc = document.createElement("div"); fc.className = "featured-card";
+      const img = document.createElement("img"); img.src = f.game_image_icon || f.thumbnail || ""; img.alt = f.name || "featured";
+      const meta = document.createElement("div");
+      const title = document.createElement("div"); title.style.fontWeight=700; title.style.color="#fff"; title.textContent = f.name || "Untitled";
+      const desc = document.createElement("div"); desc.style.color = "var(--muted)"; desc.style.fontSize="0.95rem"; desc.style.marginTop = ".45rem"; desc.textContent = f.description || "";
+      const play = document.createElement("button"); play.className="btn-primary"; play.style.marginLeft="auto"; play.textContent="Play"; play.onclick = ()=> showGamePage(f);
+      meta.appendChild(title); meta.appendChild(desc);
+      fc.appendChild(img); fc.appendChild(meta); featuredRow.appendChild(fc);
     });
-    return data;
+    app.appendChild(featuredRow);
   }
 
-  // ===== GAME LIST =====
-  function showGameList(games) {
-    const app = document.getElementById("app");
-    app.innerHTML = "";
-    const list = document.createElement("div"); list.className="game-list";
+  // Grid
+  const q = searchBox.value.trim();
+  const cat = activeCategory;
 
-    games.forEach(game => {
-      const card = document.createElement("div"); card.className="game-card";
-      card.onclick = ()=>showGamePage(game);
+  const filtered = games.filter(g => {
+    const name = (g.name||"").toLowerCase();
+    const tags = Array.isArray(g.tags) ? g.tags.map(t=>t.toLowerCase()) : [];
+    const matchesQuery = !q || name.includes(q.toLowerCase()) || (g.description||"").toLowerCase().includes(q.toLowerCase()) || tags.some(t => t.includes(q.toLowerCase()));
+    const matchesCat = cat === "all" || tags.includes(cat);
+    return matchesQuery && matchesCat;
+  });
 
-      const img = document.createElement("img"); img.loading="lazy"; img.src=game.game_image_icon;
-      const title = document.createElement("div"); title.className="title"; title.textContent=game.name;
-
-      card.append(img,title); list.append(card);
-    });
-    app.append(list);
+  if(!filtered.length){
+    const no = document.createElement("div"); no.className = "no-results"; no.innerHTML = `<div>No results found for "<strong>${escapeHtml(q)}</strong>". Try another search or category.</div>`;
+    app.appendChild(no);
+    return;
   }
 
-  // ===== GAME PAGE =====
-  function showGamePage(game){
-    const app = document.getElementById("app"); app.innerHTML="";
-    const container = document.createElement("div"); container.className="container";
-
-    const back = document.createElement("span"); back.className="back-link"; back.textContent="← Back to games"; back.onclick=()=>showGameList(gamesCache);
-
-    const iframe = document.createElement("iframe"); iframe.srcdoc=game.iframe;
-
-    container.append(back,iframe); app.append(container);
-  }
-
-  // ===== FILTER =====
-  function filterGames() {
-    const q = document.getElementById("searchBox").value.toLowerCase();
-    const cat = document.getElementById("categorySelect").value;
-    const filtered = gamesCache.filter(g=>{
-      const nameMatch=g.name.toLowerCase().includes(q);
-      const catMatch=(cat==="all" || (g.tags && g.tags.includes(cat)));
-      return nameMatch && catMatch;
-    });
-    showGameList(filtered);
-  }
-  document.getElementById("searchBox").addEventListener("input",filterGames);
-  document.getElementById("categorySelect").addEventListener("change",filterGames);
-
-  // ===== CHATROOM =====
-  function showChat(){
-    const app=document.getElementById("app"); app.innerHTML="";
-    const container=document.createElement("div"); container.className="container";
-    const back=document.createElement("span"); back.className="back-link"; back.textContent="← Back to games"; back.onclick=()=>showGameList(gamesCache);
-    const chatDiv=document.createElement("div"); chatDiv.id="chatContainer";
-
-    const messages=document.createElement("div"); messages.id="chatMessages";
-    const inputContainer=document.createElement("div"); inputContainer.id="chatInputContainer";
-    const input=document.createElement("input"); input.id="chatInput"; input.placeholder="Type a message...";
-    const send=document.createElement("button"); send.id="chatSend"; send.textContent="Send";
-
-    inputContainer.append(input,send);
-    chatDiv.append(messages,inputContainer);
-    container.append(back,chatDiv);
-    app.append(container);
-
-    // Listen for messages
-    database.ref("chat").on("child_added", snap=>{
-      const msg=snap.val();
-      const div=document.createElement("div"); div.textContent=msg; messages.append(div);
-      messages.scrollTop=messages.scrollHeight;
-    });
-
-    // Send message
-    send.onclick=()=>{
-      const val=input.value.trim();
-      if(val==="") return;
-      database.ref("chat").push(val);
-      input.value="";
-    }
-  }
-
-  // ===== OTHER WEBSITES =====
-  function showOtherWebsites(){
-    const app=document.getElementById("app"); app.innerHTML="";
-    const container=document.createElement("div"); container.className="container";
-    const back=document.createElement("span"); back.className="back-link"; back.textContent="← Back to games"; back.onclick=()=>showGameList(gamesCache);
-
-    const list=document.createElement("div"); list.id="otherWebsitesList";
-    const input=document.createElement("input"); input.placeholder="Paste URL here"; input.style.width="70%";
-    const btn=document.createElement("button"); btn.textContent="Add"; btn.style.marginLeft="0.5rem";
-
-    container.append(back,input,btn,list); app.append(container);
-
-    const stored=JSON.parse(localStorage.getItem("otherWebsites")||"[]");
-    stored.forEach(u=>addLink(u));
-
-    btn.onclick=()=>{
-      const val=input.value.trim(); if(!val) return;
-      let arr=JSON.parse(localStorage.getItem("otherWebsites")||"[]"); arr.push(val); localStorage.setItem("otherWebsites",JSON.stringify(arr));
-      addLink(val); input.value="";
+  const list = document.createElement("div"); list.className = "game-list";
+  filtered.forEach(game => {
+    const card = document.createElement("div"); card.className = "game-card";
+    card.onclick = (ev) => {
+      // clicking on play button should be handled separately
+      if(ev.target.closest(".play-btn")) return;
+      showGamePage(game);
     };
 
-    function addLink(url){
-      const a=document.createElement("a"); a.href=url; a.target="_blank"; a.textContent=url; a.style.display="block"; a.style.marginTop="0.3rem"; list.append(a);
-    }
+    // thumbnail
+    const thumb = document.createElement("img"); thumb.className = "thumbnail";
+    thumb.loading = "lazy";
+    thumb.src = game.game_image_icon || game.thumbnail || "";
+    thumb.alt = game.name || "game";
+
+    // body
+    const body = document.createElement("div"); body.className = "card-body";
+    const title = document.createElement("div"); title.className = "title";
+    title.innerHTML = highlightMatch(game.name || "Untitled", q);
+
+    // tags
+    const tagsWrap = document.createElement("div"); tagsWrap.className = "tags";
+    const tagsList = Array.isArray(game.tags) ? game.tags.slice(0,4) : [];
+    tagsList.forEach(t => {
+      const tg = document.createElement("div"); tg.className = "tag"; tg.textContent = t;
+      tagsWrap.appendChild(tg);
+    });
+
+    // hover details
+    const hover = document.createElement("div"); hover.className = "hover-details";
+    const desc = document.createElement("div"); desc.className = "hover-desc";
+    desc.innerText = game.description || "No description available.";
+    const actions = document.createElement("div"); actions.className = "hover-actions";
+    const playBtn = document.createElement("button"); playBtn.className = "play-btn"; playBtn.textContent = "Play";
+    playBtn.onclick = (e) => { e.stopPropagation(); showGamePage(game); };
+    actions.appendChild(playBtn);
+
+    hover.appendChild(desc);
+    hover.appendChild(actions);
+
+    body.appendChild(title);
+    body.appendChild(tagsWrap);
+
+    card.appendChild(thumb);
+    card.appendChild(body);
+    card.appendChild(hover);
+
+    list.appendChild(card);
+  });
+
+  app.appendChild(list);
+}
+
+/* -------------------------
+   Show single game page (iframe)
+   ------------------------- */
+function showGamePage(game){
+  app.innerHTML = "";
+  const container = document.createElement("div"); container.className = "container";
+  const back = document.createElement("span"); back.className = "back-link"; back.textContent = "← Back to games"; back.onclick = ()=> showGameList(gamesCache);
+  const iframe = document.createElement("iframe");
+  // If JSON provides an iframe attribute, use srcdoc; if a direct url is provided, use src
+  if(game.iframe) {
+    iframe.srcdoc = game.iframe;
+  } else if(game.url){
+    iframe.src = game.url;
+  } else if(game.game_url){
+    iframe.src = game.game_url;
+  } else {
+    // fallback: blank page showing message
+    iframe.srcdoc = `<body style="background:#000;color:#fff;display:flex;align-items:center;justify-content:center;height:100vh;margin:0"><div style="text-align:center"><h2>${escapeHtml(game.name||"Game")}</h2><p style="color:#bbb">No playable iframe URL provided.</p></div></body>`;
   }
+  container.appendChild(back);
+  container.appendChild(iframe);
+  app.appendChild(container);
+}
+
+/* -------------------------
+   Filter helpers
+   ------------------------- */
+
+function filterGames(){
+  showGameList(gamesCache);
+}
+
+/* wire search */
+searchBox.addEventListener("input", _debounce(()=>{
+  filterGames();
+}, 180));
+
+/* -------------------------
+   Chatroom UI
+   ------------------------- */
+function showChat(){
+  app.innerHTML = "";
+  const container = document.createElement("div"); container.className = "container";
+  const back = document.createElement("span"); back.className = "back-link"; back.textContent = "← Back to games"; back.onclick = ()=> showGameList(gamesCache);
+  const chatDiv = document.createElement("div"); chatDiv.id = "chatContainer";
+
+  const messages = document.createElement("div"); messages.id = "chatMessages";
+  const inputContainer = document.createElement("div"); inputContainer.id = "chatInputContainer";
+  const input = document.createElement("input"); input.id = "chatInput"; input.placeholder = "Type a message...";
+  const send = document.createElement("button"); send.id = "chatSend"; send.textContent = "Send";
+
+  inputContainer.append(input,send);
+  chatDiv.append(messages,inputContainer);
+  container.append(back,chatDiv);
+  app.append(container);
+
+  // Listen for messages
+  database.ref("chat").off(); // clear existing listeners to avoid duplicates
+  database.ref("chat").on("child_added", snap=>{
+    const msg = snap.val();
+    const div = document.createElement("div");
+    div.style.padding = ".45rem .6rem";
+    div.style.marginBottom = ".4rem";
+    div.style.borderRadius = "8px";
+    div.style.background = "linear-gradient(90deg, rgba(255,255,255,0.02), rgba(255,255,255,0.01))";
+    div.style.color = "var(--muted)";
+    div.textContent = msg;
+    messages.append(div);
+    messages.scrollTop = messages.scrollHeight;
+  });
+
+  send.onclick = ()=>{
+    const val = input.value.trim();
+    if(!val) return;
+    database.ref("chat").push(val);
+    input.value = "";
+  };
+}
+
+/* -------------------------
+   Other Websites (admin only)
+   ------------------------- */
+function showOtherWebsites(){
+  app.innerHTML = "";
+  const container = document.createElement("div"); container.className = "container";
+  const back = document.createElement("span"); back.className = "back-link"; back.textContent = "← Back to games"; back.onclick = ()=> showGameList(gamesCache);
+  const list = document.createElement("div"); list.id = "otherWebsitesList";
+  container.append(back, list);
+  app.append(container);
+
+  // EDIT THIS LIST IN THE HTML SOURCE to change links (users cannot add links from UI)
+  const otherWebsites = [
+    "https://example1.com",
+    "https://example2.com",
+    "https://raw.githubusercontent.com"
+  ];
+  otherWebsites.forEach(url => {
+    const a = document.createElement("a"); a.href = url; a.target = "_blank"; a.textContent = url;
+    a.style.display = "block"; a.style.marginTop = ".3rem"; a.style.color = "var(--muted)";
+    list.appendChild(a);
+  });
+}
+
+/* -------------------------
+   Utilities
+   ------------------------- */
+function _debounce(fn, wait){ let t; return function(...a){ clearTimeout(t); t = setTimeout(()=>fn.apply(this,a), wait); }; }
+
+/* -------------------------
+   Initial setup: build categories UI (will be updated once games.json loads)
+   ------------------------- */
+buildCategoryBar();
+
+/* Load minimal content if user refreshes after entering header */
+if(mainHeader.style.display === "flex"){
+  loadGames().then(()=> showGameList(gamesCache));
+}
+
+/* Accessibility: allow enter to activate password */
+passwordInput.addEventListener("keydown", (e)=>{ if(e.key === "Enter") enterBtn.click(); });
 
 </script>
 </body>
