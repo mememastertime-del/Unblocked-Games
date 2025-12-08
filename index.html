@@ -170,7 +170,6 @@ body{
 .nav-item .icon{ font-size:1.15rem; width:28px; text-align:center; }
 .nav-label{ opacity:0; transition:opacity .22s; }
 #sideNav.open .nav-label{ opacity:1; }
-.admin-badge{ margin-left:auto; background:linear-gradient(90deg,#6b68ff,#9be3ff); color:#031022; padding:.18rem .4rem; border-radius:999px; font-weight:700; font-size:.72rem; }
 
 /* ========== MAIN CONTENT (pushed by nav) ========== */
 #mainContent{
@@ -353,8 +352,8 @@ const HASH_ADMIN = "23c28e809cef8751da4a6393e9cb183b8d969f77ab0ade39e6b282e19e40
 
 const GAMES_JSON_URL = "https://raw.githubusercontent.com/swarmintelli/Unblocked-Games-CDN/main/games.json";
 
-/* Proxy now = DuckDuckGo homepage */
-const PROXY_URL = "https://duckduckgo.com/";
+/* Proxy: back to your Ultraviolet instance */
+const PROXY_URL = "https://mememastertime-del.github.io/Unblocked-Games/";
 
 /* Firebase config */
 const firebaseConfig = {
@@ -370,6 +369,7 @@ firebase.initializeApp(firebaseConfig);
 const db = firebase.database();
 const ANN_PATH = "announcement/latest";
 const ADMIN_THEME_PATH = "admin/themeBg";
+const OTHER_LINKS_PATH = "admin/otherLinks"; // NEW: admin-controlled "Other Websites" links
 
 /* emoji map */
 const emojiMap = {
@@ -715,7 +715,7 @@ function showProxyBrowser(){
   note.style.fontSize = ".9rem";
   note.style.color = "var(--muted)";
   note.style.marginBottom = "8px";
-  note.textContent = "DuckDuckGo opens inside the page. Searches stay inside this tab.";
+  note.textContent = "This loads your Ultraviolet browser. From there you can open search engines like DuckDuckGo.";
   app.appendChild(note);
 
   const wrap = document.createElement("div"); wrap.style.textAlign="center"; wrap.style.marginBottom="8px";
@@ -773,7 +773,7 @@ function showChat(){
 }
 
 /* ===========================
-   OTHER WEBSITES
+   OTHER WEBSITES (admin-controlled)
    =========================== */
 function showOther(){
   app.innerHTML = "";
@@ -783,18 +783,64 @@ function showOther(){
   back.onclick = ()=> showGameList();
   app.appendChild(back);
 
-  const list = document.createElement("div");
-  const links = [
-    "https://example1.com",
-    "https://example2.com"
-  ];
-  links.forEach(u=>{
-    const a = document.createElement("a");
-    a.href = u; a.target="_blank"; a.textContent = u;
-    a.style.display="block"; a.style.marginBottom="8px"; a.style.color="var(--muted)";
-    list.appendChild(a);
+  const title = document.createElement("div");
+  title.style.fontWeight = "700";
+  title.style.marginBottom = "8px";
+  title.textContent = "Other Websites";
+  app.appendChild(title);
+
+  const container = document.createElement("div");
+  container.id = "otherLinksContainer";
+  container.style.display = "flex";
+  container.style.flexDirection = "column";
+  container.style.gap = "8px";
+  app.appendChild(container);
+
+  db.ref(OTHER_LINKS_PATH).once("value").then(snap=>{
+    const val = snap.val();
+    let links = [];
+    if(Array.isArray(val)){
+      links = val.filter(Boolean);
+    } else if(val && typeof val === "object"){
+      links = Object.values(val);
+    }
+    if(!links.length){
+      const msg = document.createElement("div");
+      msg.textContent = "No links configured yet. Ask an admin to add some in the Admin Panel.";
+      msg.style.color = "var(--muted)";
+      container.appendChild(msg);
+      return;
+    }
+    links.forEach(link=>{
+      if(!link || !link.url) return;
+      const row = document.createElement("div");
+      row.style.display = "flex";
+      row.style.flexDirection = "column";
+
+      const a = document.createElement("a");
+      a.href = link.url;
+      a.target = "_blank";
+      a.textContent = link.label || link.url;
+      a.style.color = "var(--accent)";
+      a.style.textDecoration = "none";
+      a.style.marginBottom = "2px";
+
+      const urlText = document.createElement("div");
+      urlText.textContent = link.url;
+      urlText.style.fontSize = ".8rem";
+      urlText.style.color = "var(--muted)";
+
+      row.appendChild(a);
+      row.appendChild(urlText);
+      container.appendChild(row);
+    });
+  }).catch(err=>{
+    console.error("load other links error", err);
+    const msg = document.createElement("div");
+    msg.textContent = "Could not load links.";
+    msg.style.color = "var(--muted)";
+    container.appendChild(msg);
   });
-  app.appendChild(list);
 }
 
 /* ===========================
@@ -846,40 +892,161 @@ function openAdminPanel(){
   app.appendChild(back);
 
   const container = document.createElement("div");
-  container.innerHTML = `<h2 style="margin-bottom:.6rem">Admin Panel</h2>
-    <div style="margin-bottom:.6rem">
+  container.innerHTML = `
+    <h2 style="margin-bottom:.6rem">Admin Panel</h2>
+
+    <!-- Announcement -->
+    <div style="margin-bottom:.9rem">
       <label style="display:block;margin-bottom:.25rem;color:var(--muted)">Edit Announcement</label>
       <textarea id="admAnn" style="width:100%;min-height:120px;border-radius:8px;background:rgba(255,255,255,0.02);border:none;color:var(--text);padding:.6rem"></textarea>
-      <div style="margin-top:.5rem;display:flex;gap:.5rem;justify-content:flex-end"><button id="admSave" class="btn btn-primary">Save Announcement</button></div>
+      <div style="margin-top:.5rem;display:flex;gap:.5rem;justify-content:flex-end">
+        <button id="admSave" class="btn btn-primary">Save Announcement</button>
+      </div>
     </div>
+
     <hr style="border:none;border-top:1px solid rgba(255,255,255,0.04);margin:1rem 0;">
-    <div>
+
+    <!-- Theme -->
+    <div style="margin-bottom:.9rem">
       <label style="display:block;margin-bottom:.25rem;color:var(--muted)">Admin Theme Background URL</label>
       <input id="admTheme" class="input" placeholder="Paste image URL for admin background (public URL)">
-      <div style="display:flex;gap:.5rem;justify-content:flex-end;margin-top:.5rem"><button id="admThemeSave" class="btn btn-primary">Save Theme</button></div>
+      <div style="display:flex;gap:.5rem;justify-content:flex-end;margin-top:.5rem">
+        <button id="admThemeSave" class="btn btn-primary">Save Theme</button>
+      </div>
       <div style="margin-top:.6rem;color:var(--muted);font-size:.9rem">When saved, the admin theme will appear for anyone logged in as admin.</div>
     </div>
-    <div style="margin-top:1rem"><button id="admLogout" class="btn btn-ghost">Logout Admin</button></div>`;
+
+    <hr style="border:none;border-top:1px solid rgba(255,255,255,0.04);margin:1rem 0;">
+
+    <!-- Other Websites links -->
+    <div style="margin-bottom:.9rem">
+      <h3 style="margin-bottom:.4rem">Other Websites Links</h3>
+      <div style="display:flex;gap:.5rem;flex-wrap:wrap;margin-bottom:.4rem">
+        <input id="admLinkLabel" class="input" placeholder="Label (e.g. Homework, Docs)" style="flex:1;min-width:120px">
+        <input id="admLinkUrl" class="input" placeholder="https://example.com" style="flex:2;min-width:180px">
+      </div>
+      <div style="display:flex;gap:.5rem;justify-content:flex-end;margin-bottom:.6rem">
+        <button id="admAddLink" class="btn btn-primary">Add / Update Link</button>
+      </div>
+      <div id="admLinksList" style="display:flex;flex-direction:column;gap:.4rem"></div>
+      <div style="margin-top:.4rem;color:var(--muted);font-size:.85rem">These links appear in the “Websites” tab for everyone.</div>
+    </div>
+
+    <div style="margin-top:1rem">
+      <button id="admLogout" class="btn btn-ghost">Logout Admin</button>
+    </div>
+  `;
   app.appendChild(container);
 
+  // Load current announcement
   db.ref(ANN_PATH).once("value").then(snap=>{
     const v = snap.val(); document.getElementById("admAnn").value = v && v.text ? v.text : "";
   });
+
+  // Load theme URL
   db.ref(ADMIN_THEME_PATH).once("value").then(snap=>{
     const v = snap.val(); document.getElementById("admTheme").value = v || "";
   });
 
+  // Load Other Websites links
+  let linksArr = [];
+  const linksListEl = document.getElementById("admLinksList");
+
+  function renderLinksList(){
+    linksListEl.innerHTML = "";
+    if(!linksArr.length){
+      const msg = document.createElement("div");
+      msg.textContent = "No links yet.";
+      msg.style.color = "var(--muted)";
+      msg.style.fontSize = ".9rem";
+      linksListEl.appendChild(msg);
+      return;
+    }
+    linksArr.forEach((link, idx)=>{
+      if(!link) return;
+      const row = document.createElement("div");
+      row.style.display = "flex";
+      row.style.alignItems = "center";
+      row.style.gap = "8px";
+
+      const label = document.createElement("div");
+      label.textContent = link.label || "(no label)";
+      label.style.flex = "0 0 120px";
+      label.style.fontWeight = "600";
+
+      const urlDiv = document.createElement("div");
+      urlDiv.textContent = link.url || "";
+      urlDiv.style.flex = "1";
+      urlDiv.style.fontSize = ".85rem";
+      urlDiv.style.color = "var(--muted)";
+
+      const delBtn = document.createElement("button");
+      delBtn.textContent = "Delete";
+      delBtn.className = "btn btn-ghost";
+      delBtn.style.padding = ".35rem .7rem";
+      delBtn.onclick = async ()=>{
+        linksArr.splice(idx,1);
+        await db.ref(OTHER_LINKS_PATH).set(linksArr);
+        renderLinksList();
+      };
+
+      row.appendChild(label);
+      row.appendChild(urlDiv);
+      row.appendChild(delBtn);
+      linksListEl.appendChild(row);
+    });
+  }
+
+  db.ref(OTHER_LINKS_PATH).once("value").then(snap=>{
+    const val = snap.val();
+    if(Array.isArray(val)){
+      linksArr = val.filter(Boolean);
+    } else if(val && typeof val === "object"){
+      linksArr = Object.values(val);
+    } else {
+      linksArr = [];
+    }
+    renderLinksList();
+  });
+
+  document.getElementById("admAddLink").onclick = async ()=>{
+    const labelInput = document.getElementById("admLinkLabel");
+    const urlInput = document.getElementById("admLinkUrl");
+    const label = (labelInput.value || "").trim();
+    const url = (urlInput.value || "").trim();
+    if(!url){
+      alert("URL is required.");
+      return;
+    }
+    const existingIndex = linksArr.findIndex(l => l && l.url === url);
+    const newObj = { label: label || url, url };
+    if(existingIndex >= 0){
+      linksArr[existingIndex] = newObj;
+    } else {
+      linksArr.push(newObj);
+    }
+    await db.ref(OTHER_LINKS_PATH).set(linksArr);
+    labelInput.value = "";
+    urlInput.value = "";
+    renderLinksList();
+  };
+
+  // Announcement save
   document.getElementById("admSave").onclick = async ()=>{
     const txt = document.getElementById("admAnn").value || "";
     await db.ref(ANN_PATH).set({ text: txt, updatedAt: Date.now() });
     alert("Announcement saved.");
   };
+
+  // Theme save
   document.getElementById("admThemeSave").onclick = async ()=>{
     const url = document.getElementById("admTheme").value.trim();
     await db.ref(ADMIN_THEME_PATH).set(url || "");
     alert("Admin theme saved.");
     applyAdminThemeIfSet();
   };
+
+  // Logout
   document.getElementById("admLogout").onclick = ()=>{
     admin = false; sessionStorage.removeItem("astral_admin");
     mainContent.classList.remove("admin-theme");
@@ -959,4 +1126,3 @@ mainContent.style.display = "none";
 </script>
 </body>
 </html>
-
