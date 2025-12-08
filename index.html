@@ -145,18 +145,18 @@ body{
 }
 @keyframes spin{ from{transform:rotate(0)} to{transform:rotate(360deg)} }
 
-/* ========== SIDE NAV (overlay, no push) ========== */
+/* ========== SIDE NAV (PUSH LAYOUT) ========== */
 #sideNav{
   position:fixed;left:0;top:0;height:100vh;
-  width:var(--nav-width-collapsed);background:linear-gradient(180deg,var(--panel),#0b0d10);
+  width:var(--nav-width-collapsed);
+  background:linear-gradient(180deg,var(--panel),#0b0d10);
   display:none; /* hidden until hub entered */
   flex-direction:column;align-items:center;padding:.6rem .4rem;gap:.6rem;
-  transition:transform .22s ease;
+  transition:width .22s ease;
   z-index:60;
   box-shadow:2px 0 18px rgba(0,0,0,0.5);
-  transform:translateX(-100%);
 }
-#sideNav.open{ transform:translateX(0); }
+#sideNav.open{ width:var(--nav-width-expanded); }
 #navToggle{ cursor:pointer; width:100%; display:flex; justify-content:center; padding:.4rem 0; }
 .logo-wrap{ display:flex; align-items:center; gap:.6rem; padding:.4rem; width:100%; justify-content:center; }
 .logo-wrap .label{ font-weight:800; font-size:1.02rem; color:var(--text); opacity:0; transition:opacity .22s; }
@@ -172,12 +172,20 @@ body{
 #sideNav.open .nav-label{ opacity:1; }
 .admin-badge{ margin-left:auto; background:linear-gradient(90deg,#6b68ff,#9be3ff); color:#031022; padding:.18rem .4rem; border-radius:999px; font-weight:700; font-size:.72rem; }
 
-/* ========== MAIN CONTENT ========== */
+/* ========== MAIN CONTENT (pushed by nav) ========== */
 #mainContent{
-  position:absolute; top:0; left:0; width:100%; height:100vh;
-  padding:1rem 1.2rem; overflow:auto;
+  position:absolute; top:0;
+  left:var(--nav-width-collapsed);
+  width:calc(100% - var(--nav-width-collapsed));
+  height:100vh;
+  padding:1rem 1.2rem;
+  overflow:auto;
   transition:background .25s;
   display:none; /* hidden until hub */
+}
+#sideNav.open + #mainContent{
+  left:var(--nav-width-expanded);
+  width:calc(100% - var(--nav-width-expanded));
 }
 
 /* top search row */
@@ -234,14 +242,21 @@ body{
 /* responsive */
 @media (max-width:900px){
   #sideNav{
+    position:fixed;
     width:72%;
-    transform:translateX(-100%);
+    left:-72%;
   }
   #sideNav.open{
-    transform:translateX(0);
+    left:0;
   }
   #mainContent{
-    left:0;width:100%;padding:0.9rem;
+    left:0;
+    width:100%;
+    padding:0.9rem;
+  }
+  #sideNav.open + #mainContent{
+    left:0;
+    width:100%;
   }
 }
 </style>
@@ -276,7 +291,7 @@ body{
   </div>
 </div>
 
-<!-- 📌 SIDE NAV (overlay, appears after Enter Hub) -->
+<!-- 📌 SIDE NAV (push layout) -->
 <div id="sideNav">
   <div id="navToggle" title="Toggle menu">
     <div class="logo-wrap">
@@ -313,7 +328,7 @@ body{
   <div id="navCollapse" class="nav-item" role="button" tabindex="0" title="Collapse menu"><div class="icon">◀️</div><div class="nav-label">Collapse</div></div>
 </div>
 
-<!-- 📍 MAIN CONTENT (after hub) -->
+<!-- 📍 MAIN CONTENT -->
 <div id="mainContent" aria-live="polite">
   <div class="top-row">
     <input id="searchBox" type="search" placeholder="Search games..." aria-label="Search games">
@@ -408,7 +423,7 @@ function toggleTheme(){
 }
 
 /* ===========================
-   NAV TOGGLE (overlay, no push)
+   NAV TOGGLE (push layout)
    =========================== */
 function toggleNav(){
   sideNav.classList.toggle("open");
@@ -670,7 +685,6 @@ function showFavorites(){
 function showGamePage(game){
   app.innerHTML = "";
   const back = document.createElement("div");
-  back.className = "back-link";
   back.style.cursor="pointer"; back.style.color="var(--muted)"; back.style.marginBottom="8px";
   back.textContent = "← Back to games";
   back.onclick = ()=> showGameList();
@@ -953,10 +967,7 @@ document.getElementById("navGames").addEventListener("keydown", e=>{ if(e.key===
 /* main content hidden until hub */
 mainContent.style.display = "none";
 
-/* ===========================
-   END
-   =========================== */
-/* Note: no plaintext passwords logged or stored. */
+/* end */
 </script>
 </body>
 </html>
