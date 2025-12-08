@@ -7,6 +7,7 @@
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;800&display=swap" rel="stylesheet">
 
 <style>
+/* ========== THEME VARIABLES ========== */
 :root{
   --bg:#07070a;
   --panel:#0f1113;
@@ -14,262 +15,222 @@
   --accent:#0a9dff;
   --card:#161717;
   --glass: rgba(255,255,255,0.03);
+  --text:#eaf2ff;
+  --success:#4ade80;
+  --danger:#ff6b6b;
+  --nav-width-collapsed:68px;
+  --nav-width-expanded:220px;
 }
 
-/* Reset */
-*{box-sizing:border-box;margin:0;padding:0}
+/* Dark default */
+html[data-theme="dark"] {
+  --bg:#07070a;
+  --panel:#0f1113;
+  --muted:#bfc7d0;
+  --accent:#0a9dff;
+  --card:#161717;
+  --text:#eaf2ff;
+}
+html[data-theme="light"]{
+  --bg:#f6f7fb;
+  --panel:#ffffff;
+  --muted:#475569;
+  --accent:#0a9dff;
+  --card:#ffffff;
+  --text:#0b1220;
+}
 
-/* Body */
+/* Reset + base */
+*{box-sizing:border-box;margin:0;padding:0}
 body{
-  font-family:Inter, sans-serif;
-  background:linear-gradient(180deg,#030307,#0b0c0f);
-  color:#eaf2ff;
+  font-family:Inter, system-ui, -apple-system, "Segoe UI", Roboto, Arial;
+  background:var(--bg);
+  color:var(--text);
+  height:100vh;
   overflow:hidden;
 }
 
-/*************************************
-  LOGIN SCREEN
-*************************************/
-#homeScreen{
-  height:100vh;
-  display:flex;
-  flex-direction:column;
-  align-items:center;
-  justify-content:center;
-  gap:.9rem;
-  text-align:center;
+/* ========== SPINNER ========== */
+#spinnerOverlay{
+  position:fixed;inset:0;display:flex;align-items:center;justify-content:center;
+  background:linear-gradient(180deg, rgba(0,0,0,0.35), rgba(0,0,0,0.6));
+  z-index:120; visibility:hidden; opacity:0; transition:opacity .22s, visibility .22s;
 }
-#homeScreen h1{
-  font-size:2.4rem;font-weight:800;color:#fff;
+#spinnerOverlay.show{ visibility:visible; opacity:1; }
+.spinner{
+  width:84px;height:84px;border-radius:50%;border:8px solid rgba(255,255,255,0.06);
+  border-top-color:var(--accent); animation:spin 1s linear infinite; box-shadow:0 8px 30px rgba(0,0,0,0.6);
 }
-#passwordInput{
-  width:300px;padding:.75rem;border-radius:10px;
-  border:none;background:#151515;font-size:1rem;color:#fff;
-}
-#enterBtn{
-  width:220px;padding:.7rem;border-radius:10px;
-  background:var(--accent);color:#fff;font-weight:700;
-  border:none;cursor:pointer;
-}
-#errorMsg{color:#ff6a6a;height:1.1rem;font-size:.9rem}
+@keyframes spin{ from{transform:rotate(0)} to{transform:rotate(360deg)} }
 
-#announcementBar{
-  max-width:360px;padding:.7rem;border-radius:10px;
-  background:rgba(255,255,255,0.02);
-  border:1px solid rgba(255,255,255,0.05);
-  font-size:.95rem;color:var(--muted);
-}
-
-/*************************************
- LANDING HERO
-*************************************/
-#landingScreen{display:none;height:100vh;align-items:center;justify-content:center;padding:1.4rem;}
-.hero{max-width:1200px;width:100%;display:flex;gap:2rem;align-items:center;justify-content:center;}
-.feature-list{margin-top:.7rem;display:flex;flex-direction:column;gap:.4rem}
-.btn{border:none;border-radius:10px;padding:.7rem 1rem;cursor:pointer;font-weight:700}
-.btn-primary{background:var(--accent);color:#fff}
-.btn-ghost{background:transparent;color:var(--muted);border:1px solid rgba(255,255,255,0.05)}
-
-/*************************************
- SIDE NAVIGATION PANEL
-*************************************/
+/* ========== SIDE NAV ========== */
 #sideNav{
-  position:fixed;top:0;left:0;height:100vh;
-  width:68px;background:#0c0d0e;
-  display:flex;flex-direction:column;align-items:center;
-  padding:.7rem .4rem;z-index:50;
-  transition:width .24s ease;
+  position:fixed;left:0;top:0;height:100vh;
+  width:var(--nav-width-collapsed);background:linear-gradient(180deg,var(--panel),#0b0d10);
+  display:flex;flex-direction:column;align-items:center;padding:.6rem .4rem;gap:.6rem;
+  transition:width .22s ease, background .3s;
+  z-index:60;
+  box-shadow:2px 0 18px rgba(0,0,0,0.5);
 }
-#sideNav.open{width:220px;}
+#sideNav.open{ width:var(--nav-width-expanded); }
+#navToggle{ cursor:pointer; width:100%; display:flex; justify-content:center; padding:.4rem 0; }
+.logo-wrap{ display:flex; align-items:center; gap:.6rem; padding:.4rem; width:100%; justify-content:center; }
+.logo-wrap .label{ font-weight:800; font-size:1.02rem; color:var(--text); opacity:0; transition:opacity .22s; }
+#sideNav.open .logo-wrap .label{ opacity:1; }
 .nav-item{
-  width:100%;
-  display:flex;align-items:center;
-  gap:.8rem;color:var(--muted);
-  padding:.7rem;border-radius:10px;cursor:pointer;
-  white-space:nowrap;font-size:.95rem;
-  margin-top:.4rem;
+  width:100%; display:flex; align-items:center; gap:.7rem; padding:.6rem; border-radius:10px;
+  color:var(--muted); cursor:pointer; transition:background .18s, color .12s;
+  user-select:none; white-space:nowrap;
 }
-.nav-item:hover{background:rgba(255,255,255,0.04);color:#fff}
-.nav-label{opacity:0;transition:opacity .25s;}
-#sideNav.open .nav-label{opacity:1}
+.nav-item:hover{ background:rgba(255,255,255,0.03); color:#fff; }
+.nav-item .icon{ font-size:1.15rem; width:28px; text-align:center; }
+.nav-label{ opacity:0; transition:opacity .22s; }
+#sideNav.open .nav-label{ opacity:1; }
 
-/*************************************
-  MAIN CONTENT WRAPPER
-*************************************/
+/* admin badge */
+.admin-badge{ margin-left:auto; background:linear-gradient(90deg,#6b68ff,#9be3ff); color:#031022; padding:.18rem .4rem; border-radius:999px; font-weight:700; font-size:.72rem; }
+
+/* ========== MAIN CONTENT ========== */
 #mainContent{
-  position:absolute;top:0;left:68px;
-  width:calc(100% - 68px);height:100vh;
-  padding:1rem 1.2rem;overflow-y:auto;
-  transition:left .25s,width .25s;
+  position:absolute; top:0; left:var(--nav-width-collapsed); width:calc(100% - var(--nav-width-collapsed)); height:100vh; padding:1rem 1.2rem; overflow:auto;
+  transition:left .22s ease, width .22s ease, background .25s;
 }
-#sideNav.open + #mainContent{
-  left:220px;width:calc(100% - 220px);
+#sideNav.open + #mainContent{ left:var(--nav-width-expanded); width:calc(100% - var(--nav-width-expanded)); }
+
+/* search + controls */
+.top-row{ display:flex; align-items:center; gap:1rem; margin-bottom:.9rem; flex-wrap:wrap; }
+#searchBox{ padding:.6rem .9rem; width:320px; border-radius:10px; border:none; background:rgba(255,255,255,0.02); color:var(--text); }
+.controls-right{ margin-left:auto; display:flex; gap:.5rem; align-items:center; }
+
+/* category bar */
+#categoryBar{ display:flex; gap:.5rem; overflow-x:auto; padding-bottom:.5rem; -webkit-overflow-scrolling:touch; margin-bottom:1rem; }
+.cat-btn{ display:flex; align-items:center; gap:.4rem; padding:.45rem .7rem; border-radius:999px; background:rgba(255,255,255,0.02); color:var(--muted); cursor:pointer; white-space:nowrap; border:1px solid transparent; }
+.cat-btn.active{ background:linear-gradient(90deg, rgba(10,157,255,0.12), rgba(10,157,255,0.06)); color:#fff; border-color:rgba(10,157,255,0.05); }
+
+/* featured + recently */
+.featured-row, .recent-row{ display:flex; gap:1rem; margin-bottom:1.1rem; align-items:stretch; }
+.featured-card{ flex:1; display:flex; gap:1rem; background:linear-gradient(180deg, rgba(255,255,255,0.02), transparent); padding:1rem; border-radius:12px; align-items:center; }
+.recent-item{ width:140px; display:flex; flex-direction:column; gap:.45rem; align-items:center; cursor:pointer; color:var(--muted); }
+
+/* game grid */
+.game-list{ display:grid; grid-template-columns:repeat(auto-fill, minmax(210px,1fr)); gap:1rem; margin-bottom:3rem; }
+.game-card{ background:var(--card); border-radius:12px; overflow:hidden; position:relative; cursor:pointer; transition:transform .18s ease, box-shadow .18s ease; height:260px; display:flex; flex-direction:column; }
+.game-card:hover{ transform:translateY(-6px); box-shadow:0 18px 70px rgba(0,0,0,.6); }
+.thumbnail{ width:100%; height:120px; object-fit:cover; }
+.card-body{ padding:.8rem; display:flex; flex-direction:column; gap:.5rem; flex:1; }
+.title{ font-weight:700; font-size:1rem; color:var(--text); line-height:1.1; height:2.4em; overflow:hidden; }
+.tags{ display:flex; gap:.4rem; flex-wrap:wrap; margin-top:auto; }
+.tag{ font-size:.75rem; padding:.25rem .45rem; border-radius:8px; background:rgba(255,255,255,0.03); color:var(--muted); }
+
+/* hover overlay */
+.hover-details{ position:absolute; inset:0; background:linear-gradient(180deg, rgba(5,5,5,0.0), rgba(2,2,2,0.9)); opacity:0; transform:translateY(6px); transition:all .22s ease; display:flex; flex-direction:column; justify-content:flex-end; padding:1rem; }
+.game-card:hover .hover-details{ opacity:1; transform:translateY(0); }
+.hover-desc{ color:var(--muted); font-size:.92rem; margin-bottom:.6rem; max-height:3.2em; overflow:hidden; }
+.hover-actions{ display:flex; gap:.5rem; align-items:center; }
+.play-btn{ padding:.5rem .8rem; border-radius:8px; background:var(--accent); color:white; border:none; cursor:pointer; font-weight:700; }
+
+/* favorite star */
+.fav-btn{ position:absolute; top:8px; right:8px; background:rgba(0,0,0,0.35); border-radius:8px; padding:.28rem; cursor:pointer; border:1px solid rgba(255,255,255,0.04); }
+
+/* no results */
+.no-results{ text-align:center; color:var(--muted); padding:2rem; }
+
+/* admin theme: applied to mainContent when adminThemeActive */
+.admin-theme{
+  background-size:cover;
+  background-position:center;
+  transition:background-image .4s ease;
+  box-shadow: inset 0 0 0 9999px rgba(0,0,0,0.22);
 }
 
-/*************************************
-  SEARCH + CATEGORY BAR
-*************************************/
-#searchBox{
-  width:260px;padding:.6rem .9rem;border-radius:10px;
-  border:none;background:#151515;color:#fff;
-}
-#categoryBar{
-  margin-top:.9rem;display:flex;gap:.5rem;
-  overflow-x:auto;padding-bottom:.4rem;
-  -webkit-overflow-scrolling:touch;
-}
-.cat-btn{
-  display:flex;align-items:center;gap:.4rem;
-  padding:.45rem .7rem;border-radius:999px;
-  background:rgba(255,255,255,0.02);color:var(--muted);
-  border:1px solid transparent;cursor:pointer;
-}
-.cat-btn.active{background:rgba(10,157,255,0.16);color:#fff;border-color:rgba(10,157,255,0.3)}
+/* modal */
+.modal-backdrop{ position:fixed; inset:0; display:flex; align-items:center; justify-content:center; background:rgba(0,0,0,0.6); z-index:200; }
+.modal{ width:420px; max-width:94%; background:linear-gradient(180deg,#0f1113,#0b0d10); padding:1rem; border-radius:12px; }
 
-/*************************************
-  GAME GRID + FEATURED + RECENT
-*************************************/
-.featured-row, .recent-row{
-  display:flex;gap:1rem;align-items:center;margin-bottom:1.2rem;
+/* responsive */
+@media (max-width:900px){
+  #sideNav{ position:fixed; z-index:80; left:-80%; }
+  #sideNav.open{ left:0; width:72%; }
+  #mainContent{ left:0; width:100%; padding:0.9rem; }
+  #sideNav.open + #mainContent{ filter:blur(.6px); }
 }
-
-.featured-card{
-  flex:1;border-radius:12px;
-  background:var(--glass);
-  padding:1rem;display:flex;gap:1rem;
-}
-
-.game-list{
-  display:grid;grid-template-columns:repeat(auto-fill,minmax(210px,1fr));
-  gap:1rem;padding-bottom:3rem;
-}
-.game-card{
-  background:var(--card);border-radius:12px;
-  height:250px;overflow:hidden;
-  box-shadow:0 4px 18px rgba(0,0,0,0.8);
-  position:relative;cursor:pointer;
-  transition:transform .18s, box-shadow .18s;
-}
-.game-card:hover{
-  transform:translateY(-5px);
-  box-shadow:0 12px 40px rgba(0,0,0,0.9);
-}
-.thumbnail{
-  width:100%;height:120px;object-fit:cover;
-}
-.card-body{padding:.7rem;display:flex;flex-direction:column;gap:.5rem;flex:1}
-.title{font-weight:700;font-size:1rem;color:#fff;height:2.3em;overflow:hidden}
-.tags{display:flex;gap:.4rem;flex-wrap:wrap;margin-top:auto}
-.tag{font-size:.7rem;background:rgba(255,255,255,0.05);padding:.2rem .45rem;border-radius:7px}
-
-.hover-details{
-  position:absolute;inset:0;
-  background:linear-gradient(180deg,transparent,#000c);
-  opacity:0;display:flex;flex-direction:column;
-  justify-content:flex-end;gap:.5rem;
-  padding:.7rem;transition:opacity .2s;
-}
-.game-card:hover .hover-details{opacity:1}
-
-.no-results{text-align:center;color:var(--muted);padding:2rem}
-
-/*************************************
- CHAT
-*************************************/
-#chatMessages{
-  height:60vh;overflow-y:auto;background:#0e0e10;
-  padding:.7rem 1rem;border-radius:8px;
-  margin:1rem 0;
-}
-
-/*************************************
- ADMIN MODAL
-*************************************/
-.modal-backdrop{
-  position:fixed;inset:0;
-  background:rgba(0,0,0,0.6);
-  display:flex;align-items:center;justify-content:center;
-  z-index:300;
-}
-.modal{
-  background:#0f1113;padding:1rem;border-radius:10px;
-  width:360px;max-width:90%;
-}
-.input{width:100%;padding:.6rem .8rem;border-radius:8px;border:none;background:#151515;color:#fff;margin-bottom:.7rem;}
 </style>
 </head>
 <body>
 
-<!-- 🔒 LOGIN SCREEN -->
-<div id="homeScreen">
-  <h1>Astral Employment</h1>
-  <div id="announcementBar">Loading announcement...</div>
-  <input id="passwordInput" type="password" placeholder="Access Code">
-  <button id="enterBtn">Enter</button>
-  <div id="errorMsg"></div>
-</div>
+<!-- Spinner (shows while games load) -->
+<div id="spinnerOverlay"><div class="spinner" aria-hidden="true"></div></div>
 
-<!-- 🎯 LANDING -->
-<div id="landingScreen">
-  <div class="hero">
-    <div>
-      <h1>Welcome to Astral Employment</h1>
-      <div class="feature-list">
-        <span>Hover details</span>
-        <span>Featured Games</span>
-        <span>Emoji Categories</span>
-        <span>Smooth animations</span>
-      </div>
-
-      <button id="enterHubBtn" class="btn btn-primary" style="margin-top:.9rem">Enter Hub</button>
+<!-- Side Navigation -->
+<div id="sideNav" aria-hidden="false">
+  <div id="navToggle" title="Toggle menu">
+    <div class="logo-wrap">
+      <!-- Nebula animated SVG icon (icon-only design) -->
+      <svg width="38" height="38" viewBox="0 0 64 64" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+        <defs>
+          <radialGradient id="neb" cx="30%" cy="30%">
+            <stop offset="0%" stop-color="#9be3ff"/>
+            <stop offset="60%" stop-color="#6b68ff"/>
+            <stop offset="100%" stop-color="#2a1b5f" stop-opacity="0"/>
+          </radialGradient>
+        </defs>
+        <circle cx="32" cy="32" r="18" fill="url(#neb)"></circle>
+        <g transform="translate(32,32)">
+          <path d="M0-12 L3 -4 L12 -2 L3 2 L0 12 L-3 2 L-12 -2 L-3 -4 Z" fill="#fff" opacity="0.95">
+            <animateTransform attributeName="transform" type="rotate" from="0" to="360" dur="14s" repeatCount="indefinite"/>
+          </path>
+        </g>
+      </svg>
+      <div class="label" style="margin-left:.4rem">Astral Employment</div>
     </div>
   </div>
+
+  <div id="navGames" class="nav-item" role="button" tabindex="0"><div class="icon">🎮</div><div class="nav-label">Games</div></div>
+  <div id="navFavorites" class="nav-item" role="button" tabindex="0"><div class="icon">⭐</div><div class="nav-label">Favorites</div></div>
+  <div id="navChat" class="nav-item" role="button" tabindex="0"><div class="icon">💬</div><div class="nav-label">Chat</div></div>
+  <div id="navOther" class="nav-item" role="button" tabindex="0"><div class="icon">🌐</div><div class="nav-label">Websites</div></div>
+  <div id="navAdmin" class="nav-item" role="button" tabindex="0"><div class="icon">🔐</div><div class="nav-label">Admin</div></div>
+
+  <div style="flex:1"></div>
+
+  <div id="toggleDark" class="nav-item" role="button" tabindex="0"><div class="icon">🌓</div><div class="nav-label">Dark Mode</div></div>
+  <div id="navCollapse" class="nav-item" role="button" tabindex="0" title="Collapse menu"><div class="icon">◀️</div><div class="nav-label">Collapse</div></div>
 </div>
 
-<!-- 📌 SIDE NAV PANEL -->
-<div id="sideNav">
-  <div style="cursor:pointer" id="navToggle">
-    <!-- SVG LOGO -->
-    <svg width="42" height="42" viewBox="0 0 64 64">
-      <circle cx="32" cy="32" r="18" fill="url(#g1)"></circle>
-      <defs>
-      <radialGradient id="g1" cx="30%" cy="30%">
-        <stop offset="0%" stop-color="#9be3ff"/>
-        <stop offset="60%" stop-color="#6b68ff"/>
-        <stop offset="100%" stop-color="#2a1b5f" stop-opacity="0"/>
-      </radialGradient>
-      </defs>
-      <path d="M32 10 L34 26 L54 28 L34 30 L32 50 L30 30 L10 28 L30 26 Z" fill="#fff">
-        <animateTransform attributeName="transform" type="rotate" from="0" to="360" dur="11s" repeatCount="indefinite"/>
-      </path>
-    </svg>
+<!-- Main Content -->
+<div id="mainContent" aria-live="polite">
+  <!-- Top controls -->
+  <div class="top-row">
+    <input id="searchBox" type="search" placeholder="Search games..." aria-label="Search games">
+    <div class="controls-right">
+      <div id="categoryBar" role="tablist" aria-label="categories"></div>
+    </div>
   </div>
-  <div id="navGames" class="nav-item">🎮 <span class="nav-label">Games</span></div>
-  <div id="navChat" class="nav-item">💬 <span class="nav-label">Chat</span></div>
-  <div id="navOther" class="nav-item">🌐 <span class="nav-label">Websites</span></div>
-  <div id="navAdmin" class="nav-item">🔐 <span class="nav-label">Admin</span></div>
-</div>
 
-<!-- 📍 CONTENT -->
-<div id="mainContent" style="display:none">
-  <input id="searchBox" type="search" placeholder="Search games...">
-  <div id="categoryBar"></div>
+  <!-- App area -->
   <div id="app"></div>
 </div>
 
-<!-- Firebase -->
+<!-- Admin + Announcement modals handled in JS -->
+
+<!-- Firebase (same config used previously) -->
 <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-database-compat.js"></script>
 
 <script>
-/***************************************************
-  ⚙️ CONFIG + STATE
-***************************************************/
-const HASH_MAIN = "875b0cbe469a54473cd975c129b87fadaa6d15d6dacf0634ea24b70e0b58c04b"; // DIHALB
-const HASH_ADMIN = "23c28e809cef8751da4a6393e9cb183b8d969f77ab0ade39e6b282e19e40378f"; // th!nBlu3
+/* ===========================
+   CONFIG & CONSTANTS
+   =========================== */
+/* SHA-256 hashes only (no plaintext).
+   Main: "DIHALB" -> HASH_MAIN
+   Admin: "th!nBlu3" -> HASH_ADMIN
+*/
+const HASH_MAIN  = "875b0cbe469a54473cd975c129b87fadaa6d15d6dacf0634ea24b70e0b58c04b";
+const HASH_ADMIN = "23c28e809cef8751da4a6393e9cb183b8d969f77ab0ade39e6b282e19e40378f";
 
 const GAMES_JSON_URL = "https://raw.githubusercontent.com/swarmintelli/Unblocked-Games-CDN/main/games.json";
 
+/* Firebase config */
 const firebaseConfig = {
   apiKey: "AIzaSyAyHooV5floB-DdLAFdczfgEuDPEWtfGgA",
   authDomain: "chatroom-4e6e4.firebaseapp.com",
@@ -282,216 +243,572 @@ const firebaseConfig = {
 firebase.initializeApp(firebaseConfig);
 const db = firebase.database();
 const ANN_PATH = "announcement/latest";
+const ADMIN_THEME_PATH = "admin/themeBg"; // stores admin theme background URL
 
-let admin = sessionStorage.getItem("astral_admin") === "1";
-let gamesCache = [];
-let category = "all";
-const categories = ["all","action","adventure","puzzle","racing","multiplayer","strategy","sports","classics"];
-
-/***************************************************
-  🔐 UTILS
-***************************************************/
-async function sha(s){
-  const d = await crypto.subtle.digest("SHA-256", new TextEncoder().encode(s));
-  return Array.from(new Uint8Array(d)).map(b=>b.toString(16).padStart(2,"0")).join("");
-}
-function escapeHtml(s){return s.replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;","\"":"&quot;","'":"&#39;"}[c]))}
-
-/***************************************************
-  🔒 MAIN LOGIN
-***************************************************/
-enterBtn.onclick = async ()=>{
-  const h = await sha(passwordInput.value.trim());
-  if(h===HASH_MAIN){
-    passwordInput.value="";
-    homeScreen.style.display="none";
-    landingScreen.style.display="flex";
-  }
-  else{
-    errorMsg.textContent="Incorrect";
-    passwordInput.value="";
-  }
+/* emoji category map (used for icon display) */
+const emojiMap = {
+  "all":"✨","action":"🎯","adventure":"🗺️","puzzle":"🧩","racing":"🚗",
+  "multiplayer":"🤝","strategy":"♟️","sports":"🏅","classics":"🎮"
 };
 
-/***************************************************
-  🧭 NAVIGATION
-***************************************************/
+/* STATE */
+let gamesCache = [];
+let category = "all";
+let admin = sessionStorage.getItem("astral_admin") === "1";
+const categories = ["all","action","adventure","puzzle","racing","multiplayer","strategy","sports","classics"];
+const RP_KEY = "astral_recently_played_v2";
+const FAV_KEY = "astral_favorites_v1";
+
+/* UI Refs */
+const sideNav = document.getElementById("sideNav");
+const mainContent = document.getElementById("mainContent");
+const spinner = document.getElementById("spinnerOverlay");
+const searchBox = document.getElementById("searchBox");
+const categoryBar = document.getElementById("categoryBar");
+const app = document.getElementById("app");
+const announcementBar = document.getElementById("announcementBar");
+
+/* ===========================
+   UTIL: SHA256 HEX
+   =========================== */
+async function sha256Hex(str){
+  const enc = new TextEncoder().encode(str);
+  const d = await crypto.subtle.digest("SHA-256", enc);
+  return Array.from(new Uint8Array(d)).map(b=>b.toString(16).padStart(2,"0")).join("");
+}
+
+/* ===========================
+   THEME: dark default (persist)
+   =========================== */
+(function initTheme(){
+  const saved = localStorage.getItem("astral_theme");
+  const theme = saved || "dark";
+  document.documentElement.setAttribute("data-theme", theme);
+})();
+function toggleTheme(){
+  const cur = document.documentElement.getAttribute("data-theme");
+  const next = cur === "dark" ? "light" : "dark";
+  document.documentElement.setAttribute("data-theme", next);
+  localStorage.setItem("astral_theme", next);
+}
+
+/* ===========================
+   NAV COLLAPSE
+   =========================== */
 function toggleNav(){
   sideNav.classList.toggle("open");
 }
-navToggle.onclick = toggleNav;
 
-navGames.onclick = ()=>{toggleNav();showGameList();};
-navChat.onclick = ()=>{toggleNav();showChat();};
-navOther.onclick = ()=>{toggleNav();showOther();};
-navAdmin.onclick = ()=>{toggleNav();openAdminLogin();};
+/* wire nav buttons */
+document.getElementById("navToggle").addEventListener("click", toggleNav);
+document.getElementById("navCollapse").addEventListener("click", toggleNav);
+document.getElementById("navGames").addEventListener("click", ()=>{ toggleNav(); showGameList(); });
+document.getElementById("navChat").addEventListener("click", ()=>{ toggleNav(); showChat(); });
+document.getElementById("navOther").addEventListener("click", ()=>{ toggleNav(); showOther(); });
+document.getElementById("navAdmin").addEventListener("click", ()=>{ toggleNav(); openAdminLogin(); });
+document.getElementById("navFavorites").addEventListener("click", ()=>{ toggleNav(); showFavorites(); });
+document.getElementById("toggleDark").addEventListener("click", ()=>{ toggleTheme(); });
 
-/***************************************************
-  🎮 ENTER HUB
-***************************************************/
-enterHubBtn.onclick = async ()=>{
-  landingScreen.style.display="none";
-  mainContent.style.display="block";
-  await loadGames();
-  showGameList();
-};
+/* show spinner helpers */
+function showSpinner(){ spinner.classList.add("show"); }
+function hideSpinner(){ spinner.classList.remove("show"); }
 
-/***************************************************
-  📡 LOAD GAMES SAFELY
-***************************************************/
+/* ===========================
+   ANNOUNCEMENT LISTENER (reads & updates UI)
+   =========================== */
+db.ref(ANN_PATH).on("value", snap=>{
+  const v = snap.val();
+  if(!v || !v.text) announcementBar.textContent = "No announcements right now.";
+  else {
+    const ts = v.updatedAt ? new Date(v.updatedAt).toLocaleString() : "";
+    announcementBar.innerHTML = `<strong style="color:var(--text);display:block;margin-bottom:.25rem">Announcement</strong><div style="color:var(--muted)">${escapeHtml(v.text)}</div><div style="font-size:.78rem;color:var(--muted);margin-top:.4rem">Last updated: ${escapeHtml(ts)}</div>`;
+  }
+}, err => {
+  console.error("ann listen failed", err);
+  announcementBar.textContent = "Announcements unavailable.";
+});
+
+/* ===========================
+   LOAD GAMES (with spinner + auto-categorize)
+   =========================== */
 async function loadGames(){
   try{
-    const data = await fetch(GAMES_JSON_URL).then(r=>r.json());
-    gamesCache = data;
-  }catch{}
+    showSpinner();
+    const resp = await fetch(GAMES_JSON_URL);
+    const data = await resp.json();
+    // Basic sanity
+    gamesCache = Array.isArray(data) ? data : [];
+    // my quick auto-categorization (adds tags when missing) — my opinion-based suggestions
+    gamesCache.forEach(g=>{
+      const combined = ((g.name||"") + " " + (g.description||"")).toLowerCase();
+      g.tags = Array.isArray(g.tags) ? g.tags.map(t=>t.toLowerCase()) : [];
+      const suggestions = new Set(g.tags);
+      if(/race|racing|driver|speed|track/.test(combined)) suggestions.add("racing");
+      if(/puzzl|match|connect|logic|brain|blocks/.test(combined)) suggestions.add("puzzle");
+      if(/adventur|quest|explor|journey|island/.test(combined)) suggestions.add("adventure");
+      if(/multipl|versus|vs\.|co-op|coop|team|lobby/.test(combined)) suggestions.add("multiplayer");
+      if(/fight|battle|shoot|war|combat|attack|zombi|arena/.test(combined)) suggestions.add("action");
+      if(/chess|strategy|tower|td |tycoon|simul|manage/.test(combined)) suggestions.add("strategy");
+      if(/soccer|football|basket|baseball|tennis|golf|sports/.test(combined)) suggestions.add("sports");
+      if(suggestions.size===0) suggestions.add("classics");
+      g.tags = Array.from(suggestions);
+    });
+    buildCategoryBar();
+    hideSpinner();
+    return gamesCache;
+  }catch(e){
+    console.error("loadGames error", e);
+    hideSpinner();
+    gamesCache = [];
+    buildCategoryBar();
+    return [];
+  }
 }
 
-/***************************************************
-  🎮 GAME LIST RENDER
-***************************************************/
+/* ===========================
+   CATEGORY BAR
+   =========================== */
+function buildCategoryBar(){
+  categoryBar.innerHTML = "";
+  categories.forEach(cat=>{
+    const btn = document.createElement("button");
+    btn.className = "cat-btn" + (cat === category ? " active" : "");
+    btn.innerHTML = `<span style="margin-right:.4rem">${emojiMap[cat] || "🔹"}</span><span style="text-transform:capitalize">${cat === 'all' ? 'All' : cat}</span>`;
+    btn.onclick = ()=>{ category = cat; showGameList(); };
+    categoryBar.appendChild(btn);
+  });
+}
+
+/* ===========================
+   RECENTLY PLAYED (localStorage)
+   =========================== */
+function pushRecentlyPlayed(game){
+  try{
+    const arr = JSON.parse(localStorage.getItem(RP_KEY) || "[]");
+    const entry = { id: game.id || game.name || Math.random().toString(36).slice(2,8), name: game.name||"Untitled", thumb: game.game_image_icon || game.thumbnail || "", url: game.game_url || game.url || game.iframe || "", ts: Date.now() };
+    const filtered = arr.filter(x=>x.id !== entry.id);
+    filtered.unshift(entry);
+    const out = filtered.slice(0,6);
+    localStorage.setItem(RP_KEY, JSON.stringify(out));
+  }catch(e){ console.error("rp push err", e); }
+}
+function getRecentlyPlayed(){ try{ return JSON.parse(localStorage.getItem(RP_KEY) || "[]"); }catch(e){ return []; } }
+
+/* ===========================
+   FAVORITES (localStorage)
+   =========================== */
+function getFavorites(){ try{ return JSON.parse(localStorage.getItem(FAV_KEY) || "[]"); }catch(e){ return []; } }
+function toggleFavorite(game){
+  const favs = getFavorites();
+  const id = game.id || game.name;
+  const exists = favs.find(x=>x.id === id);
+  if(exists){
+    const out = favs.filter(x=>x.id !== id);
+    localStorage.setItem(FAV_KEY, JSON.stringify(out));
+  } else {
+    favs.unshift({id, name: game.name||"Untitled", thumb: game.game_image_icon || "", url: game.game_url || game.url || ""});
+    localStorage.setItem(FAV_KEY, JSON.stringify(favs.slice(0,200)));
+  }
+  showGameList(); // refresh UI
+}
+
+/* ===========================
+   SHOW GAME LIST (main rendering)
+   =========================== */
 function showGameList(){
-  if(!gamesCache.length) return setTimeout(showGameList,200);
+  if(!gamesCache.length){
+    // if not loaded yet, load then render
+    loadGames().then(()=> showGameList());
+    return;
+  }
 
-  categoryBar.innerHTML="";
-  categories.forEach(c=>{
-    const b = document.createElement("button");
-    b.className="cat-btn"+(c===category?" active":"");
-    b.textContent=c==="all"?"✨ All":c;
-    b.onclick=()=>{category=c;showGameList();};
-    categoryBar.appendChild(b);
-  });
+  app.innerHTML = "";
 
-  const q=(searchBox.value||"").trim().toLowerCase();
+  // Featured (from game.featured flag)
+  const featured = gamesCache.filter(g => g.featured).slice(0,3);
+  if(featured.length){
+    const fr = document.createElement("div"); fr.className = "featured-row";
+    featured.forEach(f=>{
+      const c = document.createElement("div"); c.className = "featured-card";
+      const img = document.createElement("img"); img.src = f.game_image_icon || f.thumbnail || ""; img.alt = f.name || ""; img.style.width="140px"; img.style.height="90px"; img.style.borderRadius="8px"; img.style.objectFit="cover";
+      const meta = document.createElement("div");
+      const t = document.createElement("div"); t.style.fontWeight=700; t.style.color="var(--text)"; t.textContent = f.name || "Untitled";
+      const d = document.createElement("div"); d.style.color="var(--muted)"; d.style.marginTop=".45rem"; d.textContent = f.description || "";
+      const pb = document.createElement("button"); pb.className="btn"; pb.style.marginTop="10px"; pb.style.background="var(--accent)"; pb.style.color="#fff"; pb.textContent="Play";
+      pb.onclick = ()=> showGamePage(f);
+      meta.appendChild(t); meta.appendChild(d); meta.appendChild(pb);
+      c.appendChild(img); c.appendChild(meta); fr.appendChild(c);
+    });
+    app.appendChild(fr);
+  }
+
+  // Recently Played row (RP-A)
+  const rp = getRecentlyPlayed();
+  if(rp.length){
+    const rr = document.createElement("div"); rr.className = "recent-row";
+    const label = document.createElement("div"); label.style.fontWeight=700; label.style.color="var(--text)"; label.style.marginRight="8px"; label.textContent="Recently Played";
+    rr.appendChild(label);
+    rp.forEach(it=>{
+      const ri = document.createElement("div"); ri.className = "recent-item";
+      const im = document.createElement("img"); im.src = it.thumb || ""; im.alt = it.name; im.style.width="120px"; im.style.height="70px"; im.style.borderRadius="8px"; im.style.objectFit="cover";
+      const nm = document.createElement("div"); nm.style.fontSize=".92rem"; nm.style.color="var(--muted)"; nm.textContent = it.name;
+      ri.appendChild(im); ri.appendChild(nm);
+      ri.onclick = ()=> {
+        // find actual game and open it if exists, else open URL
+        const found = gamesCache.find(g => g.name === it.name || g.id === it.id);
+        if(found) showGamePage(found);
+        else window.open(it.url, "_blank");
+      };
+      rr.appendChild(ri);
+    });
+    app.appendChild(rr);
+  }
+
+  // Grid
+  const q = (searchBox.value || "").trim().toLowerCase();
+  const favs = getFavorites().map(f=>f.id);
+
   const filtered = gamesCache.filter(g=>{
-    const tags=(g.tags||[]).map(t=>t.toLowerCase());
-    const name=(g.name||"").toLowerCase();
-    return (!q||name.includes(q)||tags.some(t=>t.includes(q))) &&
-           (category==="all"||tags.includes(category));
+    const name = (g.name||"").toLowerCase();
+    const desc = (g.description||"").toLowerCase();
+    const tags = (g.tags||[]).map(t=>String(t).toLowerCase());
+    const matchesQuery = !q || name.includes(q) || desc.includes(q) || tags.some(t=>t.includes(q));
+    const matchesCategory = category === "all" || tags.includes(category);
+    return matchesQuery && matchesCategory;
   });
 
-  app.innerHTML="";
-  if(!filtered.length) return app.innerHTML=`<div class="no-results">No results</div>`;
+  if(!filtered.length){
+    app.appendChild(Object.assign(document.createElement("div"),{className:"no-results", textContent: q ? `No results for "${q}".` : "No games found."}));
+    return;
+  }
 
-  const grid=document.createElement("div");
-  grid.className="game-list";
+  const grid = document.createElement("div"); grid.className = "game-list";
   filtered.forEach(g=>{
-    const card=document.createElement("div");
-    card.className="game-card";
+    const card = document.createElement("div"); card.className = "game-card";
 
-    card.innerHTML=`
-      <img class="thumbnail" src="${g.game_image_icon||""}">
-      <div class="card-body">
-        <div class="title">${escapeHtml(g.name)}</div>
-        <div class="tags">${(g.tags||[]).map(t=>`<span class="tag">${escapeHtml(t)}</span>`).join("")}</div>
-      </div>
-      <div class="hover-details">
-        <button class="btn btn-primary">Play</button>
-      </div>
-    `;
+    // favorite button
+    const favBtn = document.createElement("div"); favBtn.className = "fav-btn"; favBtn.title = "Favorite";
+    const isFav = favs.includes(g.id || g.name);
+    favBtn.innerHTML = isFav ? "★" : "☆";
+    favBtn.style.color = isFav ? "gold" : "white";
+    favBtn.onclick = (e)=>{ e.stopPropagation(); toggleFavorite(g); };
 
-    card.onclick=()=>showGamePage(g);
-    card.querySelector("button").onclick=e=>{e.stopPropagation();showGamePage(g);};
+    const thumb = document.createElement("img"); thumb.className = "thumbnail"; thumb.loading="lazy"; thumb.src = g.game_image_icon || g.thumbnail || ""; thumb.alt = g.name || "";
+
+    const body = document.createElement("div"); body.className = "card-body";
+    const title = document.createElement("div"); title.className = "title"; title.innerHTML = highlightMatch(g.name || "Untitled", q);
+    const tagsWrap = document.createElement("div"); tagsWrap.className = "tags";
+    (g.tags || []).slice(0,4).forEach(t=>{
+      const tg = document.createElement("div"); tg.className = "tag"; tg.textContent = t;
+      tagsWrap.appendChild(tg);
+    });
+
+    const hover = document.createElement("div"); hover.className = "hover-details";
+    const desc = document.createElement("div"); desc.className = "hover-desc"; desc.textContent = g.description || "";
+    const actions = document.createElement("div"); actions.className = "hover-actions";
+    const playBtn = document.createElement("button"); playBtn.className = "play-btn"; playBtn.textContent = "Play";
+    playBtn.onclick = (e)=>{ e.stopPropagation(); showGamePage(g); };
+    actions.appendChild(playBtn);
+    hover.appendChild(desc); hover.appendChild(actions);
+
+    body.appendChild(title); body.appendChild(tagsWrap);
+    card.appendChild(favBtn); card.appendChild(thumb); card.appendChild(body); card.appendChild(hover);
+
+    card.onclick = ()=> showGamePage(g);
+    grid.appendChild(card);
+  });
+
+  app.appendChild(grid);
+}
+
+/* ===========================
+   FAVORITES VIEW
+   =========================== */
+function showFavorites(){
+  const favs = getFavorites();
+  app.innerHTML = "";
+  const title = document.createElement("div"); title.style.fontWeight=700; title.style.marginBottom="10px"; title.textContent = "Favorites";
+  app.appendChild(title);
+  if(!favs.length){ app.appendChild(Object.assign(document.createElement("div"),{className:"no-results", textContent:"No favorites yet."})); return; }
+  const grid = document.createElement("div"); grid.className = "game-list";
+  favs.forEach(f=>{
+    const card = document.createElement("div"); card.className = "game-card";
+    card.innerHTML = `<img class="thumbnail" src="${f.thumb}"><div class="card-body"><div class="title">${escapeHtml(f.name)}</div></div>`;
+    card.onclick = ()=> {
+      // try to find actual game object
+      const g = gamesCache.find(x=> (x.id && x.id===f.id) || x.name===f.name);
+      if(g) showGamePage(g); else window.open(f.url || "#", "_blank");
+    };
     grid.appendChild(card);
   });
   app.appendChild(grid);
 }
 
-/***************************************************
-  🕹 GAME PAGE
-***************************************************/
-function showGamePage(g){
-  app.innerHTML=`<div class="back-link" style="cursor:pointer;margin-bottom:.5rem;color:var(--muted)">← Back</div>`;
-  document.querySelector(".back-link").onclick=showGameList;
+/* ===========================
+   GAME PAGE + RECENTLY PLAYED
+   =========================== */
+function showGamePage(game){
+  app.innerHTML = "";
+  const back = document.createElement("div"); back.className = "back-link"; back.style.cursor="pointer"; back.style.color="var(--muted)"; back.style.marginBottom="8px"; back.textContent = "← Back to games";
+  back.onclick = ()=> showGameList();
+  app.appendChild(back);
 
-  const f=document.createElement("iframe");
-  f.style="width:100%;height:75vh;border:none;border-radius:10px;background:#000";
-  f.src=g.game_url||g.url||"";
-  app.appendChild(f);
+  // smooth loading spinner inside app
+  const loadWrap = document.createElement("div"); loadWrap.style.marginBottom="8px";
+  const iframe = document.createElement("iframe");
+  iframe.style.width = "100%"; iframe.style.height = "78vh"; iframe.style.border = "none"; iframe.style.borderRadius = "10px"; iframe.style.background="#000";
+  if(game.iframe) iframe.srcdoc = game.iframe;
+  else if(game.game_url) iframe.src = game.game_url;
+  else if(game.url) iframe.src = game.url;
+  else iframe.srcdoc = `<body style="background:#000;color:#fff;display:flex;align-items:center;justify-content:center;height:100vh;margin:0"><div><h2>${escapeHtml(game.name||"Game")}</h2><p style="color:#bbb">No playable source provided.</p></div></body>`;
+
+  // show local small spinner until iframe loads
+  const localSpinner = document.createElement("div"); localSpinner.className = "spinner"; localSpinner.style.width="48px"; localSpinner.style.height="48px"; localSpinner.style.margin="8px auto";
+  loadWrap.appendChild(localSpinner);
+  app.appendChild(loadWrap);
+  app.appendChild(iframe);
+
+  iframe.onload = ()=> {
+    loadWrap.remove();
+  };
+
+  // track recently played
+  pushRecentlyPlayed(game);
 }
 
-/***************************************************
-  💬 CHAT
-***************************************************/
+/* ===========================
+   CHAT
+   =========================== */
 function showChat(){
-  app.innerHTML=`
-    <div class="back-link" style="cursor:pointer;margin-bottom:.5rem;color:var(--muted)">← Back</div>
-    <div id="chatMessages"></div>
-    <input id="chatInput" class="input" placeholder="Message">
-    <button id="chatSend" class="btn btn-primary" style="margin-top:.5rem">Send</button>
-  `;
-  document.querySelector(".back-link").onclick=showGameList;
-  const msgs=document.getElementById("chatMessages");
+  app.innerHTML = "";
+  const back = document.createElement("div"); back.className = "back-link"; back.style.cursor="pointer"; back.style.color="var(--muted)"; back.style.marginBottom="8px"; back.textContent = "← Back to games";
+  back.onclick = ()=> showGameList();
+  app.appendChild(back);
+
+  const container = document.createElement("div");
+  container.innerHTML = `<div id="chatMessages" style="height:55vh;overflow:auto;background:rgba(255,255,255,0.02);padding:.6rem;border-radius:8px"></div>
+    <div style="display:flex;gap:.4rem;margin-top:.6rem">
+      <input id="chatInput" class="input" placeholder="Message..." style="flex:1">
+      <button id="chatSend" class="btn btn-primary">Send</button>
+    </div>`;
+  app.appendChild(container);
+
+  const msgs = document.getElementById("chatMessages");
   db.ref("chat").off();
   db.ref("chat").on("child_added", snap=>{
-    const d=document.createElement("div");
-    d.textContent=snap.val();
-    d.style.padding=".4rem;margin:.3rem 0;background:#111;border-radius:6px;";
-    msgs.appendChild(d);
-    msgs.scrollTop=msgs.scrollHeight;
+    const d = document.createElement("div"); d.style.margin=".25rem 0"; d.style.padding=".5rem"; d.style.borderRadius="6px"; d.style.background="rgba(0,0,0,0.22)"; d.textContent = snap.val();
+    msgs.appendChild(d); msgs.scrollTop = msgs.scrollHeight;
   });
-  chatSend.onclick=()=>{
-    if(!chatInput.value.trim())return;
-    db.ref("chat").push(chatInput.value.trim());
-    chatInput.value="";
+
+  document.getElementById("chatSend").onclick = ()=>{
+    const v = document.getElementById("chatInput").value.trim(); if(!v) return;
+    db.ref("chat").push(v); document.getElementById("chatInput").value = "";
   };
 }
 
-/***************************************************
-  🌐 OTHER WEBSITES
-***************************************************/
+/* ===========================
+   OTHER WEBSITES (admin-controlled via HTML)
+   =========================== */
 function showOther(){
-  app.innerHTML=`
-    <div class="back-link" style="cursor:pointer;margin-bottom:.5rem;color:var(--muted)">← Back</div>
-    <div><a href="https://example.com" target="_blank">Example</a></div>
-  `;
-  document.querySelector(".back-link").onclick=showGameList;
-}
+  app.innerHTML = "";
+  const back = document.createElement("div"); back.className = "back-link"; back.style.cursor="pointer"; back.style.color="var(--muted)"; back.style.marginBottom="8px"; back.textContent = "← Back to games";
+  back.onclick = ()=> showGameList();
+  app.appendChild(back);
 
-/***************************************************
-  🔐 ADMIN
-***************************************************/
-function openAdminLogin(){
-  if(admin) return openAdminPanel();
-  const b=document.createElement("div");
-  b.className="modal-backdrop";
-  b.innerHTML=`
-    <div class="modal">
-      <h3 style="margin-bottom:.5rem">Admin Login</h3>
-      <input id="adPw" class="input" type="password" placeholder="Password">
-      <button id="adGo" class="btn btn-primary" style="width:100%">Login</button>
-    </div>`;
-  document.body.appendChild(b);
-  adGo.onclick=async ()=>{
-    if(await sha(adPw.value.trim())===HASH_ADMIN){
-      admin=true;sessionStorage.setItem("astral_admin","1");
-      b.remove();openAdminPanel();
-    }
-    else adPw.value="";
-  };
-}
-function openAdminPanel(){
-  app.innerHTML=`
-    <div>
-      <h2>Admin Panel</h2>
-      <textarea id="adAnn" class="input" style="height:120px;margin-top:.6rem"></textarea>
-      <button id="adSave" class="btn btn-primary" style="margin-top:.6rem">Save</button>
-    </div>`;
-  db.ref(ANN_PATH).once("value").then(s=>{
-    const v=s.val(); adAnn.value=v?v.text:"";
+  const list = document.createElement("div");
+  const links = [
+    "https://example1.com",
+    "https://example2.com",
+    "https://raw.githubusercontent.com"
+  ];
+  links.forEach(u=>{
+    const a = document.createElement("a"); a.href = u; a.target = "_blank"; a.textContent = u; a.style.display="block"; a.style.marginBottom="8px"; a.style.color="var(--muted)";
+    list.appendChild(a);
   });
-  adSave.onclick=()=>{
-    db.ref(ANN_PATH).set({text:adAnn.value,updatedAt:Date.now()});
+  app.appendChild(list);
+}
+
+/* ===========================
+   SEARCH
+   =========================== */
+searchBox.addEventListener("input", debounce(()=> showGameList(), 180));
+function highlightMatch(text, q){
+  if(!q) return escapeHtml(text||"");
+  const idx = (text||"").toLowerCase().indexOf(q.toLowerCase());
+  if(idx === -1) return escapeHtml(text);
+  const before = escapeHtml(text.slice(0, idx));
+  const match = escapeHtml(text.slice(idx, idx+q.length));
+  const after = escapeHtml(text.slice(idx+q.length));
+  return `${before}<mark style="background:rgba(10,157,255,0.18);padding:.03rem .08rem;border-radius:3px;color:#fff">${match}</mark>${after}`;
+}
+
+/* ===========================
+   ADMIN: Login, Panel (announcement + theme)
+   =========================== */
+function openAdminLogin(){
+  if(admin) { openAdminPanel(); return; }
+  const backdrop = document.createElement("div"); backdrop.className = "modal-backdrop";
+  backdrop.innerHTML = `<div class="modal"><h3>Admin Login</h3><input id="aPw" class="input" placeholder="Admin password" type="password"><div style="display:flex;gap:.5rem;margin-top:.6rem"><button id="aCancel" class="btn btn-ghost">Cancel</button><button id="aEnter" class="btn btn-primary">Login</button></div><div id="aMsg" style="margin-top:.6rem;color:var(--muted)"></div></div>`;
+  document.body.appendChild(backdrop);
+  document.getElementById("aCancel").onclick = ()=> backdrop.remove();
+  document.getElementById("aEnter").onclick = async ()=>{
+    const v = document.getElementById("aPw").value || "";
+    const h = await sha256Hex(v);
+    if(h === HASH_ADMIN){
+      sessionStorage.setItem("astral_admin","1");
+      admin = true;
+      backdrop.remove();
+      openAdminPanel();
+      applyAdminThemeIfSet(); // apply if an admin theme exists
+      return;
+    } else {
+      document.getElementById("aMsg").textContent = "Invalid";
+      document.getElementById("aPw").value = "";
+    }
   };
 }
 
-/***************************************************
-  📣 ANNOUNCEMENTS LISTEN
-***************************************************/
-db.ref(ANN_PATH).on("value", snap=>{
-  const v=snap.val();
-  announcementBar.innerHTML = v ? escapeHtml(v.text) : "No announcements.";
-});
-</script>
+function openAdminPanel(){
+  app.innerHTML = "";
+  const back = document.createElement("div"); back.className = "back-link"; back.style.cursor="pointer"; back.style.color="var(--muted)"; back.style.marginBottom="10px"; back.textContent = "← Back";
+  back.onclick = ()=> showGameList();
+  app.appendChild(back);
 
+  const container = document.createElement("div");
+  container.innerHTML = `<h2 style="margin-bottom:.6rem">Admin Panel</h2>
+    <div style="margin-bottom:.6rem">
+      <label style="display:block;margin-bottom:.25rem;color:var(--muted)">Edit Announcement</label>
+      <textarea id="admAnn" style="width:100%;min-height:120px;border-radius:8px;background:rgba(255,255,255,0.02);border:none;color:var(--text);padding:.6rem"></textarea>
+      <div style="margin-top:.5rem;display:flex;gap:.5rem;justify-content:flex-end"><button id="admSave" class="btn btn-primary">Save Announcement</button></div>
+    </div>
+    <hr style="border:none;border-top:1px solid rgba(255,255,255,0.04);margin:1rem 0;">
+    <div>
+      <label style="display:block;margin-bottom:.25rem;color:var(--muted)">Admin Theme Background URL</label>
+      <input id="admTheme" class="input" placeholder="Paste image URL for admin background (public URL)">
+      <div style="display:flex;gap:.5rem;justify-content:flex-end;margin-top:.5rem"><button id="admThemeSave" class="btn btn-primary">Save Theme</button></div>
+      <div style="margin-top:.6rem;color:var(--muted);font-size:.9rem">When saved, the admin theme will appear for anyone logged in as admin.</div>
+    </div>
+    <div style="margin-top:1rem"><button id="admLogout" class="btn btn-ghost">Logout Admin</button></div>
+  `;
+  app.appendChild(container);
+
+  // load current announcement into textarea
+  db.ref(ANN_PATH).once("value").then(snap=>{
+    const v = snap.val(); document.getElementById("admAnn").value = v && v.text ? v.text : "";
+  });
+
+  db.ref(ADMIN_THEME_PATH).once("value").then(snap=>{
+    const v = snap.val(); document.getElementById("admTheme").value = v || "";
+  });
+
+  document.getElementById("admSave").onclick = async ()=>{
+    const txt = document.getElementById("admAnn").value || "";
+    await db.ref(ANN_PATH).set({ text: txt, updatedAt: Date.now() });
+    alert("Announcement saved.");
+  };
+
+  document.getElementById("admThemeSave").onclick = async ()=>{
+    const url = document.getElementById("admTheme").value.trim();
+    await db.ref(ADMIN_THEME_PATH).set(url || "");
+    alert("Admin theme saved.");
+    applyAdminThemeIfSet();
+  };
+
+  document.getElementById("admLogout").onclick = ()=>{
+    admin = false; sessionStorage.removeItem("astral_admin"); showGameList();
+    // remove admin theme class
+    mainContent.classList.remove("admin-theme");
+    mainContent.style.backgroundImage = "";
+  };
+}
+
+/* apply admin theme if admin and a URL set in Firebase */
+function applyAdminThemeIfSet(){
+  if(!admin) return;
+  db.ref(ADMIN_THEME_PATH).once("value").then(snap=>{
+    const url = snap.val();
+    if(url){
+      mainContent.classList.add("admin-theme");
+      mainContent.style.backgroundImage = `linear-gradient(rgba(0,0,0,0.35),rgba(0,0,0,0.35)), url("${url}")`;
+      mainContent.style.backgroundSize = "cover";
+    } else {
+      // fallback nebula gradient
+      mainContent.classList.add("admin-theme");
+      mainContent.style.backgroundImage = "radial-gradient(circle at 20% 20%, rgba(155,227,255,0.08), transparent 10%), radial-gradient(circle at 80% 80%, rgba(107,104,255,0.05), transparent 8%), linear-gradient(180deg, rgba(8,8,12,0.5), rgba(3,3,6,0.6))";
+      mainContent.style.backgroundSize = "cover";
+    }
+  });
+}
+
+/* Listen for admin theme changes and apply live for admins */
+db.ref(ADMIN_THEME_PATH).on("value", snap=>{
+  if(!admin) return;
+  const url = snap.val();
+  if(url){
+    mainContent.classList.add("admin-theme");
+    mainContent.style.backgroundImage = `linear-gradient(rgba(0,0,0,0.35),rgba(0,0,0,0.35)), url("${url}")`;
+    mainContent.style.backgroundSize = "cover";
+  } else {
+    mainContent.classList.remove("admin-theme");
+    mainContent.style.backgroundImage = "";
+  }
+});
+
+/* if admin already authenticated, apply theme */
+if(admin) applyAdminThemeIfSet();
+
+/* ===========================
+   UTIL: debounce + escapeHtml
+   =========================== */
+function debounce(fn, wait=120){ let t; return (...a)=>{ clearTimeout(t); t = setTimeout(()=>fn(...a), wait); }; }
+function escapeHtml(s){ return String(s||"").replace(/[&<>"']/g, m=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[m])); }
+
+/* ===========================
+   STARTUP: wire UI actions + initial load
+   =========================== */
+document.getElementById("enterBtn").addEventListener("click", async ()=>{
+  const val = document.getElementById("passwordInput").value || "";
+  const h = await sha256Hex(val.trim());
+  if(h === HASH_MAIN){
+    document.getElementById("passwordInput").value = "";
+    // show landing screen
+    document.getElementById("homeScreen").style.display = "none";
+    document.getElementById("landingScreen").style.display = "flex";
+  } else {
+    document.getElementById("errorMsg").textContent = "Incorrect access code";
+    document.getElementById("passwordInput").value = "";
+    document.getElementById("passwordInput").animate([{transform:'translateX(0)'},{transform:'translateX(-6px)'},{transform:'translateX(6px)'},{transform:'translateX(0)'}],{duration:220});
+  }
+});
+
+/* landing -> enter hub */
+document.getElementById("enterHubBtn").addEventListener("click", async ()=>{
+  document.getElementById("landingScreen").style.display = "none";
+  mainContent.style.display = "block";
+  showSpinner();
+  await loadGames();
+  hideSpinner();
+  showGameList();
+});
+
+/* small nav keyboard/focus accessibility */
+document.getElementById("navGames").addEventListener("keydown", e=>{ if(e.key==="Enter") { showGameList(); } });
+
+/* show other screens via functions called earlier */
+
+/* initial: make mainContent hidden until hub entered (keeps layout neat) */
+mainContent.style.display = "none";
+
+/* ===========================
+   BOOT: if games already loaded in session (rare) - otherwise wait
+   =========================== */
+/* nothing further — user triggers Enter Hub to load games so we avoid unnecessary loads */
+
+/* ===========================
+   NOTE: do not log any plaintext passwords anywhere
+   =========================== */
+
+/* End of script */
+</script>
 </body>
 </html>
