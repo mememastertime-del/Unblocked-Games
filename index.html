@@ -150,7 +150,7 @@ body{
   position:fixed;left:0;top:0;height:100vh;
   width:var(--nav-width-collapsed);
   background:linear-gradient(180deg,var(--panel),#0b0d10);
-  display:none; /* hidden until hub entered */
+  display:none;
   flex-direction:column;align-items:center;padding:.6rem .4rem;gap:.6rem;
   transition:width .22s ease;
   z-index:60;
@@ -181,7 +181,7 @@ body{
   padding:1rem 1.2rem;
   overflow:auto;
   transition:background .25s;
-  display:none; /* hidden until hub */
+  display:none;
 }
 #sideNav.open + #mainContent{
   left:var(--nav-width-expanded);
@@ -348,17 +348,13 @@ body{
 /* ===========================
    CONFIG & CONSTANTS
    =========================== */
-/* Passwords as SHA-256 hashes only (no plaintext):
-   Main: "DIHALB" -> HASH_MAIN
-   Admin: "th!nBlu3" -> HASH_ADMIN
-*/
-const HASH_MAIN  = "875b0cbe469a54473cd975c129b87fadaa6d15d6dacf0634ea24b70e0b58c04b";
-const HASH_ADMIN = "23c28e809cef8751da4a6393e9cb183b8d969f77ab0ade39e6b282e19e40378f";
+const HASH_MAIN  = "875b0cbe469a54473cd975c129b87fadaa6d15d6dacf0634ea24b70e0b58c04b"; // "DIHALB"
+const HASH_ADMIN = "23c28e809cef8751da4a6393e9cb183b8d969f77ab0ade39e6b282e19e40378f"; // "th!nBlu3"
 
 const GAMES_JSON_URL = "https://raw.githubusercontent.com/swarmintelli/Unblocked-Games-CDN/main/games.json";
 
-/* Your Ultraviolet proxy URL */
-const PROXY_URL = "https://mememastertime-del.github.io/Unblocked-Games/";
+/* Proxy now = DuckDuckGo homepage */
+const PROXY_URL = "https://duckduckgo.com/";
 
 /* Firebase config */
 const firebaseConfig = {
@@ -408,7 +404,7 @@ async function sha256Hex(str){
 }
 
 /* ===========================
-   THEME: dark default (persist)
+   THEME
    =========================== */
 (function initTheme(){
   const saved = localStorage.getItem("astral_theme");
@@ -423,7 +419,7 @@ function toggleTheme(){
 }
 
 /* ===========================
-   NAV TOGGLE (push layout)
+   NAV
    =========================== */
 function toggleNav(){
   sideNav.classList.toggle("open");
@@ -438,7 +434,6 @@ document.getElementById("navFavorites").addEventListener("click", ()=>{ toggleNa
 document.getElementById("navProxy").addEventListener("click", ()=>{ toggleNav(); showProxyBrowser(); });
 document.getElementById("toggleDark").addEventListener("click", ()=>{ toggleTheme(); });
 
-/* spinner overlay */
 function showSpinner(){ spinner.classList.add("show"); }
 function hideSpinner(){ spinner.classList.remove("show"); }
 
@@ -459,7 +454,7 @@ db.ref(ANN_PATH).on("value", snap=>{
 });
 
 /* ===========================
-   LOAD GAMES (with spinner + auto-tags)
+   LOAD GAMES
    =========================== */
 async function loadGames(){
   try{
@@ -551,7 +546,6 @@ function showGameList(){
 
   app.innerHTML = "";
 
-  /* Featured */
   const featured = gamesCache.filter(g => g.featured).slice(0,3);
   if(featured.length){
     const fr = document.createElement("div"); fr.className = "featured-row";
@@ -572,7 +566,6 @@ function showGameList(){
     app.appendChild(fr);
   }
 
-  /* Recently Played */
   const rp = getRecentlyPlayed();
   if(rp.length){
     const rr = document.createElement("div"); rr.className = "recent-row";
@@ -593,7 +586,6 @@ function showGameList(){
     app.appendChild(rr);
   }
 
-  /* Grid */
   const q = (searchBox.value || "").trim().toLowerCase();
   const favIds = getFavorites().map(f=>f.id);
 
@@ -723,7 +715,7 @@ function showProxyBrowser(){
   note.style.fontSize = ".9rem";
   note.style.color = "var(--muted)";
   note.style.marginBottom = "8px";
-  note.textContent = "This is your Ultraviolet proxy browser. Use the address bar inside that page to browse.";
+  note.textContent = "DuckDuckGo opens inside the page. Searches stay inside this tab.";
   app.appendChild(note);
 
   const wrap = document.createElement("div"); wrap.style.textAlign="center"; wrap.style.marginBottom="8px";
@@ -961,13 +953,10 @@ document.getElementById("enterHubBtn").addEventListener("click", async ()=>{
   showGameList();
 });
 
-/* also allow navGames enter key */
 document.getElementById("navGames").addEventListener("keydown", e=>{ if(e.key==="Enter") { toggleNav(); showGameList(); } });
 
-/* main content hidden until hub */
 mainContent.style.display = "none";
-
-/* end */
 </script>
 </body>
 </html>
+
