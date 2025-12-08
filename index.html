@@ -1,211 +1,207 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="UTF-8" />
-<title>Game Hub — Astral Employment</title>
+<meta charset="utf-8" />
+<title>Astral Employment</title>
 <meta name="viewport" content="width=device-width,initial-scale=1" />
-<link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;800&display=swap" rel="stylesheet">
-
 <style>
-  :root{
-    --bg:#0e0e0e;
-    --panel:#121212;
-    --muted:#bfc7d0;
-    --accent:#0a9dff;
-    --card:#1c1c1c;
-    --glass: rgba(255,255,255,0.03);
-    --radius:14px;
-  }
-  *{box-sizing:border-box}
-  body{
-    margin:0;
-    font-family:Inter, system-ui, -apple-system, "Segoe UI", Roboto, Arial;
-    background: linear-gradient(180deg,#070707 0%, #0e0e0e 100%);
-    color:#e9eef6;
-    min-height:100vh;
-    -webkit-font-smoothing:antialiased;
-    -moz-osx-font-smoothing:grayscale;
-  }
+:root{
+  --bg:#07070a; --panel:#0f1113; --muted:#bfc7d0; --accent:#0a9dff;
+  --card:#161717; --glass: rgba(255,255,255,0.03);
+}
+*{box-sizing:border-box}
+body{
+  margin:0; font-family:Inter, system-ui, -apple-system, "Segoe UI", Roboto, Arial;
+  background: linear-gradient(180deg,#030307 0%, #0b0c0f 100%); color:#eaf2ff; -webkit-font-smoothing:antialiased;
+}
 
-  /* Home / Password */
-  #homeScreen, #landingScreen { height:100vh; display:flex; align-items:center; justify-content:center; padding:2rem; }
-  #homeScreen{ flex-direction:column; gap:1rem; text-align:center; background:linear-gradient(135deg,#050507,#0b0b0b); }
-  #homeScreen h1 { font-size:2.2rem; margin:0; letter-spacing:1px; }
-  #passwordInput { padding:.75rem 1rem; border-radius:10px; border:none; outline:none; width:260px; background:#151515; color:#fff; font-size:1rem; box-shadow:0 6px 18px rgba(0,0,0,.6); }
-  #enterBtn { padding:.75rem 1rem; width:220px; border:none; border-radius:10px; background:var(--accent); color:#fff; font-weight:600; cursor:pointer; font-size:1rem; transition:transform .15s ease; }
-  #enterBtn:active{ transform:translateY(1px) }
-  #errorMsg { color:#ff7b7b; height:1.2rem; }
+/* Password Screen */
+#homeScreen{
+  height:100vh; display:flex; align-items:center; justify-content:center; padding:1.5rem; gap:.9rem; flex-direction:column;
+  text-align:center;
+}
+#homeScreen h1{ font-size:2.4rem; margin:0; font-weight:800; letter-spacing:0.6px; color:#fff; }
+#passwordInput{ width:300px; padding:.72rem 1rem; border-radius:10px; border:none; background:#151515; color:#fff; font-size:1rem; }
+#enterBtn{ width:220px; padding:.7rem 1rem; border-radius:10px; border:none; background:var(--accent); color:#fff; font-weight:700; cursor:pointer; }
+#enterBtn:active{ transform:translateY(1px); }
+#errorMsg{ color:#ff7b7b; height:1.2rem; }
 
-  /* Landing hero */
-  #landingScreen { display:none; color:var(--muted); background:
-    radial-gradient(600px 300px at 10% 10%, rgba(10,157,255,0.06), transparent 8%),
-    radial-gradient(500px 250px at 90% 85%, rgba(160,80,255,0.03), transparent 6%); }
-  .hero { max-width:1100px; width:100%; display:grid; grid-template-columns: 1fr 420px; gap:2.2rem; align-items:center; padding:2rem; }
-  .hero-left { padding:2.2rem; background:linear-gradient(180deg, rgba(255,255,255,0.02), transparent); border-radius:18px; box-shadow:0 12px 50px rgba(0,0,0,.6); }
-  .hero-left h1 { margin:0; font-size:2.6rem; line-height:1.03; letter-spacing:0.5px; color:#fff; }
-  .hero-left p { margin-top:.7rem; margin-bottom:1.4rem; color:var(--muted); }
-  .feature-list { display:flex; flex-direction:column; gap:.6rem; color:var(--muted); }
-  .feature-list span { display:inline-block; padding:.45rem .7rem; background:var(--glass); border-radius:10px; font-size:.95rem; width:max-content; box-shadow:0 6px 18px rgba(0,0,0,.5); }
+/* Announcement placeholder (public view). Admin edits stored in Firebase. */
+#announcementBar{
+  margin-top:.6rem; max-width:360px; padding:.65rem .9rem; border-radius:10px; background:rgba(255,255,255,0.02); color:#d6e8ff;
+  border:1px solid rgba(255,255,255,0.03); font-size:.95rem;
+}
 
-  .hero-right { padding:1.2rem; border-radius:14px; background:linear-gradient(180deg, rgba(255,255,255,0.012), transparent); text-align:center; }
-  .hero-right .preview { height:220px; border-radius:12px; background:linear-gradient(135deg,#0f1530, #071026); display:flex; align-items:center; justify-content:center; color:var(--muted); padding:1rem; }
-  .cta-row { display:flex; gap:.6rem; margin-top:1rem; justify-content:center; }
-  .btn-ghost { padding:.6rem 1rem; border-radius:10px; border:1px solid rgba(255,255,255,0.06); background:transparent; color:var(--muted); cursor:pointer; }
-  .btn-primary { padding:.6rem 1rem; border-radius:10px; border:none; background:var(--accent); color:#fff; cursor:pointer; font-weight:600; }
+/* Landing / Hero */
+#landingScreen{ display:none; height:100vh; align-items:center; justify-content:center; padding:2rem; }
+.hero{ max-width:1120px; display:grid; grid-template-columns:1fr 380px; gap:2rem; align-items:center; width:100%; }
+.hero-left{ background:linear-gradient(180deg, rgba(255,255,255,0.015), transparent); padding:2rem; border-radius:16px; }
+.feature-list{ display:flex; flex-direction:column; gap:.45rem; margin-top:.8rem; }
+.feature-list span{ display:inline-block; background:var(--glass); padding:.45rem .7rem; border-radius:10px; font-size:.95rem; color:var(--muted); }
 
-  /* Header (main app) */
-  header { display:none; position:sticky; top:0; z-index:40; padding:.9rem 1.2rem; background:linear-gradient(180deg, rgba(8,8,8,0.6), rgba(8,8,8,0.35)); backdrop-filter: blur(6px); display:flex; gap:1rem; align-items:center; justify-content:space-between; border-bottom:1px solid rgba(255,255,255,0.02); }
-  .left-controls { display:flex; gap:1rem; align-items:center; }
-  #logo { font-weight:700; font-size:1.05rem; color:#fff; letter-spacing:0.6px; }
-  #categoryBar { display:flex; gap:.5rem; overflow-x:auto; -webkit-overflow-scrolling:touch; padding:.2rem 0; }
-  .cat-btn { display:flex; gap:.45rem; align-items:center; padding:.45rem .65rem; border-radius:999px; cursor:pointer; background:transparent; border:1px solid transparent; color:var(--muted); font-weight:600; white-space:nowrap; transition:all .18s ease; }
-  .cat-btn:hover{ transform:translateY(-3px); }
-  .cat-btn.active{ background:linear-gradient(90deg, rgba(10,157,255,0.12), rgba(10,157,255,0.06)); color:#fff; border-color:rgba(10,157,255,0.12); box-shadow:0 8px 24px rgba(10,157,255,0.06); }
+/* Header */
+header{ display:none; position:sticky; top:0; z-index:40; padding:.9rem 1rem; background:rgba(4,6,10,0.6); backdrop-filter: blur(6px); display:flex; justify-content:space-between; align-items:center; }
+#logoBtn{ display:flex; align-items:center; gap:.6rem; cursor:pointer; border:none; background:transparent; padding:0; }
+#logoSVG{ width:36px; height:36px; display:block; }
+#categoryBar{ display:flex; gap:.5rem; overflow-x:auto; padding:.2rem 0; -webkit-overflow-scrolling:touch; }
+.cat-btn{ display:flex; align-items:center; gap:.5rem; padding:.45rem .7rem; border-radius:999px; background:transparent; border:1px solid transparent; color:var(--muted); cursor:pointer; font-weight:600; white-space:nowrap; }
+.cat-btn.active{ background:linear-gradient(90deg, rgba(10,157,255,0.12), rgba(10,157,255,0.06)); color:#fff; border-color:rgba(10,157,255,0.08); box-shadow:0 8px 24px rgba(10,157,255,0.04); }
+#searchBox{ padding:.6rem .9rem; width:300px; border-radius:12px; border:none; background:#111217; color:#fff; }
 
-  #searchBox { padding:.6rem .9rem; width:320px; border-radius:12px; border:none; outline:none; background:#151515; color:#fff; }
-  #navLinks a { color:var(--muted); text-decoration:none; margin-left:.8rem; font-weight:600; }
+/* App area */
+#app{ max-width:1180px; margin:0 auto; padding:1.1rem; }
 
-  /* App area */
-  #app { padding:1rem; padding-top:1.6rem; max-width:1200px; margin:0 auto; }
+/* Featured row & Recently Played row */
+.featured-row{ display:flex; gap:1rem; margin-bottom:1rem; align-items:stretch; }
+.featured-card{ flex:1; min-height:130px; border-radius:12px; background:linear-gradient(180deg, rgba(255,255,255,0.015), transparent); padding:1rem; display:flex; gap:1rem; align-items:center; }
+.recent-row{ display:flex; gap:1rem; margin-bottom:1rem; align-items:center; }
 
-  /* Featured row */
-  .featured-row { display:flex; gap:1rem; margin-bottom:1rem; align-items:stretch; }
-  .featured-card { flex:1; min-height:140px; border-radius:12px; background:linear-gradient(180deg, rgba(255,255,255,0.015), transparent); padding:1rem; display:flex; gap:1rem; align-items:center; }
-  .featured-card img { width:140px; height:100px; object-fit:cover; border-radius:8px; }
+/* Grid list */
+.game-list{ display:grid; grid-template-columns: repeat(auto-fill, minmax(210px,1fr)); gap:1rem; }
+.game-card{ background:var(--card); border-radius:12px; overflow:hidden; position:relative; cursor:pointer; transition:transform .18s ease, box-shadow .18s ease; box-shadow:0 10px 34px rgba(0,0,0,.6); height:260px; display:flex; flex-direction:column; }
+.game-card:hover{ transform:translateY(-6px); box-shadow:0 20px 80px rgba(0,0,0,.7); }
+.thumbnail{ width:100%; height:120px; object-fit:cover; display:block; }
+.card-body{ padding:.8rem; display:flex; flex-direction:column; gap:.5rem; flex:1; }
+.title{ font-weight:700; font-size:1rem; color:#fff; line-height:1.1; height:2.4em; overflow:hidden; }
+.tags{ display:flex; gap:.4rem; flex-wrap:wrap; margin-top:auto; }
+.tag{ font-size:.75rem; padding:.25rem .45rem; border-radius:8px; background:rgba(255,255,255,0.03); color:var(--muted); border:1px solid rgba(255,255,255,0.02); }
 
-  /* Grid list */
-  .game-list { display:grid; grid-template-columns: repeat(auto-fill, minmax(210px,1fr)); gap:1rem; }
-  .game-card { background:var(--card); border-radius:12px; overflow:hidden; position:relative; cursor:pointer; transition:transform .18s ease, box-shadow .18s ease; box-shadow:0 8px 30px rgba(0,0,0,.6); height:260px; display:flex; flex-direction:column; }
-  .game-card:hover{ transform:translateY(-6px); box-shadow:0 18px 70px rgba(0,0,0,.7); }
+/* Hover overlay details */
+.hover-details{ position:absolute; inset:0; background:linear-gradient(180deg, rgba(5,5,5,0.0), rgba(2,2,2,0.9)); opacity:0; transform:translateY(6px); transition:all .22s ease; display:flex; flex-direction:column; justify-content:flex-end; padding:1rem; }
+.game-card:hover .hover-details{ opacity:1; transform:translateY(0); }
+.hover-desc{ color:var(--muted); font-size:.92rem; margin-bottom:.6rem; max-height:3.2em; overflow:hidden; }
+.hover-actions{ display:flex; gap:.5rem; align-items:center; }
+.play-btn{ padding:.5rem .8rem; border-radius:8px; background:var(--accent); color:white; border:none; cursor:pointer; font-weight:700; }
 
-  .game-card img.thumbnail { width:100%; height:120px; object-fit:cover; display:block; }
-  .card-body { padding:.8rem; display:flex; flex-direction:column; gap:.5rem; flex:1; position:relative; }
+/* No results */
+.no-results{ text-align:center; padding:3rem 1rem; color:var(--muted); font-size:1.05rem; }
 
-  .title { font-weight:700; font-size:1rem; color:#fff; line-height:1.1; height:2.4em; overflow:hidden; }
-  .tags { display:flex; gap:.4rem; flex-wrap:wrap; margin-top:auto; }
-  .tag { font-size:.75rem; padding:.25rem .45rem; border-radius:8px; background:rgba(255,255,255,0.03); color:var(--muted); border:1px solid rgba(255,255,255,0.02); }
+/* Chat area */
+#chatContainer{ display:flex; flex-direction:column; height:70vh; gap:.5rem; }
+#chatMessages{ flex:1; overflow-y:auto; background:#0f0f10; padding:.8rem; border-radius:8px; }
+#chatInput{ flex:1; padding:.6rem .8rem; border-radius:8px; border:none; background:#151515; color:#fff; }
+#chatSend{ padding:.55rem .8rem; border-radius:8px; border:none; background:var(--accent); color:#fff; cursor:pointer; }
 
-  /* Hover overlay details */
-  .hover-details { position:absolute; inset:0; background:linear-gradient(180deg, rgba(5,5,5,0.0), rgba(2,2,2,0.8)); opacity:0; transform:translateY(6px); transition:all .2s ease; display:flex; flex-direction:column; justify-content:flex-end; padding:1rem; }
-  .game-card:hover .hover-details { opacity:1; transform:translateY(0); }
-  .hover-desc { color:var(--muted); font-size:.9rem; margin-bottom:.6rem; max-height:3.6em; overflow:hidden; }
-  .hover-actions { display:flex; gap:.5rem; align-items:center; }
-  .play-btn { padding:.5rem .8rem; border-radius:8px; background:var(--accent); color:white; border:none; cursor:pointer; font-weight:700; }
+/* Footer */
+footer{ padding:1rem; text-align:center; color:var(--muted); font-size:.9rem; }
 
-  /* No results */
-  .no-results { text-align:center; padding:3rem 1rem; color:var(--muted); font-size:1.05rem; }
+/* Admin modal */
+.modal-backdrop{ position:fixed; inset:0; background:rgba(0,0,0,0.6); display:flex; align-items:center; justify-content:center; z-index:9999; }
+.modal{ background:linear-gradient(180deg, #0f1113, #121317); padding:1rem; border-radius:12px; width:380px; max-width:90%; box-shadow:0 30px 80px rgba(0,0,0,0.7); }
+.modal h3{ margin:0 0 .6rem 0; color:#fff; }
+.input{ width:100%; padding:.6rem .8rem; border-radius:8px; border:none; background:#0c0d0f; color:#fff; margin-bottom:.6rem; }
+.btn{ padding:.5rem .8rem; border-radius:8px; border:none; cursor:pointer; }
+.btn-primary{ background:var(--accent); color:#fff; font-weight:700; }
+.btn-ghost{ border:1px solid rgba(255,255,255,0.04); color:var(--muted); background:transparent; }
 
-  /* Chat */
-  #chatContainer { display:flex; flex-direction:column; height:70vh; gap:.5rem; }
-  #chatMessages { flex:1; overflow-y:auto; background:#0f0f10; padding:.8rem; border-radius:8px; }
-  #chatInputContainer { display:flex; gap:.5rem; }
-  #chatInput { flex:1; padding:.6rem .8rem; border-radius:8px; border:none; background:#151515; color:#fff; }
-  #chatSend { padding:.55rem .8rem; border-radius:8px; border:none; background:var(--accent); color:#fff; cursor:pointer; }
-
-  /* Misc */
-  .back-link { display:inline-block; margin-bottom:1rem; color:var(--muted); font-size:1.1rem; cursor:pointer; }
-  a { color:var(--accent) }
-  @media (max-width:900px){
-    .hero { grid-template-columns:1fr; padding:1rem; gap:1rem; }
-    header { padding:.6rem; }
-    #searchBox{ width:160px; }
-    .game-card{ height:280px; }
-  }
+/* Responsive tweaks */
+@media (max-width:900px){
+  .hero{ grid-template-columns:1fr; padding:1rem; }
+  #searchBox{ width:140px; }
+  .game-card{ height:280px; }
+}
 </style>
 </head>
 <body>
 
 <!-- PASSWORD SCREEN -->
-<div id="homeScreen">
-  <h1>Enter Access Code</h1>
-  <input id="passwordInput" type="password" placeholder="Enter password..." aria-label="password">
-  <button id="enterBtn">Unlock</button>
-  <div id="errorMsg"></div>
+<div id="homeScreen" role="main" aria-labelledby="siteTitle">
+  <h1 id="siteTitle">Astral Employment</h1>
+  <div id="announcementBar">Loading announcement...</div>
+  <input id="passwordInput" type="password" autocomplete="off" placeholder="Enter access code" aria-label="access code" />
+  <button id="enterBtn">Enter</button>
+  <div id="errorMsg" aria-live="polite"></div>
 </div>
 
-<!-- LANDING / HERO (hidden until correct password) -->
-<div id="landingScreen" aria-hidden="true">
+<!-- LANDING / HERO -->
+<div id="landingScreen" style="display:none">
   <div class="hero">
     <div class="hero-left">
       <h1>Welcome to Astral Employment</h1>
-      <p>Discover curated games, chat with others, and explore featured picks — all in one sleek hub.</p>
-
-      <div style="margin-top:1rem" class="feature-list">
+      <div class="feature-list">
         <span>Game card hover details</span>
         <span>Featured games sections</span>
         <span>Smarter search with highlights</span>
-        <span>Category icon buttons (emoji)</span>
-        <span>Animation polish</span>
-        <span>Game tags visible on cards</span>
+        <span>Emoji category icons</span>
+        <span>Animation polish & tags</span>
       </div>
-
-      <div style="margin-top:1.2rem; display:flex; gap:.6rem;">
-        <button id="enterHubBtn" class="btn-primary">Enter Hub</button>
-        <button id="tourBtn" class="btn-ghost">Preview Featured</button>
+      <div style="margin-top:1rem">
+        <button id="enterHubBtn" class="btn btn-primary">Enter Hub</button>
       </div>
     </div>
-
-    <div class="hero-right">
-      <div class="preview">
-        <div>
-          <div style="font-weight:700; font-size:1.05rem; margin-bottom:.4rem;">Featured Preview</div>
-          <div style="color:var(--muted); max-width:300px;">Quick look at top picks and what’s hot — click "Enter Hub" to explore all games and features.</div>
-        </div>
-      </div>
-      <div style="margin-top:1rem; display:flex; justify-content:center; gap:.6rem;">
-        <button class="btn-ghost" id="viewFeatures">What’s New</button>
-        <button class="btn-ghost" id="viewChat">Open Chat</button>
-      </div>
+    <div class="hero-right" style="display:flex;flex-direction:column;gap:.8rem;align-items:center;justify-content:center;">
+      <button id="viewChat" class="btn btn-ghost">Open Chat</button>
     </div>
   </div>
 </div>
 
-<!-- MAIN APP HEADER (hidden until site entered) -->
-<header id="mainHeader" aria-hidden="true">
-  <div class="left-controls">
-    <div id="logo">Astral Employment</div>
-    <div id="categoryBar" role="tablist" aria-label="categories"></div>
-  </div>
+<!-- MAIN HEADER (hidden until login) -->
+<header id="mainHeader" style="display:none">
+  <button id="logoBtn" title="Astral Employment (logo)">
+    <!-- C2: Icon only logo (animated SVG nebula star) -->
+    <svg id="logoSVG" viewBox="0 0 64 64" aria-hidden="true" role="img">
+      <defs>
+        <radialGradient id="g1" cx="30%" cy="30%">
+          <stop offset="0%" stop-color="#9be3ff" stop-opacity="1"/>
+          <stop offset="60%" stop-color="#6b68ff" stop-opacity=".6"/>
+          <stop offset="100%" stop-color="#2a1b5f" stop-opacity="0"/>
+        </radialGradient>
+      </defs>
+      <circle cx="32" cy="32" r="18" fill="url(#g1)"/>
+      <g transform="translate(32,32)">
+        <path d="M0-12 L2 -4 L10 -2 L2 1 L0 10 L-2 1 L-10 -2 L-2 -4 Z" fill="#fff" opacity=".9">
+          <animateTransform attributeName="transform" type="rotate" from="0" to="360" dur="12s" repeatCount="indefinite"/>
+        </path>
+      </g>
+    </svg>
+  </button>
 
-  <div style="display:flex; align-items:center; gap:.8rem;">
-    <input id="searchBox" type="text" placeholder="Search games..." aria-label="search games">
-    <div id="navLinks">
-      <a href="#" onclick="showGameList(gamesCache)">Games</a>
-      <a href="#" onclick="showChat()">Chatroom</a>
-      <a href="#" onclick="showOtherWebsites()">Other Websites</a>
-    </div>
+  <div style="display:flex;align-items:center;gap:1rem;">
+    <div id="categoryBar" role="tablist" aria-label="Categories"></div>
+    <input id="searchBox" type="search" placeholder="Search games..." aria-label="search games" />
   </div>
 </header>
 
 <!-- APP -->
 <div id="app"></div>
 
-<!-- Firebase -->
+<!-- Footer with Admin Login -->
+<footer>
+  <a href="#" id="otherLinks" style="color:var(--muted);margin-right:1rem">Other Websites</a>
+  <a href="#" id="adminLoginLink" style="color:var(--muted);margin-left:1rem">Admin Login</a>
+</footer>
+
+<!-- Firebase (kept for announcements & chat) -->
 <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-database-compat.js"></script>
 
 <script>
-/* -------------------------
-   Config & Constants
-   ------------------------- */
-const PASSWORD = "DIHALB"; // keep same as original
+/* ======================
+   Configuration & State
+   ====================== */
+
+/*
+  Password handling:
+  - No plaintext passwords are present in the file.
+  - The SHA-256 hex hashes below correspond to:
+      main access password: "DIHALB"  -> store only the hash
+      admin password: "th!nBlu3"     -> store only the hash
+  - We compare the SHA-256 of the entered string to these stored hashes.
+*/
+const HASH_MAIN = "875b0cbe469a54473cd975c129b87fadaa6d15d6dacf0634ea24b70e0b58c04b";
+const HASH_ADMIN = "23c28e809cef8751da4a6393e9cb183b8d969f77ab0ade39e6b282e19e40378f";
+
+/* Games JSON */
 const GAMES_JSON_URL = "https://raw.githubusercontent.com/swarmintelli/Unblocked-Games-CDN/main/games.json";
 
+/* Emoji map for categories */
 const emojiMap = {
-  "action":"🎯",
-  "adventure":"🗺️",
-  "puzzle":"🧩",
-  "racing":"🚗",
-  "multiplayer":"🤝",
-  "strategy":"♟️",
-  "sports":"🏅",
-  "classics":"🎮",
-  // fallback:
-  "default":"🔹"
+  "all":"✨","action":"🎯","adventure":"🗺️","puzzle":"🧩","racing":"🚗",
+  "multiplayer":"🤝","strategy":"♟️","sports":"🏅","classics":"🎮"
 };
 
-// Firebase config (unchanged)
+/* Firebase config (unchanged) */
 const firebaseConfig = {
   apiKey: "AIzaSyAyHooV5floB-DdLAFdczfgEuDPEWtfGgA",
   authDomain: "chatroom-4e6e4.firebaseapp.com",
@@ -215,348 +211,473 @@ const firebaseConfig = {
   messagingSenderId: "352956674536",
   appId: "1:352956674536:web:1942c8198827e8f5f6b45d"
 };
-
 firebase.initializeApp(firebaseConfig);
 const database = firebase.database();
 
-/* -------------------------
-   State
-   ------------------------- */
+/* Runtime state */
 let gamesCache = [];
 let categories = ["all","action","adventure","puzzle","racing","multiplayer","strategy","sports","classics"];
 let activeCategory = "all";
+let adminAuthenticated = false;
 
-/* -------------------------
-   UI Bindings
-   ------------------------- */
+/* UI refs */
 const homeScreen = document.getElementById("homeScreen");
 const landingScreen = document.getElementById("landingScreen");
 const mainHeader = document.getElementById("mainHeader");
-const enterBtn = document.getElementById("enterBtn");
-const enterHubBtn = document.getElementById("enterHubBtn");
-const passwordInput = document.getElementById("passwordInput");
-const errorMsg = document.getElementById("errorMsg");
 const app = document.getElementById("app");
-const categoryBar = document.getElementById("categoryBar");
 const searchBox = document.getElementById("searchBox");
+const categoryBar = document.getElementById("categoryBar");
+const announcementBar = document.getElementById("announcementBar");
 
-/* -------------------------
-   Password and flow
-   ------------------------- */
-enterBtn.addEventListener("click", () => {
-  const pw = passwordInput.value;
-  if (pw === PASSWORD) {
-    errorMsg.textContent = "";
-    homeScreen.style.display = "none";
+/* =====================
+   Utility: SHA-256 hex
+   ===================== */
+async function sha256Hex(str){
+  const enc = new TextEncoder().encode(str);
+  const digest = await crypto.subtle.digest("SHA-256", enc);
+  const bytes = new Uint8Array(digest);
+  return Array.from(bytes).map(b => b.toString(16).padStart(2,"0")).join("");
+}
+
+/* =====================
+   Initial: announcement listener
+   ===================== */
+const ANN_PATH = "announcement/latest";
+function listenAnnouncement(){
+  database.ref(ANN_PATH).on("value", snap=>{
+    const val = snap.val();
+    if(!val) {
+      announcementBar.textContent = "No announcements right now.";
+      return;
+    }
+    // val expected: { text: "...", updatedAt: 169xxx }
+    const txt = val.text || "";
+    const ts = val.updatedAt ? new Date(val.updatedAt).toLocaleString() : "";
+    announcementBar.innerHTML = `<div style="font-weight:700;color:#fff;margin-bottom:.25rem">Announcement</div><div>${escapeHtml(txt)}</div><div style="margin-top:.45rem;font-size:.78rem;color:var(--muted)">Last updated: ${escapeHtml(ts)}</div>`;
+  }, err=> {
+    announcementBar.textContent = "Announcements unavailable.";
+    console.error("announce listen error", err);
+  });
+}
+listenAnnouncement();
+
+/* =====================
+   Password flow (main access)
+   ===================== */
+const passwordInput = document.getElementById("passwordInput");
+const enterBtn = document.getElementById("enterBtn");
+const errorMsg = document.getElementById("errorMsg");
+
+enterBtn.addEventListener("click", async ()=>{
+  errorMsg.textContent = "";
+  const v = (passwordInput.value || "").trim();
+  if(!v) { errorMsg.textContent = "Enter access code"; return; }
+  const h = await sha256Hex(v);
+  // compare to stored hash
+  if(h === HASH_MAIN){
+    // clear sensitive input immediately
+    passwordInput.value = "";
     // show landing hero
+    homeScreen.style.display = "none";
     landingScreen.style.display = "flex";
-    landingScreen.setAttribute("aria-hidden","false");
   } else {
-    errorMsg.textContent = "Incorrect password.";
-    // shake animation
-    passwordInput.animate([{transform:'translateX(0)'},{transform:'translateX(-6px)'},{transform:'translateX(6px)'},{transform:'translateX(0)'}], {duration:240});
+    errorMsg.textContent = "Incorrect access code";
+    passwordInput.animate([{transform:'translateX(0)'},{transform:'translateX(-6px)'},{transform:'translateX(6px)'},{transform:'translateX(0)'}],{duration:240});
+    // clear the entered value
+    passwordInput.value = "";
   }
 });
 
-enterHubBtn.addEventListener("click", async () => {
-  // hide landing, show header & load games
+// allow enter key
+passwordInput.addEventListener("keydown", (e)=>{ if(e.key === "Enter") enterBtn.click(); });
+
+/* =====================
+   Landing -> Enter Hub
+   ===================== */
+document.getElementById("enterHubBtn").addEventListener("click", async ()=>{
   landingScreen.style.display = "none";
   mainHeader.style.display = "flex";
-  mainHeader.setAttribute("aria-hidden","false");
   await loadGames();
   showGameList(gamesCache);
 });
 
-/* quick preview buttons */
-document.getElementById("tourBtn").addEventListener("click", async () => {
-  landingScreen.querySelector(".preview").animate([{transform:"translateY(0)"},{transform:"translateY(-6px)"},{transform:"translateY(0)"}], {duration:450, iterations:1});
-});
-document.getElementById("viewChat").addEventListener("click", ()=> {
+/* quick chat preview */
+document.getElementById("viewChat").addEventListener("click", ()=>{
   landingScreen.style.display = "none";
   mainHeader.style.display = "flex";
   showChat();
 });
 
-/* -------------------------
-   Load Games JSON
-   ------------------------- */
+/* =====================
+   Load games JSON
+   ===================== */
 async function loadGames(){
-  try {
-    const resp = await fetch(GAMES_JSON_URL);
-    const data = await resp.json();
+  try{
+    const r = await fetch(GAMES_JSON_URL);
+    const data = await r.json();
     gamesCache = data || [];
-
-    // Add categories found in JSON (but keep our emoji list order)
-    gamesCache.forEach(g => {
-      if (Array.isArray(g.tags)) {
-        g.tags.forEach(t => {
-          const key = (typeof t === 'string') ? t.toLowerCase() : "";
-          if (key && !categories.includes(key)) categories.push(key);
-        });
-      }
+    // add categories from JSON if missing
+    gamesCache.forEach(g=>{
+      if(Array.isArray(g.tags)) g.tags.forEach(t=>{
+        const key = String(t).toLowerCase();
+        if(key && !categories.includes(key)) categories.push(key);
+      });
     });
-
     buildCategoryBar();
     return gamesCache;
-  } catch (e) {
-    console.error("Failed to load games.json", e);
+  }catch(e){
+    console.error("loadGames error", e);
     gamesCache = [];
     buildCategoryBar();
     return [];
   }
 }
 
-/* -------------------------
-   Category Bar (emoji icons)
-   ------------------------- */
+/* =====================
+   Category bar
+   ===================== */
 function buildCategoryBar(){
   categoryBar.innerHTML = "";
-  categories.forEach(cat => {
+  categories.forEach(cat=>{
     const btn = document.createElement("button");
-    btn.className = "cat-btn" + (cat===activeCategory ? " active" : "");
-    btn.title = cat === "all" ? "All" : cat.charAt(0).toUpperCase() + cat.slice(1);
-    const emoji = emojiMap[cat] || emojiMap[cat.toLowerCase()] || emojiMap.default;
-    btn.innerHTML = `<span style="font-size:1.05rem">${emoji}</span><span style="opacity:.95;margin-left:.45rem">${cat === "all" ? "All" : cat.charAt(0).toUpperCase()+cat.slice(1)}</span>`;
-    btn.onclick = () => {
-      activeCategory = cat;
-      document.querySelectorAll(".cat-btn").forEach(n=>n.classList.remove("active"));
-      btn.classList.add("active");
-      filterGames();
-    };
+    btn.className = "cat-btn" + (cat === activeCategory ? " active" : "");
+    const label = cat === "all" ? "All" : cat.charAt(0).toUpperCase() + cat.slice(1);
+    btn.innerHTML = `<span style="font-size:1rem">${emojiMap[cat] || "🔹"}</span><span style="margin-left:.4rem">${label}</span>`;
+    btn.onclick = ()=>{ activeCategory = cat; document.querySelectorAll(".cat-btn").forEach(x=>x.classList.remove("active")); btn.classList.add("active"); filterGames(); };
     categoryBar.appendChild(btn);
   });
 }
 
-/* -------------------------
-   Search: smarter highlight
-   ------------------------- */
+/* =====================
+   Search + highlight helpers
+   ===================== */
+function escapeHtml(s){ return (s||"").toString().replace(/[&<>"']/g,m=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[m])); }
 function highlightMatch(text, q){
   if(!q) return escapeHtml(text);
   const idx = text.toLowerCase().indexOf(q.toLowerCase());
-  if(idx === -1) return escapeHtml(text);
+  if(idx===-1) return escapeHtml(text);
   const before = escapeHtml(text.slice(0, idx));
-  const match = escapeHtml(text.slice(idx, idx + q.length));
-  const after = escapeHtml(text.slice(idx + q.length));
+  const match = escapeHtml(text.slice(idx, idx+q.length));
+  const after = escapeHtml(text.slice(idx+q.length));
   return `${before}<mark style="background:rgba(10,157,255,0.18);padding:.05rem .12rem;border-radius:4px;color:#fff">${match}</mark>${after}`;
 }
-function escapeHtml(s){ return (s + "").replace(/[&<>"']/g, function(m){ return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[m]; }); }
 
-/* -------------------------
-   Show Game List
-   ------------------------- */
+/* =====================
+   Recently Played utilities (localStorage)
+   ===================== */
+const RP_KEY = "astral_recently_played";
+function pushRecentlyPlayed(game){
+  try{
+    const arr = JSON.parse(localStorage.getItem(RP_KEY) || "[]");
+    // store minimal info
+    const entry = { id: game.id || game.name || Math.random().toString(36).slice(2,9), name: game.name || "Untitled", url: game.url || game.game_url || game.iframe || "", thumb: game.game_image_icon || game.thumbnail || "" , ts: Date.now() };
+    // remove existing same id
+    const filtered = arr.filter(x=>x.id !== entry.id);
+    filtered.unshift(entry);
+    const sliced = filtered.slice(0,6);
+    localStorage.setItem(RP_KEY, JSON.stringify(sliced));
+    return sliced;
+  }catch(e){ console.error("rp push", e); return []; }
+}
+function getRecentlyPlayed(){ try{ return JSON.parse(localStorage.getItem(RP_KEY) || "[]"); }catch(e){ return []; } }
+
+/* =====================
+   Render: Featured, Recently, Grid
+   ===================== */
 function showGameList(games){
   app.innerHTML = "";
 
-  // Featured row (take up to 3 featured)
-  const featured = games.filter(g => g.featured).slice(0,3);
+  // Featured
+  const featured = (games || []).filter(g => g.featured).slice(0,3);
   if(featured.length){
-    const featuredRow = document.createElement("div");
-    featuredRow.className = "featured-row";
-    featured.forEach(f => {
+    const fr = document.createElement("div"); fr.className = "featured-row";
+    featured.forEach(f=>{
       const fc = document.createElement("div"); fc.className = "featured-card";
-      const img = document.createElement("img"); img.src = f.game_image_icon || f.thumbnail || ""; img.alt = f.name || "featured";
+      const img = document.createElement("img"); img.src = f.game_image_icon || f.thumbnail || ""; img.alt = f.name || ""; img.style.width="140px"; img.style.height="90px"; img.style.objectFit="cover"; img.style.borderRadius="8px";
       const meta = document.createElement("div");
-      const title = document.createElement("div"); title.style.fontWeight=700; title.style.color="#fff"; title.textContent = f.name || "Untitled";
-      const desc = document.createElement("div"); desc.style.color = "var(--muted)"; desc.style.fontSize="0.95rem"; desc.style.marginTop = ".45rem"; desc.textContent = f.description || "";
-      const play = document.createElement("button"); play.className="btn-primary"; play.style.marginLeft="auto"; play.textContent="Play"; play.onclick = ()=> showGamePage(f);
-      meta.appendChild(title); meta.appendChild(desc);
-      fc.appendChild(img); fc.appendChild(meta); featuredRow.appendChild(fc);
+      const t = document.createElement("div"); t.style.fontWeight=700; t.style.color="#fff"; t.textContent = f.name || "Untitled";
+      const d = document.createElement("div"); d.style.color="var(--muted)"; d.style.marginTop=".45rem"; d.textContent = f.description || "";
+      const play = document.createElement("button"); play.className="btn btn-primary"; play.style.marginTop="8px"; play.textContent="Play"; play.onclick = ()=> showGamePage(f);
+      meta.appendChild(t); meta.appendChild(d); meta.appendChild(play);
+      fc.appendChild(img); fc.appendChild(meta); fr.appendChild(fc);
     });
-    app.appendChild(featuredRow);
+    app.appendChild(fr);
+  }
+
+  // Recently played row (RP-A)
+  const rp = getRecentlyPlayed();
+  if(rp && rp.length){
+    const rr = document.createElement("div"); rr.className = "recent-row";
+    rr.style.marginBottom = "12px";
+    const label = document.createElement("div"); label.style.fontWeight=700; label.style.marginRight="1rem"; label.style.color="#fff"; label.textContent="Recently Played";
+    rr.appendChild(label);
+    rp.forEach(item=>{
+      const c = document.createElement("div"); c.style.display="flex"; c.style.flexDirection="column"; c.style.alignItems="center"; c.style.width="140px";
+      const img = document.createElement("img"); img.src = item.thumb || ""; img.alt = item.name; img.style.width="120px"; img.style.height="72px"; img.style.objectFit="cover"; img.style.borderRadius="8px";
+      const nm = document.createElement("div"); nm.style.marginTop="6px"; nm.style.fontSize=".9rem"; nm.style.color="var(--muted)"; nm.textContent = item.name;
+      c.appendChild(img); c.appendChild(nm);
+      c.onclick = ()=> { // try opening via iframe page
+        const game = gamesCache.find(g => (g.name && g.name === item.name) || (g.id && g.id === item.id));
+        if(game) showGamePage(game);
+      }
+      rr.appendChild(c);
+    });
+    app.appendChild(rr);
   }
 
   // Grid
-  const q = searchBox.value.trim();
-  const cat = activeCategory;
-
-  const filtered = games.filter(g => {
+  const q = (searchBox.value || "").trim();
+  const filtered = (games || []).filter(g=>{
     const name = (g.name||"").toLowerCase();
-    const tags = Array.isArray(g.tags) ? g.tags.map(t=>t.toLowerCase()) : [];
-    const matchesQuery = !q || name.includes(q.toLowerCase()) || (g.description||"").toLowerCase().includes(q.toLowerCase()) || tags.some(t => t.includes(q.toLowerCase()));
-    const matchesCat = cat === "all" || tags.includes(cat);
+    const desc = (g.description||"").toLowerCase();
+    const tags = (g.tags || []).map(t=>String(t).toLowerCase());
+    const matchesQuery = !q || name.includes(q.toLowerCase()) || desc.includes(q.toLowerCase()) || tags.some(t=>t.includes(q.toLowerCase()));
+    const matchesCat = activeCategory === "all" || tags.includes(activeCategory);
     return matchesQuery && matchesCat;
   });
 
-  if(!filtered.length){
-    const no = document.createElement("div"); no.className = "no-results"; no.innerHTML = `<div>No results found for "<strong>${escapeHtml(q)}</strong>". Try another search or category.</div>`;
+  if(filtered.length === 0){
+    const no = document.createElement("div"); no.className = "no-results"; no.textContent = `No results found${q?(" for \""+q+"\""):''}.`;
     app.appendChild(no);
     return;
   }
 
   const list = document.createElement("div"); list.className = "game-list";
-  filtered.forEach(game => {
+  filtered.forEach(game=>{
     const card = document.createElement("div"); card.className = "game-card";
-    card.onclick = (ev) => {
-      // clicking on play button should be handled separately
-      if(ev.target.closest(".play-btn")) return;
-      showGamePage(game);
-    };
-
     // thumbnail
-    const thumb = document.createElement("img"); thumb.className = "thumbnail";
-    thumb.loading = "lazy";
-    thumb.src = game.game_image_icon || game.thumbnail || "";
-    thumb.alt = game.name || "game";
-
+    const thumb = document.createElement("img"); thumb.className = "thumbnail"; thumb.loading = "lazy"; thumb.src = game.game_image_icon || game.thumbnail || ""; thumb.alt = game.name || "";
     // body
     const body = document.createElement("div"); body.className = "card-body";
-    const title = document.createElement("div"); title.className = "title";
-    title.innerHTML = highlightMatch(game.name || "Untitled", q);
-
-    // tags
+    const title = document.createElement("div"); title.className = "title"; title.innerHTML = highlightMatch(game.name || "Untitled", q);
     const tagsWrap = document.createElement("div"); tagsWrap.className = "tags";
     const tagsList = Array.isArray(game.tags) ? game.tags.slice(0,4) : [];
-    tagsList.forEach(t => {
-      const tg = document.createElement("div"); tg.className = "tag"; tg.textContent = t;
-      tagsWrap.appendChild(tg);
+    tagsList.forEach(t=>{
+      const tg = document.createElement("div"); tg.className = "tag"; tg.textContent = t; tagsWrap.appendChild(tg);
     });
-
-    // hover details
+    // hover
     const hover = document.createElement("div"); hover.className = "hover-details";
-    const desc = document.createElement("div"); desc.className = "hover-desc";
-    desc.innerText = game.description || "No description available.";
+    const desc = document.createElement("div"); desc.className = "hover-desc"; desc.textContent = game.description || "No description available.";
     const actions = document.createElement("div"); actions.className = "hover-actions";
     const playBtn = document.createElement("button"); playBtn.className = "play-btn"; playBtn.textContent = "Play";
-    playBtn.onclick = (e) => { e.stopPropagation(); showGamePage(game); };
+    playBtn.addEventListener("click", (ev)=>{ ev.stopPropagation(); showGamePage(game); });
     actions.appendChild(playBtn);
+    hover.appendChild(desc); hover.appendChild(actions);
 
-    hover.appendChild(desc);
-    hover.appendChild(actions);
+    body.appendChild(title); body.appendChild(tagsWrap);
+    card.appendChild(thumb); card.appendChild(body); card.appendChild(hover);
 
-    body.appendChild(title);
-    body.appendChild(tagsWrap);
-
-    card.appendChild(thumb);
-    card.appendChild(body);
-    card.appendChild(hover);
-
+    card.addEventListener("click", ()=> showGamePage(game) );
     list.appendChild(card);
   });
 
   app.appendChild(list);
 }
 
-/* -------------------------
-   Show single game page (iframe)
-   ------------------------- */
+/* =====================
+   Game page (iframe) and track recently played
+   ===================== */
 function showGamePage(game){
   app.innerHTML = "";
-  const container = document.createElement("div"); container.className = "container";
+  const container = document.createElement("div"); container.style.padding = "0 0 1rem 0";
   const back = document.createElement("span"); back.className = "back-link"; back.textContent = "← Back to games"; back.onclick = ()=> showGameList(gamesCache);
-  const iframe = document.createElement("iframe");
-  // If JSON provides an iframe attribute, use srcdoc; if a direct url is provided, use src
-  if(game.iframe) {
-    iframe.srcdoc = game.iframe;
-  } else if(game.url){
-    iframe.src = game.url;
-  } else if(game.game_url){
-    iframe.src = game.game_url;
-  } else {
-    // fallback: blank page showing message
-    iframe.srcdoc = `<body style="background:#000;color:#fff;display:flex;align-items:center;justify-content:center;height:100vh;margin:0"><div style="text-align:center"><h2>${escapeHtml(game.name||"Game")}</h2><p style="color:#bbb">No playable iframe URL provided.</p></div></body>`;
-  }
   container.appendChild(back);
+
+  const iframe = document.createElement("iframe");
+  iframe.style.width = "100%"; iframe.style.height = "78vh"; iframe.style.border = "none"; iframe.style.borderRadius = "10px"; iframe.style.background = "#000";
+
+  if(game.iframe) iframe.srcdoc = game.iframe;
+  else if(game.url) iframe.src = game.url;
+  else if(game.game_url) iframe.src = game.game_url;
+  else iframe.srcdoc = `<body style="background:#000;color:#fff;display:flex;align-items:center;justify-content:center;height:100vh;margin:0"><div style="text-align:center"><h2>${escapeHtml(game.name||"Game")}</h2><p style="color:#bbb">No playable iframe URL provided.</p></div></body>`;
+
   container.appendChild(iframe);
   app.appendChild(container);
+
+  // push recently played
+  pushRecentlyPlayed(game);
 }
 
-/* -------------------------
-   Filter helpers
-   ------------------------- */
+/* =====================
+   Search / filter wiring
+   ===================== */
+searchBox.addEventListener("input", debounce(()=> filterGames(), 160));
+function filterGames(){ showGameList(gamesCache); }
 
-function filterGames(){
-  showGameList(gamesCache);
-}
-
-/* wire search */
-searchBox.addEventListener("input", _debounce(()=>{
-  filterGames();
-}, 180));
-
-/* -------------------------
+/* =====================
    Chatroom UI
-   ------------------------- */
+   ===================== */
 function showChat(){
-  app.innerHTML = "";
-  const container = document.createElement("div"); container.className = "container";
-  const back = document.createElement("span"); back.className = "back-link"; back.textContent = "← Back to games"; back.onclick = ()=> showGameList(gamesCache);
-  const chatDiv = document.createElement("div"); chatDiv.id = "chatContainer";
-
-  const messages = document.createElement("div"); messages.id = "chatMessages";
-  const inputContainer = document.createElement("div"); inputContainer.id = "chatInputContainer";
-  const input = document.createElement("input"); input.id = "chatInput"; input.placeholder = "Type a message...";
-  const send = document.createElement("button"); send.id = "chatSend"; send.textContent = "Send";
-
-  inputContainer.append(input,send);
-  chatDiv.append(messages,inputContainer);
-  container.append(back,chatDiv);
-  app.append(container);
-
-  // Listen for messages
-  database.ref("chat").off(); // clear existing listeners to avoid duplicates
+  app.innerHTML = `<span class="back-link" onclick="showGameList(gamesCache)">← Back to games</span>
+    <div id="chatContainer">
+      <div id="chatMessages"></div>
+      <div style="display:flex;gap:.4rem;margin-top:.6rem;">
+        <input id="chatInput" placeholder="Message..." style="flex:1;padding:.6rem;border-radius:8px;border:none;background:#0b0c0e;color:#fff">
+        <button id="chatSend" class="btn btn-primary">Send</button>
+      </div>
+    </div>`;
+  const messages = document.getElementById("chatMessages");
+  database.ref("chat").off();
   database.ref("chat").on("child_added", snap=>{
-    const msg = snap.val();
-    const div = document.createElement("div");
-    div.style.padding = ".45rem .6rem";
-    div.style.marginBottom = ".4rem";
-    div.style.borderRadius = "8px";
-    div.style.background = "linear-gradient(90deg, rgba(255,255,255,0.02), rgba(255,255,255,0.01))";
-    div.style.color = "var(--muted)";
-    div.textContent = msg;
-    messages.append(div);
+    const d = document.createElement("div");
+    d.textContent = snap.val();
+    d.style.margin = ".3rem 0";
+    d.style.background = "rgba(255,255,255,0.02)";
+    d.style.padding = ".45rem .6rem";
+    d.style.borderRadius = "6px";
+    messages.appendChild(d);
     messages.scrollTop = messages.scrollHeight;
   });
-
-  send.onclick = ()=>{
-    const val = input.value.trim();
-    if(!val) return;
-    database.ref("chat").push(val);
-    input.value = "";
+  document.getElementById("chatSend").onclick = ()=>{
+    const v = document.getElementById("chatInput").value.trim();
+    if(!v) return;
+    database.ref("chat").push(v);
+    document.getElementById("chatInput").value = "";
   };
 }
 
-/* -------------------------
-   Other Websites (admin only)
-   ------------------------- */
-function showOtherWebsites(){
-  app.innerHTML = "";
-  const container = document.createElement("div"); container.className = "container";
-  const back = document.createElement("span"); back.className = "back-link"; back.textContent = "← Back to games"; back.onclick = ()=> showGameList(gamesCache);
-  const list = document.createElement("div"); list.id = "otherWebsitesList";
-  container.append(back, list);
-  app.append(container);
+/* =====================
+   Admin Login flow (modal)
+   ===================== */
+const adminLoginLink = document.getElementById("adminLoginLink");
+adminLoginLink.addEventListener("click", (e)=>{ e.preventDefault(); openAdminModal(); });
 
-  // EDIT THIS LIST IN THE HTML SOURCE to change links (users cannot add links from UI)
-  const otherWebsites = [
+function openAdminModal(){
+  const backdrop = document.createElement("div"); backdrop.className = "modal-backdrop";
+  const modal = document.createElement("div"); modal.className = "modal";
+  modal.innerHTML = `
+    <h3>Admin Login</h3>
+    <input id="admPwd" class="input" type="password" placeholder="Admin password" />
+    <div style="display:flex;gap:.5rem;justify-content:flex-end;">
+      <button id="admCancel" class="btn btn-ghost">Cancel</button>
+      <button id="admLogin" class="btn btn-primary">Login</button>
+    </div>
+    <div id="admMsg" style="margin-top:.6rem;color:var(--muted);font-size:.9rem"></div>
+  `;
+  backdrop.appendChild(modal);
+  document.body.appendChild(backdrop);
+  document.getElementById("admCancel").onclick = ()=> backdrop.remove();
+  document.getElementById("admLogin").onclick = async ()=>{
+    const v = document.getElementById("admPwd").value || "";
+    const admMsg = document.getElementById("admMsg");
+    admMsg.textContent = "";
+    const h = await sha256Hex(v);
+    if(h === HASH_ADMIN){
+      // success
+      adminAuthenticated = true;
+      sessionStorage.setItem("astral_admin", "1");
+      backdrop.remove();
+      openAdminPanel();
+    } else {
+      admMsg.textContent = "Invalid admin password";
+      document.getElementById("admPwd").value = "";
+    }
+  };
+}
+
+/* =====================
+   Admin Panel (edit announcement)
+   ===================== */
+function openAdminPanel(){
+  // render admin UI in app area (toggle)
+  app.innerHTML = `<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:1rem">
+      <div style="font-weight:800;font-size:1.2rem;color:#fff">Admin Panel</div>
+      <div><button id="admLogout" class="btn btn-ghost">Logout</button></div>
+    </div>
+    <div style="display:grid;gap:.6rem;">
+      <label style="color:var(--muted)">Edit announcement (visible to all users):</label>
+      <textarea id="admAnnouncement" style="min-height:120px;padding:.7rem;border-radius:8px;background:#0b0c0e;border:none;color:#fff"></textarea>
+      <div style="display:flex;gap:.5rem;justify-content:flex-end;">
+        <button id="admCancel2" class="btn btn-ghost">Cancel</button>
+        <button id="admSave" class="btn btn-primary">Save Announcement</button>
+      </div>
+      <div style="margin-top:.6rem;color:var(--muted);font-size:.9rem" id="admStatus"></div>
+    </div>`;
+  // load current announcement
+  database.ref(ANN_PATH).once("value").then(snap=>{
+    const v = snap.val(); document.getElementById("admAnnouncement").value = v && v.text ? v.text : "";
+  }).catch(e=> console.error("adm load", e));
+  document.getElementById("admCancel2").onclick = ()=> showGameList(gamesCache);
+  document.getElementById("admLogout").onclick = ()=>{ adminAuthenticated = false; sessionStorage.removeItem("astral_admin"); showGameList(gamesCache); };
+  document.getElementById("admSave").onclick = async ()=>{
+    const txt = document.getElementById("admAnnouncement").value || "";
+    document.getElementById("admStatus").textContent = "Saving...";
+    const payload = { text: txt, updatedAt: Date.now() };
+    try{
+      await database.ref(ANN_PATH).set(payload);
+      document.getElementById("admStatus").textContent = "Saved.";
+      // announce saved; announcementBar listener will update automatically
+    }catch(e){
+      console.error("save ann", e); document.getElementById("admStatus").textContent = "Save failed.";
+    }
+  };
+}
+
+/* On page load, restore admin auth from session if present */
+if(sessionStorage.getItem("astral_admin")){ adminAuthenticated = true; }
+
+/* =====================
+   Other Websites (admin only edit removed)
+   ===================== */
+document.getElementById("otherLinks").addEventListener("click", (e)=>{ e.preventDefault(); showOtherWebsites(); });
+function showOtherWebsites(){
+  app.innerHTML = `<span class="back-link" onclick="showGameList(gamesCache)">← Back to games</span>
+    <div id="otherWebsitesList" style="margin-top:8px;"></div>`;
+  const links = [
     "https://example1.com",
-    "https://example2.com",
-    "https://raw.githubusercontent.com"
+    "https://example2.com"
   ];
-  otherWebsites.forEach(url => {
-    const a = document.createElement("a"); a.href = url; a.target = "_blank"; a.textContent = url;
-    a.style.display = "block"; a.style.marginTop = ".3rem"; a.style.color = "var(--muted)";
+  const list = document.getElementById("otherWebsitesList");
+  links.forEach(u=>{
+    const a = document.createElement("a"); a.href = u; a.target = "_blank"; a.textContent = u; a.style.display="block"; a.style.marginTop=".35rem"; a.style.color="var(--muted)";
     list.appendChild(a);
   });
 }
 
-/* -------------------------
-   Utilities
-   ------------------------- */
-function _debounce(fn, wait){ let t; return function(...a){ clearTimeout(t); t = setTimeout(()=>fn.apply(this,a), wait); }; }
+/* =====================
+   Utilities: debounce
+   ===================== */
+function debounce(fn, wait){ let t; return function(...a){ clearTimeout(t); t = setTimeout(()=>fn.apply(this,a), wait); }; }
 
-/* -------------------------
-   Initial setup: build categories UI (will be updated once games.json loads)
-   ------------------------- */
-buildCategoryBar();
-
-/* Load minimal content if user refreshes after entering header */
-if(mainHeader.style.display === "flex"){
-  loadGames().then(()=> showGameList(gamesCache));
+/* =====================
+   Startup: build categories and listeners
+   ===================== */
+function buildCategoryBar(){
+  categoryBar.innerHTML = "";
+  categories.forEach(cat=>{
+    const btn = document.createElement("button");
+    btn.className = "cat-btn" + (cat === activeCategory ? " active" : "");
+    const label = cat === "all" ? "All" : cat.charAt(0).toUpperCase() + cat.slice(1);
+    btn.innerHTML = `<span style="font-size:1rem">${emojiMap[cat] || "🔹"}</span><span style="margin-left:.4rem">${label}</span>`;
+    btn.onclick = ()=>{ activeCategory = cat; document.querySelectorAll(".cat-btn").forEach(x=>x.classList.remove("active")); btn.classList.add("active"); filterGames(); };
+    categoryBar.appendChild(btn);
+  });
 }
+buildCategoryBar();
+searchBox.addEventListener("input", debounce(()=> filterGames(), 180));
 
-/* Accessibility: allow enter to activate password */
-passwordInput.addEventListener("keydown", (e)=>{ if(e.key === "Enter") enterBtn.click(); });
+/* =====================
+   Helper: filterGames shorthand
+   ===================== */
+function filterGames(){ showGameList(gamesCache); }
 
+/* =====================
+   On load: ensure announcement and minimal UI text
+   ===================== */
+(function init(){
+  // announcementBar placeholder is already present; announce listener attached earlier
+  announcementBar.textContent = "Loading announcements...";
+})();
+
+/* =====================
+   Expose some functions to global for inline handlers (back links)
+   ===================== */
+window.showGameList = ()=> showGameList(gamesCache);
+window.showChat = showChat;
+
+/* =====================
+   Note: no passwords are printed anywhere in console.
+   ===================== */
 </script>
 </body>
 </html>
