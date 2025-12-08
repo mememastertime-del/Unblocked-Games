@@ -352,7 +352,7 @@ const HASH_ADMIN = "23c28e809cef8751da4a6393e9cb183b8d969f77ab0ade39e6b282e19e40
 
 const GAMES_JSON_URL = "https://raw.githubusercontent.com/swarmintelli/Unblocked-Games-CDN/main/games.json";
 
-/* Proxy: back to your Ultraviolet instance */
+/* Proxy: now pointing to your Astral Proxy Browser shell */
 const PROXY_URL = "https://mememastertime-del.github.io/Unblocked-Games/proxy-browser.html";
 
 /* Firebase config */
@@ -369,7 +369,7 @@ firebase.initializeApp(firebaseConfig);
 const db = firebase.database();
 const ANN_PATH = "announcement/latest";
 const ADMIN_THEME_PATH = "admin/themeBg";
-const OTHER_LINKS_PATH = "admin/otherLinks"; // NEW: admin-controlled "Other Websites" links
+const OTHER_LINKS_PATH = "admin/otherLinks";
 
 /* emoji map */
 const emojiMap = {
@@ -672,23 +672,58 @@ function showFavorites(){
 }
 
 /* ===========================
-   GAME PAGE
+   GAME PAGE (with fullscreen)
    =========================== */
 function showGamePage(game){
   app.innerHTML = "";
+
   const back = document.createElement("div");
   back.style.cursor="pointer"; back.style.color="var(--muted)"; back.style.marginBottom="8px";
   back.textContent = "← Back to games";
   back.onclick = ()=> showGameList();
   app.appendChild(back);
 
+  let iframe;
+
+  const headerRow = document.createElement("div");
+  headerRow.style.display = "flex";
+  headerRow.style.alignItems = "center";
+  headerRow.style.justifyContent = "space-between";
+  headerRow.style.marginBottom = "6px";
+
+  const title = document.createElement("div");
+  title.style.fontWeight = "700";
+  title.style.color = "var(--text)";
+  title.style.fontSize = "0.95rem";
+  title.textContent = game.name || "Game";
+
+  const fsBtn = document.createElement("button");
+  fsBtn.className = "btn btn-ghost";
+  fsBtn.textContent = "Fullscreen";
+  fsBtn.style.padding = ".35rem .8rem";
+  fsBtn.onclick = ()=>{
+    if(iframe && iframe.requestFullscreen){
+      iframe.requestFullscreen();
+    }else if(iframe && iframe.webkitRequestFullscreen){
+      iframe.webkitRequestFullscreen();
+    }
+  };
+
+  headerRow.appendChild(title);
+  headerRow.appendChild(fsBtn);
+  app.appendChild(headerRow);
+
   const loadWrap = document.createElement("div"); loadWrap.style.marginBottom="8px"; loadWrap.style.textAlign="center";
   const localSpinner = document.createElement("div"); localSpinner.className = "spinner"; localSpinner.style.width="42px"; localSpinner.style.height="42px"; localSpinner.style.borderWidth="5px"; localSpinner.style.display="inline-block";
   loadWrap.appendChild(localSpinner);
   app.appendChild(loadWrap);
 
-  const iframe = document.createElement("iframe");
+  iframe = document.createElement("iframe");
   iframe.style.width = "100%"; iframe.style.height = "78vh"; iframe.style.border = "none"; iframe.style.borderRadius = "10px"; iframe.style.background="#000";
+  iframe.setAttribute("allowfullscreen","true");
+  iframe.setAttribute("allow","fullscreen");
+  iframe.allowFullscreen = true;
+
   if(game.iframe) iframe.srcdoc = game.iframe;
   else if(game.game_url) iframe.src = game.game_url;
   else if(game.url) iframe.src = game.url;
@@ -701,7 +736,7 @@ function showGamePage(game){
 }
 
 /* ===========================
-   PROXY BROWSER VIEW
+   PROXY BROWSER VIEW (with fullscreen)
    =========================== */
 function showProxyBrowser(){
   app.innerHTML = "";
@@ -711,11 +746,41 @@ function showProxyBrowser(){
   back.onclick = ()=> showGameList();
   app.appendChild(back);
 
+  let iframe;
+
+  const headerRow = document.createElement("div");
+  headerRow.style.display = "flex";
+  headerRow.style.alignItems = "center";
+  headerRow.style.justifyContent = "space-between";
+  headerRow.style.marginBottom = "6px";
+
+  const title = document.createElement("div");
+  title.style.fontWeight = "700";
+  title.style.color = "var(--text)";
+  title.style.fontSize = "0.95rem";
+  title.textContent = "Proxy Browser";
+
+  const fsBtn = document.createElement("button");
+  fsBtn.className = "btn btn-ghost";
+  fsBtn.textContent = "Fullscreen";
+  fsBtn.style.padding = ".35rem .8rem";
+  fsBtn.onclick = ()=>{
+    if(iframe && iframe.requestFullscreen){
+      iframe.requestFullscreen();
+    }else if(iframe && iframe.webkitRequestFullscreen){
+      iframe.webkitRequestFullscreen();
+    }
+  };
+
+  headerRow.appendChild(title);
+  headerRow.appendChild(fsBtn);
+  app.appendChild(headerRow);
+
   const note = document.createElement("div");
   note.style.fontSize = ".9rem";
   note.style.color = "var(--muted)";
   note.style.marginBottom = "8px";
-  note.textContent = "This loads your Ultraviolet browser. From there you can open search engines like DuckDuckGo.";
+  note.textContent = "This loads the Astral Proxy Browser shell, which itself uses your UV proxy.";
   app.appendChild(note);
 
   const wrap = document.createElement("div"); wrap.style.textAlign="center"; wrap.style.marginBottom="8px";
@@ -723,13 +788,16 @@ function showProxyBrowser(){
   wrap.appendChild(localSpinner);
   app.appendChild(wrap);
 
-  const iframe = document.createElement("iframe");
+  iframe = document.createElement("iframe");
   iframe.src = PROXY_URL;
   iframe.style.width = "100%";
   iframe.style.height = "78vh";
   iframe.style.border = "none";
   iframe.style.borderRadius = "10px";
   iframe.style.background = "#000";
+  iframe.setAttribute("allowfullscreen","true");
+  iframe.setAttribute("allow","fullscreen");
+  iframe.allowFullscreen = true;
   iframe.onload = ()=> wrap.remove();
   app.appendChild(iframe);
 }
@@ -1126,4 +1194,3 @@ mainContent.style.display = "none";
 </script>
 </body>
 </html>
-
