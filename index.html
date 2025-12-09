@@ -5,267 +5,172 @@
 <title>Astral Employment</title>
 <meta name="viewport" content="width=device-width,initial-scale=1" />
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;800&display=swap" rel="stylesheet">
-
 <style>
-/* ========== THEME VARIABLES ========== */
 :root{
-  --bg:#07070a;
-  --panel:#0f1113;
-  --muted:#bfc7d0;
-  --accent:#0a9dff;
-  --card:#161717;
-  --glass: rgba(255,255,255,0.03);
-  --text:#eaf2ff;
-  --success:#4ade80;
-  --danger:#ff6b6b;
-  --nav-width-collapsed:68px;
-  --nav-width-expanded:220px;
+  --bg:#07070a;--panel:#0f1113;--muted:#bfc7d0;--accent:#0a9dff;--card:#161717;--text:#eaf2ff;
+  --nav-collapsed:68px;--nav-expanded:220px;
 }
-
-/* Dark default */
-html[data-theme="dark"] {
-  --bg:#07070a;
-  --panel:#0f1113;
-  --muted:#bfc7d0;
-  --accent:#0a9dff;
-  --card:#161717;
-  --text:#eaf2ff;
-}
+html[data-theme="dark"]{}
 html[data-theme="light"]{
-  --bg:#f6f7fb;
-  --panel:#ffffff;
-  --muted:#475569;
-  --accent:#0a9dff;
-  --card:#ffffff;
-  --text:#0b1220;
+  --bg:#f6f7fb;--panel:#ffffff;--muted:#475569;--card:#ffffff;--text:#0b1220;
 }
-
-/* Reset + base */
 *{box-sizing:border-box;margin:0;padding:0}
 body{
-  font-family:Inter, system-ui, -apple-system, "Segoe UI", Roboto, Arial;
-  background:var(--bg);
-  color:var(--text);
-  height:100vh;
-  overflow:hidden;
+  font-family:Inter,system-ui,-apple-system,"Segoe UI",Roboto,Arial;
+  background:var(--bg);color:var(--text);height:100vh;overflow:hidden;
 }
 
-/* ========== LOGIN & LANDING ========== */
-#homeScreen{
-  height:100vh;
-  display:flex;
-  flex-direction:column;
-  justify-content:center;
-  align-items:center;
-  gap:.9rem;
-  text-align:center;
-  padding:1rem;
+/* login + landing */
+#homeScreen,#landingScreen{
+  height:100vh;display:flex;align-items:center;justify-content:center;padding:1rem;
 }
-#homeScreen h1{
-  font-size:2.4rem;
-  font-weight:800;
-  color:#fff;
-}
+#homeScreen{flex-direction:column;gap:.9rem;text-align:center}
+#homeScreen h1{font-size:2.4rem;font-weight:800;color:#fff}
 #announcementBar{
-  max-width:360px;
-  padding:.7rem;
-  border-radius:10px;
-  background:rgba(255,255,255,0.02);
-  border:1px solid rgba(255,255,255,0.05);
-  font-size:.95rem;
-  color:var(--muted);
+  max-width:360px;padding:.7rem;border-radius:10px;background:rgba(255,255,255,.02);
+  border:1px solid rgba(255,255,255,.05);font-size:.95rem;color:var(--muted);
 }
 #passwordInput{
-  width:280px;
-  padding:.7rem;
-  border-radius:10px;
-  border:none;
-  background:#151515;
-  color:#fff;
-  font-size:1rem;
+  width:280px;padding:.7rem;border-radius:10px;border:none;background:#151515;
+  color:#fff;font-size:1rem;
 }
 #enterBtn{
-  width:220px;
-  padding:.7rem;
-  border-radius:10px;
-  border:none;
-  cursor:pointer;
-  background:var(--accent);
-  color:#fff;
-  font-weight:700;
+  width:220px;padding:.7rem;border-radius:10px;border:none;cursor:pointer;
+  background:var(--accent);color:#fff;font-weight:700;
 }
-#errorMsg{
-  color:var(--danger);
-  font-size:.9rem;
-  min-height:1rem;
-}
-
-#landingScreen{
-  display:none;
-  height:100vh;
-  align-items:center;
-  justify-content:center;
-  padding:1.4rem;
-}
-.hero{
-  max-width:900px;
-  width:100%;
-  display:flex;
-  flex-direction:column;
-  gap:1rem;
-  align-items:flex-start;
-}
-.feature-list{
-  margin-top:.7rem;
-  display:flex;
-  flex-direction:column;
-  gap:.4rem;
-}
+#errorMsg{color:#ff6b6b;font-size:.9rem;min-height:1rem}
+#landingScreen{display:none}
+.hero{max-width:900px;width:100%;display:flex;flex-direction:column;gap:1rem}
+.feature-list{margin-top:.7rem;display:flex;flex-direction:column;gap:.4rem}
 .btn{
-  border:none;
-  border-radius:10px;
-  padding:.7rem 1rem;
-  cursor:pointer;
-  font-weight:700;
+  border:none;border-radius:10px;padding:.7rem 1rem;cursor:pointer;font-weight:700;
 }
 .btn-primary{background:var(--accent);color:#fff}
-.btn-ghost{background:transparent;color:var(--muted);border:1px solid rgba(255,255,255,0.05)}
+.btn-ghost{
+  background:transparent;color:var(--muted);
+  border:1px solid rgba(255,255,255,.05);
+}
 
-/* ========== SPINNER OVERLAY ========== */
+/* spinner */
 #spinnerOverlay{
-  position:fixed;inset:0;
-  display:flex;align-items:center;justify-content:center;
-  background:linear-gradient(180deg, rgba(0,0,0,0.35), rgba(0,0,0,0.6));
-  z-index:120; visibility:hidden; opacity:0; transition:opacity .22s, visibility .22s;
+  position:fixed;inset:0;display:flex;align-items:center;justify-content:center;
+  background:linear-gradient(180deg,rgba(0,0,0,.35),rgba(0,0,0,.6));
+  z-index:120;visibility:hidden;opacity:0;transition:opacity .22s,visibility .22s;
 }
-#spinnerOverlay.show{ visibility:visible; opacity:1; }
+#spinnerOverlay.show{visibility:visible;opacity:1}
 .spinner{
-  width:84px;height:84px;border-radius:50%;border:8px solid rgba(255,255,255,0.06);
-  border-top-color:var(--accent); animation:spin 1s linear infinite; box-shadow:0 8px 30px rgba(0,0,0,0.6);
+  width:84px;height:84px;border-radius:50%;border:8px solid rgba(255,255,255,.06);
+  border-top-color:var(--accent);animation:spin 1s linear infinite;
+  box-shadow:0 8px 30px rgba(0,0,0,.6);
 }
-@keyframes spin{ from{transform:rotate(0)} to{transform:rotate(360deg)} }
+@keyframes spin{from{transform:rotate(0)}to{transform:rotate(360deg)}}
 
-/* ========== SIDE NAV (PUSH LAYOUT) ========== */
+/* sidenav */
 #sideNav{
-  position:fixed;left:0;top:0;height:100vh;
-  width:var(--nav-width-collapsed);
+  position:fixed;left:0;top:0;height:100vh;width:var(--nav-collapsed);
   background:linear-gradient(180deg,var(--panel),#0b0d10);
-  display:none;
-  flex-direction:column;align-items:center;padding:.6rem .4rem;gap:.6rem;
-  transition:width .22s ease;
-  z-index:60;
-  box-shadow:2px 0 18px rgba(0,0,0,0.5);
+  display:none;flex-direction:column;align-items:center;
+  padding:.6rem .4rem;gap:.6rem;transition:width .22s,left .22s;
+  z-index:60;box-shadow:2px 0 18px rgba(0,0,0,.5);
 }
-#sideNav.open{ width:var(--nav-width-expanded); }
-#navToggle{ cursor:pointer; width:100%; display:flex; justify-content:center; padding:.4rem 0; }
-.logo-wrap{ display:flex; align-items:center; gap:.6rem; padding:.4rem; width:100%; justify-content:center; }
-.logo-wrap .label{ font-weight:800; font-size:1.02rem; color:var(--text); opacity:0; transition:opacity .22s; }
-#sideNav.open .logo-wrap .label{ opacity:1; }
+#sideNav.open{width:var(--nav-expanded)}
+.logo-wrap{display:flex;align-items:center;gap:.6rem;padding:.4rem;width:100%;justify-content:center}
+.logo-wrap .label{font-weight:800;font-size:1.02rem;color:var(--text);opacity:0;transition:opacity .22s}
+#sideNav.open .logo-wrap .label{opacity:1}
+#navToggle{cursor:pointer;width:100%;display:flex;justify-content:center;padding:.4rem 0}
 .nav-item{
-  width:100%; display:flex; align-items:center; gap:.7rem; padding:.6rem; border-radius:10px;
-  color:var(--muted); cursor:pointer; transition:background .18s, color .12s;
-  user-select:none; white-space:nowrap;
+  width:100%;display:flex;align-items:center;gap:.7rem;padding:.6rem;border-radius:10px;
+  color:var(--muted);cursor:pointer;transition:background .18s,color .12s;white-space:nowrap;
 }
-.nav-item:hover{ background:rgba(255,255,255,0.03); color:#fff; }
-.nav-item .icon{ font-size:1.15rem; width:28px; text-align:center; }
-.nav-label{ opacity:0; transition:opacity .22s; }
-#sideNav.open .nav-label{ opacity:1; }
+.nav-item:hover{background:rgba(255,255,255,.03);color:#fff}
+.nav-item .icon{font-size:1.15rem;width:28px;text-align:center}
+.nav-label{opacity:0;transition:opacity .22s}
+#sideNav.open .nav-label{opacity:1}
 
-/* ========== MAIN CONTENT (pushed by nav) ========== */
+/* main content */
 #mainContent{
-  position:absolute; top:0;
-  left:var(--nav-width-collapsed);
-  width:calc(100% - var(--nav-width-collapsed));
-  height:100vh;
-  padding:1rem 1.2rem;
-  overflow:auto;
-  transition:background .25s;
+  position:absolute;top:0;left:var(--nav-collapsed);width:calc(100% - var(--nav-collapsed));
+  height:100vh;padding:1rem 1.2rem;overflow:auto;transition:background .25s;
   display:none;
 }
 #sideNav.open + #mainContent{
-  left:var(--nav-width-expanded);
-  width:calc(100% - var(--nav-width-expanded));
+  left:var(--nav-expanded);width:calc(100% - var(--nav-expanded));
+}
+.top-row{display:flex;align-items:center;gap:1rem;margin-bottom:.9rem;flex-wrap:wrap}
+#searchBox{
+  padding:.6rem .9rem;width:320px;border-radius:10px;border:none;
+  background:rgba(255,255,255,.02);color:var(--text);
+}
+.controls-right{margin-left:auto;display:flex;gap:.5rem;align-items:center}
+#categoryBar{display:flex;gap:.5rem;overflow-x:auto;padding-bottom:.5rem;margin-bottom:1rem}
+.cat-btn{
+  display:flex;align-items:center;gap:.4rem;padding:.45rem .7rem;border-radius:999px;
+  background:rgba(255,255,255,.02);color:var(--muted);cursor:pointer;border:1px solid transparent;
+}
+.cat-btn.active{
+  background:linear-gradient(90deg,rgba(10,157,255,.12),rgba(10,157,255,.06));
+  color:#fff;border-color:rgba(10,157,255,.05);
 }
 
-/* top search row */
-.top-row{ display:flex; align-items:center; gap:1rem; margin-bottom:.9rem; flex-wrap:wrap; }
-#searchBox{ padding:.6rem .9rem; width:320px; border-radius:10px; border:none; background:rgba(255,255,255,0.02); color:var(--text); }
-.controls-right{ margin-left:auto; display:flex; gap:.5rem; align-items:center; }
-
-/* category bar */
-#categoryBar{ display:flex; gap:.5rem; overflow-x:auto; padding-bottom:.5rem; -webkit-overflow-scrolling:touch; margin-bottom:1rem; }
-.cat-btn{ display:flex; align-items:center; gap:.4rem; padding:.45rem .7rem; border-radius:999px; background:rgba(255,255,255,0.02); color:var(--muted); cursor:pointer; white-space:nowrap; border:1px solid transparent; }
-.cat-btn.active{ background:linear-gradient(90deg, rgba(10,157,255,0.12), rgba(10,157,255,0.06)); color:#fff; border-color:rgba(10,157,255,0.05); }
-
-/* featured + recently */
-.featured-row, .recent-row{ display:flex; gap:1rem; margin-bottom:1.1rem; align-items:stretch; flex-wrap:wrap; }
-.featured-card{ flex:1; min-width:260px; display:flex; gap:1rem; background:linear-gradient(180deg, rgba(255,255,255,0.02), transparent); padding:1rem; border-radius:12px; align-items:center; }
-.recent-item{ width:140px; display:flex; flex-direction:column; gap:.45rem; align-items:center; cursor:pointer; color:var(--muted); }
-
-/* game grid */
-.game-list{ display:grid; grid-template-columns:repeat(auto-fill, minmax(210px,1fr)); gap:1rem; margin-bottom:3rem; }
-.game-card{ background:var(--card); border-radius:12px; overflow:hidden; position:relative; cursor:pointer; transition:transform .18s ease, box-shadow .18s ease; height:260px; display:flex; flex-direction:column; }
-.game-card:hover{ transform:translateY(-6px); box-shadow:0 18px 70px rgba(0,0,0,.6); }
-.thumbnail{ width:100%; height:120px; object-fit:cover; }
-.card-body{ padding:.8rem; display:flex; flex-direction:column; gap:.5rem; flex:1; }
-.title{ font-weight:700; font-size:1rem; color:var(--text); line-height:1.1; height:2.4em; overflow:hidden; }
-.tags{ display:flex; gap:.4rem; flex-wrap:wrap; margin-top:auto; }
-.tag{ font-size:.75rem; padding:.25rem .45rem; border-radius:8px; background:rgba(255,255,255,0.03); color:var(--muted); }
-
-/* hover overlay */
-.hover-details{ position:absolute; inset:0; background:linear-gradient(180deg, rgba(5,5,5,0.0), rgba(2,2,2,0.9)); opacity:0; transform:translateY(6px); transition:all .22s ease; display:flex; flex-direction:column; justify-content:flex-end; padding:1rem; }
-.game-card:hover .hover-details{ opacity:1; transform:translateY(0); }
-.hover-desc{ color:var(--muted); font-size:.92rem; margin-bottom:.6rem; max-height:3.2em; overflow:hidden; }
-.hover-actions{ display:flex; gap:.5rem; align-items:center; }
-.play-btn{ padding:.5rem .8rem; border-radius:8px; background:var(--accent); color:white; border:none; cursor:pointer; font-weight:700; }
-
-/* favorite star */
-.fav-btn{ position:absolute; top:8px; right:8px; background:rgba(0,0,0,0.35); border-radius:8px; padding:.28rem; cursor:pointer; border:1px solid rgba(255,255,255,0.04); }
-
-/* no results */
-.no-results{ text-align:center; color:var(--muted); padding:2rem; }
+/* game layout */
+.featured-row,.recent-row{display:flex;gap:1rem;margin-bottom:1.1rem;flex-wrap:wrap}
+.featured-card{
+  flex:1;min-width:260px;display:flex;gap:1rem;background:linear-gradient(180deg,rgba(255,255,255,.02),transparent);
+  padding:1rem;border-radius:12px;align-items:center;
+}
+.recent-item{width:140px;display:flex;flex-direction:column;gap:.45rem;align-items:center;cursor:pointer;color:var(--muted)}
+.game-list{display:grid;grid-template-columns:repeat(auto-fill,minmax(210px,1fr));gap:1rem;margin-bottom:3rem}
+.game-card{
+  background:var(--card);border-radius:12px;overflow:hidden;position:relative;cursor:pointer;
+  transition:transform .18s,box-shadow .18s;height:260px;display:flex;flex-direction:column;
+}
+.game-card:hover{transform:translateY(-6px);box-shadow:0 18px 70px rgba(0,0,0,.6)}
+.thumbnail{width:100%;height:120px;object-fit:cover}
+.card-body{padding:.8rem;display:flex;flex-direction:column;gap:.5rem;flex:1}
+.title{font-weight:700;font-size:1rem;color:var(--text);line-height:1.1;height:2.4em;overflow:hidden}
+.tags{display:flex;gap:.4rem;flex-wrap:wrap;margin-top:auto}
+.tag{font-size:.75rem;padding:.25rem .45rem;border-radius:8px;background:rgba(255,255,255,.03);color:var(--muted)}
+.hover-details{
+  position:absolute;inset:0;background:linear-gradient(180deg,rgba(5,5,5,0),rgba(2,2,2,.9));
+  opacity:0;transform:translateY(6px);transition:all .22s;display:flex;flex-direction:column;justify-content:flex-end;padding:1rem;
+}
+.game-card:hover .hover-details{opacity:1;transform:translateY(0)}
+.hover-desc{color:var(--muted);font-size:.92rem;margin-bottom:.6rem;max-height:3.2em;overflow:hidden}
+.hover-actions{display:flex;gap:.5rem;align-items:center}
+.play-btn{padding:.5rem .8rem;border-radius:8px;background:var(--accent);color:#fff;border:none;cursor:pointer;font-weight:700}
+.fav-btn{
+  position:absolute;top:8px;right:8px;background:rgba(0,0,0,.35);border-radius:8px;
+  padding:.28rem;cursor:pointer;border:1px solid rgba(255,255,255,.04);
+}
+.no-results{text-align:center;color:var(--muted);padding:2rem}
 
 /* admin theme */
 .admin-theme{
-  background-size:cover;
-  background-position:center;
-  transition:background-image .4s ease;
-  box-shadow: inset 0 0 0 9999px rgba(0,0,0,0.22);
+  background-size:cover;background-position:center;
+  box-shadow:inset 0 0 0 9999px rgba(0,0,0,.22);
 }
 
 /* modal */
-.modal-backdrop{ position:fixed; inset:0; display:flex; align-items:center; justify-content:center; background:rgba(0,0,0,0.6); z-index:200; }
-.modal{ width:420px; max-width:94%; background:linear-gradient(180deg,#0f1113,#0b0d10); padding:1rem; border-radius:12px; }
-.input{width:100%;padding:.6rem .8rem;border-radius:8px;border:none;background:#151515;color:#fff;margin-bottom:.7rem;}
+.modal-backdrop{position:fixed;inset:0;display:flex;align-items:center;justify-content:center;background:rgba(0,0,0,.6);z-index:200}
+.modal{width:420px;max-width:94%;background:linear-gradient(180deg,#0f1113,#0b0d10);padding:1rem;border-radius:12px}
+.input{
+  width:100%;padding:.6rem .8rem;border-radius:8px;border:none;
+  background:#151515;color:#fff;margin-bottom:.7rem;
+}
 
 /* responsive */
-@media (max-width:900px){
-  #sideNav{
-    position:fixed;
-    width:72%;
-    left:-72%;
-  }
-  #sideNav.open{
-    left:0;
-  }
-  #mainContent{
-    left:0;
-    width:100%;
-    padding:0.9rem;
-  }
-  #sideNav.open + #mainContent{
-    left:0;
-    width:100%;
-  }
+@media(max-width:900px){
+  #sideNav{position:fixed;width:72%;left:-72%}
+  #sideNav.open{left:0}
+  #mainContent{left:0;width:100%;padding:.9rem}
+  #sideNav.open + #mainContent{left:0;width:100%}
 }
 </style>
 </head>
 <body>
+<div id="spinnerOverlay"><div class="spinner"></div></div>
 
-<!-- 🔄 Global spinner -->
-<div id="spinnerOverlay"><div class="spinner" aria-hidden="true"></div></div>
-
-<!-- 🔒 LOGIN SCREEN -->
+<!-- LOGIN -->
 <div id="homeScreen">
   <h1>Astral Employment</h1>
   <div id="announcementBar">Loading announcement...</div>
@@ -274,35 +179,28 @@ body{
   <div id="errorMsg"></div>
 </div>
 
-<!-- 🎯 LANDING SCREEN -->
+<!-- LANDING -->
 <div id="landingScreen">
   <div class="hero">
     <div>
       <h1>Welcome to Astral Employment</h1>
       <div class="feature-list">
-        <span>Hover details</span>
+        <span>Game card hover details</span>
         <span>Featured & Recently Played</span>
         <span>Favorites & Dark Mode</span>
-        <span>Proxy & Requests & Admin Tools</span>
+        <span>Proxy, Requests & Admin Tools</span>
       </div>
       <button id="enterHubBtn" class="btn btn-primary" style="margin-top:.9rem">Enter Hub</button>
     </div>
   </div>
 </div>
 
-<!-- 📌 SIDE NAV (push layout) -->
+<!-- SIDE NAV -->
 <div id="sideNav">
-  <div id="navToggle" title="Toggle menu">
+  <div id="navToggle">
     <div class="logo-wrap">
-      <!-- Nebula animated SVG icon -->
       <svg width="38" height="38" viewBox="0 0 64 64" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
-        <defs>
-          <radialGradient id="neb" cx="30%" cy="30%">
-            <stop offset="0%" stop-color="#9be3ff"/>
-            <stop offset="60%" stop-color="#6b68ff"/>
-            <stop offset="100%" stop-color="#2a1b5f" stop-opacity="0"/>
-          </radialGradient>
-        </defs>
+        <defs><radialGradient id="neb" cx="30%" cy="30%"><stop offset="0%" stop-color="#9be3ff"/><stop offset="60%" stop-color="#6b68ff"/><stop offset="100%" stop-color="#2a1b5f" stop-opacity="0"/></radialGradient></defs>
         <circle cx="32" cy="32" r="18" fill="url(#neb)"></circle>
         <g transform="translate(32,32)">
           <path d="M0-12 L3 -4 L12 -2 L3 2 L0 12 L-3 2 L-12 -2 L-3 -4 Z" fill="#fff" opacity="0.95">
@@ -310,987 +208,606 @@ body{
           </path>
         </g>
       </svg>
-      <div class="label" style="margin-left:.4rem">Astral Employment</div>
+      <div class="label">Astral Employment</div>
     </div>
   </div>
-
-  <div id="navGames" class="nav-item" role="button" tabindex="0"><div class="icon">🎮</div><div class="nav-label">Games</div></div>
-  <div id="navFavorites" class="nav-item" role="button" tabindex="0"><div class="icon">⭐</div><div class="nav-label">Favorites</div></div>
-  <div id="navChat" class="nav-item" role="button" tabindex="0"><div class="icon">💬</div><div class="nav-label">Chat</div></div>
-  <div id="navRequests" class="nav-item" role="button" tabindex="0"><div class="icon">📮</div><div class="nav-label">Requests</div></div>
-  <div id="navOther" class="nav-item" role="button" tabindex="0"><div class="icon">🌐</div><div class="nav-label">Websites</div></div>
-  <div id="navProxy" class="nav-item" role="button" tabindex="0"><div class="icon">🕸️</div><div class="nav-label">Proxy Browser</div></div>
-  <div id="navAdmin" class="nav-item" role="button" tabindex="0"><div class="icon">🔐</div><div class="nav-label">Admin</div></div>
-
+  <div id="navGames" class="nav-item"><div class="icon">🎮</div><div class="nav-label">Games</div></div>
+  <div id="navFavorites" class="nav-item"><div class="icon">⭐</div><div class="nav-label">Favorites</div></div>
+  <div id="navChat" class="nav-item"><div class="icon">💬</div><div class="nav-label">Chat</div></div>
+  <div id="navRequests" class="nav-item"><div class="icon">📮</div><div class="nav-label">Requests</div></div>
+  <div id="navOther" class="nav-item"><div class="icon">🌐</div><div class="nav-label">Websites</div></div>
+  <div id="navProxy" class="nav-item"><div class="icon">🕸️</div><div class="nav-label">Proxy Browser</div></div>
+  <div id="navAdmin" class="nav-item"><div class="icon">🔐</div><div class="nav-label">Admin</div></div>
   <div style="flex:1"></div>
-
-  <div id="toggleDark" class="nav-item" role="button" tabindex="0"><div class="icon">🌓</div><div class="nav-label">Dark Mode</div></div>
-  <div id="navCollapse" class="nav-item" role="button" tabindex="0" title="Collapse menu"><div class="icon">◀️</div><div class="nav-label">Collapse</div></div>
+  <div id="toggleDark" class="nav-item"><div class="icon">🌓</div><div class="nav-label">Dark Mode</div></div>
+  <div id="navCollapse" class="nav-item"><div class="icon">◀️</div><div class="nav-label">Collapse</div></div>
 </div>
 
-<!-- 📍 MAIN CONTENT -->
-<div id="mainContent" aria-live="polite">
+<!-- MAIN -->
+<div id="mainContent">
   <div class="top-row">
-    <input id="searchBox" type="search" placeholder="Search games..." aria-label="Search games">
-    <div class="controls-right">
-      <div id="categoryBar" role="tablist" aria-label="categories"></div>
-    </div>
+    <input id="searchBox" type="search" placeholder="Search games...">
+    <div class="controls-right"><div id="categoryBar"></div></div>
   </div>
-
   <div id="app"></div>
 </div>
 
 <!-- Firebase -->
 <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-database-compat.js"></script>
-
 <script>
-/* ===========================
-   CONFIG & CONSTANTS
-   =========================== */
-const HASH_MAIN  = "875b0cbe469a54473cd975c129b87fadaa6d15d6dacf0634ea24b70e0b58c04b"; // "DIHALB"
-const HASH_ADMIN = "23c28e809cef8751da4a6393e9cb183b8d969f77ab0ade39e6b282e19e40378f"; // "th!nBlu3"
-
+/* basic config */
+const HASH_MAIN  = "875b0cbe469a54473cd975c129b87fadaa6d15d6dacf0634ea24b70e0b58c04b"; // DIHALB
+const HASH_ADMIN = "23c28e809cef8751da4a6393e9cb183b8d969f77ab0ade39e6b282e19e40378f"; // th!nBlu3
 const GAMES_JSON_URL = "https://raw.githubusercontent.com/swarmintelli/Unblocked-Games-CDN/main/games.json";
-
-/* Proxy: now pointing to your Astral Proxy Browser shell */
 const PROXY_URL = "https://mememastertime-del.github.io/Unblocked-Games/proxy-browser.html";
-/* Game request form URL */
 const REQUEST_FORM_URL = "https://docs.google.com/forms/d/e/1FAIpQLSeCfC4vHF_dR_iV-9n9Af6X3SrYsWwFG3CjAsbuoHBwOH3nUg/viewform?usp=dialog";
 
-/* Firebase config */
 const firebaseConfig = {
-  apiKey: "AIzaSyAyHooV5floB-DdLAFdczfgEuDPEWtfGgA",
-  authDomain: "chatroom-4e6e4.firebaseapp.com",
-  databaseURL: "https://chatroom-4e6e4-default-rtdb.firebaseio.com",
-  projectId: "chatroom-4e6e4",
-  storageBucket: "chatroom-4e6e4.firebasestorage.app",
-  messagingSenderId: "352956674536",
-  appId: "1:352956674536:web:1942c8198827e8f5f6b45d"
+  apiKey:"AIzaSyAyHooV5floB-DdLAFdczfgEuDPEWtfGgA",
+  authDomain:"chatroom-4e6e4.firebaseapp.com",
+  databaseURL:"https://chatroom-4e6e4-default-rtdb.firebaseio.com",
+  projectId:"chatroom-4e6e4",
+  storageBucket:"chatroom-4e6e4.firebasestorage.app",
+  messagingSenderId:"352956674536",
+  appId:"1:352956674536:web:1942c8198827e8f5f6b45d"
 };
 firebase.initializeApp(firebaseConfig);
-const db = firebase.database();
-const ANN_PATH = "announcement/latest";
-const ADMIN_THEME_PATH = "admin/themeBg";
-const OTHER_LINKS_PATH = "admin/otherLinks";
-const ADMIN_GAMES_PATH = "adminGames";
-const TIMEOUTS_PATH = "timeouts";
+const db=firebase.database();
+const ANN_PATH="announcement/latest",ADMIN_THEME_PATH="admin/themeBg",OTHER_LINKS_PATH="admin/otherLinks",ADMIN_GAMES_PATH="adminGames",TIMEOUTS_PATH="timeouts";
 
-/* emoji map */
-const emojiMap = {
-  "all":"✨","action":"🎯","adventure":"🗺️","puzzle":"🧩","racing":"🚗",
-  "multiplayer":"🤝","strategy":"♟️","sports":"🏅","classics":"🎮"
-};
+const emojiMap={all:"✨",action:"🎯",adventure:"🗺️",puzzle:"🧩",racing:"🚗",multiplayer:"🤝",strategy:"♟️",sports:"🏅",classics:"🎮"};
+const categories=["all","action","adventure","puzzle","racing","multiplayer","strategy","sports","classics"];
 
-/* STATE */
-let gamesCache = [];
-let category = "all";
-let admin = sessionStorage.getItem("astral_admin") === "1";
-const categories = ["all","action","adventure","puzzle","racing","multiplayer","strategy","sports","classics"];
-const RP_KEY = "astral_recently_played_v2";
-const FAV_KEY = "astral_favorites_v1";
+let gamesCache=[],category="all",admin=sessionStorage.getItem("astral_admin")==="1";
+const RP_KEY="astral_recently_played_v2",FAV_KEY="astral_favorites_v1",CHAT_USER_KEY="astral_chat_user_v1";
+let currentUser=null,chatMessageElements={};
 
-/* Chat user identity */
-const CHAT_USER_KEY = "astral_chat_user_v1";
-let currentUser = null;
-const chatMessageElements = {}; // key -> DOM element
+const sideNav=document.getElementById("sideNav"),
+      mainContent=document.getElementById("mainContent"),
+      spinner=document.getElementById("spinnerOverlay"),
+      searchBox=document.getElementById("searchBox"),
+      categoryBar=document.getElementById("categoryBar"),
+      app=document.getElementById("app"),
+      announcementBar=document.getElementById("announcementBar");
 
-/* UI Refs */
-const sideNav = document.getElementById("sideNav");
-const mainContent = document.getElementById("mainContent");
-const spinner = document.getElementById("spinnerOverlay");
-const searchBox = document.getElementById("searchBox");
-const categoryBar = document.getElementById("categoryBar");
-const app = document.getElementById("app");
-const announcementBar = document.getElementById("announcementBar");
-
-/* ===========================
-   BASIC HELPERS
-   =========================== */
-function debounce(fn, wait=120){ let t; return (...a)=>{ clearTimeout(t); t = setTimeout(()=>fn(...a), wait); }; }
-function escapeHtml(s){ return String(s||"").replace(/[&<>"']/g, m=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[m])); }
-
-/* ===========================
-   UTIL: SHA256 HEX
-   =========================== */
+/* helpers */
+function debounce(fn,w=120){let t;return(...a)=>{clearTimeout(t);t=setTimeout(()=>fn(...a),w);};}
+function escapeHtml(s){return String(s||"").replace(/[&<>"']/g,m=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[m]);}
 async function sha256Hex(str){
-  const enc = new TextEncoder().encode(str);
-  const d = await crypto.subtle.digest("SHA-256", enc);
+  const enc=new TextEncoder().encode(str);
+  const d=await crypto.subtle.digest("SHA-256",enc);
   return Array.from(new Uint8Array(d)).map(b=>b.toString(16).padStart(2,"0")).join("");
 }
-
-/* ===========================
-   THEME
-   =========================== */
 (function initTheme(){
-  const saved = localStorage.getItem("astral_theme");
-  const theme = saved || "dark";
-  document.documentElement.setAttribute("data-theme", theme);
+  const saved=localStorage.getItem("astral_theme")||"dark";
+  document.documentElement.setAttribute("data-theme",saved);
 })();
 function toggleTheme(){
-  const cur = document.documentElement.getAttribute("data-theme");
-  const next = cur === "dark" ? "light" : "dark";
-  document.documentElement.setAttribute("data-theme", next);
-  localStorage.setItem("astral_theme", next);
+  const cur=document.documentElement.getAttribute("data-theme");
+  const next=cur==="dark"?"light":"dark";
+  document.documentElement.setAttribute("data-theme",next);
+  localStorage.setItem("astral_theme",next);
 }
+function toggleNav(){sideNav.classList.toggle("open");}
+function showSpinner(){spinner.classList.add("show");}
+function hideSpinner(){spinner.classList.remove("show");}
 
-/* ===========================
-   NAV
-   =========================== */
-function toggleNav(){
-  sideNav.classList.toggle("open");
-}
-document.getElementById("navToggle").addEventListener("click", toggleNav);
-document.getElementById("navCollapse").addEventListener("click", toggleNav);
-document.getElementById("navGames").addEventListener("click", ()=>{ toggleNav(); showGameList(); });
-document.getElementById("navChat").addEventListener("click", ()=>{ toggleNav(); showChat(); });
-document.getElementById("navOther").addEventListener("click", ()=>{ toggleNav(); showOther(); });
-document.getElementById("navAdmin").addEventListener("click", ()=>{ toggleNav(); openAdminLogin(); });
-document.getElementById("navFavorites").addEventListener("click", ()=>{ toggleNav(); showFavorites(); });
-document.getElementById("navProxy").addEventListener("click", ()=>{ toggleNav(); showProxyBrowser(); });
-document.getElementById("navRequests").addEventListener("click", ()=>{ toggleNav(); showRequests(); });
-document.getElementById("toggleDark").addEventListener("click", ()=>{ toggleTheme(); });
-
-function showSpinner(){ spinner.classList.add("show"); }
-function hideSpinner(){ spinner.classList.remove("show"); }
-
-/* ===========================
-   ANNOUNCEMENTS
-   =========================== */
-db.ref(ANN_PATH).on("value", snap=>{
-  const v = snap.val();
-  if(!v || !v.text){
-    announcementBar.textContent = "No announcements right now.";
-  } else {
-    const ts = v.updatedAt ? new Date(v.updatedAt).toLocaleString() : "";
-    announcementBar.innerHTML = `<strong style="color:var(--text);display:block;margin-bottom:.25rem">Announcement</strong><div style="color:var(--muted)">${escapeHtml(v.text)}</div><div style="font-size:.78rem;color:var(--muted);margin-top:.4rem">Last updated: ${escapeHtml(ts)}</div>`;
+/* announcements */
+db.ref(ANN_PATH).on("value",snap=>{
+  const v=snap.val();
+  if(!v||!v.text){announcementBar.textContent="No announcements right now.";}
+  else{
+    const ts=v.updatedAt?new Date(v.updatedAt).toLocaleString():"";
+    announcementBar.innerHTML=`<strong style="display:block;margin-bottom:.25rem">Announcement</strong><div>${escapeHtml(v.text)}</div><div style="font-size:.78rem;color:var(--muted);margin-top:.4rem">Last updated: ${escapeHtml(ts)}</div>`;
   }
-}, err=>{
-  console.error("ann listen failed", err);
-  announcementBar.textContent = "Announcements unavailable.";
-});
+},()=>{announcementBar.textContent="Announcements unavailable."});
 
-/* ===========================
-   CHAT USER
-   =========================== */
+/* chat user */
 function ensureChatUser(){
   try{
-    const raw = localStorage.getItem(CHAT_USER_KEY);
+    const raw=localStorage.getItem(CHAT_USER_KEY);
     if(raw){
-      const parsed = JSON.parse(raw);
-      if(parsed && parsed.id && parsed.name) return parsed;
+      const p=JSON.parse(raw);
+      if(p&&p.id&&p.name)return p;
     }
-  }catch(_){}
-  const id = "u_" + Math.random().toString(36).slice(2,10);
-  const name = "Worker-" + Math.floor(1000 + Math.random()*9000);
-  const obj = {id, name};
-  localStorage.setItem(CHAT_USER_KEY, JSON.stringify(obj));
+  }catch{}
+  const id="u_"+Math.random().toString(36).slice(2,10);
+  const name="Worker-"+Math.floor(1000+Math.random()*9000);
+  const obj={id,name};
+  localStorage.setItem(CHAT_USER_KEY,JSON.stringify(obj));
   return obj;
 }
 
-/* ===========================
-   LOAD GAMES (base + admin)
-   =========================== */
+/* load games (base + admin) */
 async function loadAdminGames(){
-  const snap = await db.ref(ADMIN_GAMES_PATH).once("value");
-  const val = snap.val() || {};
-  const arr = [];
-  Object.keys(val).forEach(key=>{
-    const g = val[key] || {};
-    arr.push({
-      ...g,
-      id: key,     // used for favorites / merging
-      _adminId: key,
-      source: "admin"
-    });
+  const snap=await db.ref(ADMIN_GAMES_PATH).once("value");
+  const val=snap.val()||{},arr=[];
+  Object.keys(val).forEach(k=>{
+    const g=val[k]||{};
+    arr.push({...g,id:k,_adminId:k,source:"admin"});
   });
   return arr;
 }
-
+function addTags(g){
+  const combined=((g.name||"")+" "+(g.description||"")).toLowerCase();
+  const baseTags=Array.isArray(g.tags)?g.tags.map(t=>String(t).toLowerCase()):[];
+  const s=new Set(baseTags);
+  if(g.category)s.add(String(g.category).toLowerCase());
+  if(/race|racing|driver|speed|track/.test(combined))s.add("racing");
+  if(/puzzl|match|connect|logic|brain|blocks/.test(combined))s.add("puzzle");
+  if(/adventur|quest|explor|journey|island/.test(combined))s.add("adventure");
+  if(/multipl|versus|vs\.|co-op|coop|team|lobby/.test(combined))s.add("multiplayer");
+  if(/fight|battle|shoot|war|combat|attack|zombi|arena/.test(combined))s.add("action");
+  if(/chess|strategy|tower|td |tycoon|simul|manage/.test(combined))s.add("strategy");
+  if(/soccer|football|basket|baseball|tennis|golf|sports/.test(combined))s.add("sports");
+  if(!s.size)s.add("classics");
+  g.tags=Array.from(s);
+}
 async function loadGames(){
   try{
     showSpinner();
-    const resp = await fetch(GAMES_JSON_URL);
-    const data = await resp.json();
-    // Base games
-    let baseGames = Array.isArray(data) ? data : [];
-    baseGames.forEach(g=>{
-      const combined = ((g.name||"") + " " + (g.description||"")).toLowerCase();
-      g.tags = Array.isArray(g.tags) ? g.tags.map(t=>t.toLowerCase()) : [];
-      const s = new Set(g.tags);
-      if(/race|racing|driver|speed|track/.test(combined)) s.add("racing");
-      if(/puzzl|match|connect|logic|brain|blocks/.test(combined)) s.add("puzzle");
-      if(/adventur|quest|explor|journey|island/.test(combined)) s.add("adventure");
-      if(/multipl|versus|vs\.|co-op|coop|team|lobby/.test(combined)) s.add("multiplayer");
-      if(/fight|battle|shoot|war|combat|attack|zombi|arena/.test(combined)) s.add("action");
-      if(/chess|strategy|tower|td |tycoon|simul|manage/.test(combined)) s.add("strategy");
-      if(/soccer|football|basket|baseball|tennis|golf|sports/.test(combined)) s.add("sports");
-      if(s.size===0) s.add("classics");
-      g.tags = Array.from(s);
-    });
-
-    // Admin games
-    const adminGames = await loadAdminGames();
-    adminGames.forEach(g=>{
-      const combined = ((g.name||"") + " " + (g.description||"")).toLowerCase();
-      const baseTags = Array.isArray(g.tags) ? g.tags.map(t=>String(t).toLowerCase()) : [];
-      const s = new Set(baseTags);
-      if(g.category){ s.add(String(g.category).toLowerCase()); }
-      if(/race|racing|driver|speed|track/.test(combined)) s.add("racing");
-      if(/puzzl|match|connect|logic|brain|blocks/.test(combined)) s.add("puzzle");
-      if(/adventur|quest|explor|journey|island/.test(combined)) s.add("adventure");
-      if(/multipl|versus|vs\.|co-op|coop|team|lobby/.test(combined)) s.add("multiplayer");
-      if(/fight|battle|shoot|war|combat|attack|zombi|arena/.test(combined)) s.add("action");
-      if(/chess|strategy|tower|td |tycoon|simul|manage/.test(combined)) s.add("strategy");
-      if(/soccer|football|basket|baseball|tennis|golf|sports/.test(combined)) s.add("sports");
-      if(s.size===0) s.add("classics");
-      g.tags = Array.from(s);
-    });
-
-    gamesCache = baseGames.concat(adminGames);
+    const resp=await fetch(GAMES_JSON_URL);
+    let baseGames=await resp.json();
+    if(!Array.isArray(baseGames))baseGames=[];
+    baseGames.forEach(addTags);
+    const adminGames=await loadAdminGames();
+    adminGames.forEach(addTags);
+    gamesCache=baseGames.concat(adminGames);
     buildCategoryBar();
     hideSpinner();
     return gamesCache;
   }catch(e){
-    console.error("loadGames error", e);
-    hideSpinner();
-    gamesCache = [];
-    buildCategoryBar();
-    return [];
+    console.error("loadGames",e);
+    hideSpinner();gamesCache=[];buildCategoryBar();return [];
   }
 }
 
-/* ===========================
-   CATEGORY BAR
-   =========================== */
+/* category bar */
 function buildCategoryBar(){
-  categoryBar.innerHTML = "";
+  categoryBar.innerHTML="";
   categories.forEach(cat=>{
-    const btn = document.createElement("button");
-    btn.className = "cat-btn" + (cat === category ? " active" : "");
-    btn.innerHTML = `<span style="margin-right:.4rem">${emojiMap[cat] || "🔹"}</span><span style="text-transform:capitalize">${cat === 'all' ? 'All' : cat}</span>`;
-    btn.onclick = ()=>{ category = cat; showGameList(); };
-    categoryBar.appendChild(btn);
+    const b=document.createElement("button");
+    b.className="cat-btn"+(cat===category?" active":"");
+    b.innerHTML=`<span style="margin-right:.4rem">${emojiMap[cat]||"🔹"}</span><span style="text-transform:capitalize">${cat==="all"?"All":cat}</span>`;
+    b.onclick=()=>{category=cat;showGameList();};
+    categoryBar.appendChild(b);
   });
 }
 
-/* ===========================
-   RECENTLY PLAYED
-   =========================== */
+/* recently played & favorites */
+function getRecentlyPlayed(){try{return JSON.parse(localStorage.getItem(RP_KEY)||"[]");}catch{return[]}}
 function pushRecentlyPlayed(game){
   try{
-    const arr = JSON.parse(localStorage.getItem(RP_KEY) || "[]");
-    const entry = { id: game.id || game.name || Math.random().toString(36).slice(2,8), name: game.name||"Untitled", thumb: game.game_image_icon || game.thumbnail || "", url: game.game_url || game.url || game.iframe || "", ts: Date.now() };
-    const filtered = arr.filter(x=>x.id !== entry.id);
-    filtered.unshift(entry);
-    const out = filtered.slice(0,6);
-    localStorage.setItem(RP_KEY, JSON.stringify(out));
-  }catch(e){ console.error("rp push err", e); }
+    const arr=getRecentlyPlayed();
+    const entry={id:game.id||game.name||Math.random().toString(36).slice(2,8),name:game.name||"Untitled",thumb:game.game_image_icon||game.thumbnail||"",url:game.game_url||game.url||game.iframe||"",ts:Date.now()};
+    const filtered=arr.filter(x=>x.id!==entry.id);filtered.unshift(entry);
+    localStorage.setItem(RP_KEY,JSON.stringify(filtered.slice(0,6)));
+  }catch(e){console.error("rp",e);}
 }
-function getRecentlyPlayed(){ try{ return JSON.parse(localStorage.getItem(RP_KEY) || "[]"); }catch(e){ return []; } }
-
-/* ===========================
-   FAVORITES
-   =========================== */
-function getFavorites(){ try{ return JSON.parse(localStorage.getItem(FAV_KEY) || "[]"); }catch(e){ return []; } }
+function getFavorites(){try{return JSON.parse(localStorage.getItem(FAV_KEY)||"[]");}catch{return[]}}
 function toggleFavorite(game){
-  const favs = getFavorites();
-  const id = game.id || game.name;
-  const exists = favs.find(x=>x.id === id);
+  const favs=getFavorites(),id=game.id||game.name;
+  const exists=favs.find(x=>x.id===id);
   if(exists){
-    const out = favs.filter(x=>x.id !== id);
-    localStorage.setItem(FAV_KEY, JSON.stringify(out));
-  } else {
-    favs.unshift({id, name: game.name||"Untitled", thumb: game.game_image_icon || "", url: game.game_url || game.url || ""});
-    localStorage.setItem(FAV_KEY, JSON.stringify(favs.slice(0,200)));
+    localStorage.setItem(FAV_KEY,JSON.stringify(favs.filter(x=>x.id!==id)));
+  }else{
+    favs.unshift({id,name:game.name||"Untitled",thumb:game.game_image_icon||"",url:game.game_url||game.url||""});
+    localStorage.setItem(FAV_KEY,JSON.stringify(favs.slice(0,200)));
   }
   showGameList();
 }
 
-/* ===========================
-   SHOW GAME LIST
-   =========================== */
+/* highlight */
+function highlightMatch(text,q){
+  if(!q)return escapeHtml(text||"");
+  const idx=(text||"").toLowerCase().indexOf(q.toLowerCase());
+  if(idx===-1)return escapeHtml(text);
+  const before=escapeHtml(text.slice(0,idx));
+  const match=escapeHtml(text.slice(idx,idx+q.length));
+  const after=escapeHtml(text.slice(idx+q.length));
+  return `${before}<mark style="background:rgba(10,157,255,.18);padding:.03rem .08rem;border-radius:3px;color:#fff">${match}</mark>${after}`;
+}
+
+/* game list / views */
 function showGameList(){
-  if(!gamesCache.length){
-    loadGames().then(()=> showGameList());
-    return;
-  }
-
-  app.innerHTML = "";
-
-  const featured = gamesCache.filter(g => g.featured).slice(0,3);
+  if(!gamesCache.length){loadGames().then(showGameList);return;}
+  app.innerHTML="";
+  const featured=gamesCache.filter(g=>g.featured).slice(0,3);
   if(featured.length){
-    const fr = document.createElement("div"); fr.className = "featured-row";
+    const fr=document.createElement("div");fr.className="featured-row";
     featured.forEach(f=>{
-      const c = document.createElement("div"); c.className = "featured-card";
-      const img = document.createElement("img");
-      img.src = f.game_image_icon || f.thumbnail || "";
-      img.alt = f.name || "";
-      img.style.width="140px"; img.style.height="90px"; img.style.borderRadius="8px"; img.style.objectFit="cover";
-      const meta = document.createElement("div");
-      const t = document.createElement("div"); t.style.fontWeight=700; t.style.color="var(--text)"; t.textContent = f.name || "Untitled";
-      const d = document.createElement("div"); d.style.color="var(--muted)"; d.style.marginTop=".45rem"; d.textContent = f.description || "";
-      const pb = document.createElement("button"); pb.className="btn"; pb.style.marginTop="10px"; pb.style.background="var(--accent)"; pb.style.color="#fff"; pb.textContent="Play";
-      pb.onclick = ()=> showGamePage(f);
-      meta.appendChild(t); meta.appendChild(d); meta.appendChild(pb);
-      c.appendChild(img); c.appendChild(meta); fr.appendChild(c);
+      const c=document.createElement("div");c.className="featured-card";
+      const img=document.createElement("img");
+      img.src=f.game_image_icon||f.thumbnail||"";img.alt=f.name||"";img.style.cssText="width:140px;height:90px;border-radius:8px;object-fit:cover";
+      const meta=document.createElement("div");
+      const t=document.createElement("div");t.style.fontWeight=700;t.textContent=f.name||"Untitled";
+      const d=document.createElement("div");d.style.color="var(--muted)";d.style.marginTop=".45rem";d.textContent=f.description||"";
+      const pb=document.createElement("button");pb.className="btn btn-primary";pb.style.marginTop="10px";pb.textContent="Play";pb.onclick=()=>showGamePage(f);
+      meta.appendChild(t);meta.appendChild(d);meta.appendChild(pb);
+      c.appendChild(img);c.appendChild(meta);fr.appendChild(c);
     });
     app.appendChild(fr);
   }
-
-  const rp = getRecentlyPlayed();
+  const rp=getRecentlyPlayed();
   if(rp.length){
-    const rr = document.createElement("div"); rr.className = "recent-row";
-    const label = document.createElement("div"); label.style.fontWeight=700; label.style.color="var(--text)"; label.style.marginRight="8px"; label.textContent="Recently Played";
+    const rr=document.createElement("div");rr.className="recent-row";
+    const label=document.createElement("div");label.style.fontWeight=700;label.style.marginRight="8px";label.textContent="Recently Played";
     rr.appendChild(label);
     rp.forEach(it=>{
-      const ri = document.createElement("div"); ri.className = "recent-item";
-      const im = document.createElement("img"); im.src = it.thumb || ""; im.alt = it.name; im.style.width="120px"; im.style.height="70px"; im.style.borderRadius="8px"; im.style.objectFit="cover";
-      const nm = document.createElement("div"); nm.style.fontSize=".92rem"; nm.style.color="var(--muted)"; nm.textContent = it.name;
-      ri.appendChild(im); ri.appendChild(nm);
-      ri.onclick = ()=> {
-        const found = gamesCache.find(g => g.name === it.name || g.id === it.id);
-        if(found) showGamePage(found);
-        else window.open(it.url, "_blank");
+      const ri=document.createElement("div");ri.className="recent-item";
+      const im=document.createElement("img");
+      im.src=it.thumb||"";im.alt=it.name;im.style.cssText="width:120px;height:70px;border-radius:8px;object-fit:cover";
+      const nm=document.createElement("div");nm.style.fontSize=".92rem";nm.style.color="var(--muted)";nm.textContent=it.name;
+      ri.appendChild(im);ri.appendChild(nm);
+      ri.onclick=()=>{
+        const found=gamesCache.find(g=>g.name===it.name||g.id===it.id);
+        if(found)showGamePage(found);else window.open(it.url,"_blank");
       };
       rr.appendChild(ri);
     });
     app.appendChild(rr);
   }
-
-  const q = (searchBox.value || "").trim().toLowerCase();
-  const favIds = getFavorites().map(f=>f.id);
-
-  const filtered = gamesCache.filter(g=>{
-    const name = (g.name||"").toLowerCase();
-    const desc = (g.description||"").toLowerCase();
-    const tags = (g.tags||[]).map(t=>String(t).toLowerCase());
-    const matchesQuery = !q || name.includes(q) || desc.includes(q) || tags.some(t=>t.includes(q));
-    const matchesCategory = category === "all" || tags.includes(category);
-    return matchesQuery && matchesCategory;
+  const q=(searchBox.value||"").trim().toLowerCase();
+  const favIds=getFavorites().map(f=>f.id);
+  const filtered=gamesCache.filter(g=>{
+    const name=(g.name||"").toLowerCase();
+    const desc=(g.description||"").toLowerCase();
+    const tags=(g.tags||[]).map(t=>String(t).toLowerCase());
+    const matchesQuery=!q||name.includes(q)||desc.includes(q)||tags.some(t=>t.includes(q));
+    const matchesCategory=category==="all"||tags.includes(category);
+    return matchesQuery&&matchesCategory;
   });
-
   if(!filtered.length){
-    const no = document.createElement("div");
-    no.className = "no-results";
-    no.textContent = q ? `No results for "${q}".` : "No games found.";
-    app.appendChild(no);
-    return;
+    const no=document.createElement("div");no.className="no-results";no.textContent=q?`No results for "${q}".`:"No games found.";app.appendChild(no);return;
   }
-
-  const grid = document.createElement("div"); grid.className = "game-list";
+  const grid=document.createElement("div");grid.className="game-list";
   filtered.forEach(g=>{
-    const card = document.createElement("div"); card.className = "game-card";
-
-    const favBtn = document.createElement("div"); favBtn.className = "fav-btn"; favBtn.title = "Favorite";
-    const isFav = favIds.includes(g.id || g.name);
-    favBtn.innerHTML = isFav ? "★" : "☆";
-    favBtn.style.color = isFav ? "gold" : "white";
-    favBtn.onclick = (e)=>{ e.stopPropagation(); toggleFavorite(g); };
-
-    const thumb = document.createElement("img"); thumb.className = "thumbnail"; thumb.loading="lazy"; thumb.src = g.game_image_icon || g.thumbnail || ""; thumb.alt = g.name || "";
-
-    const body = document.createElement("div"); body.className = "card-body";
-    const title = document.createElement("div"); title.className = "title"; title.innerHTML = highlightMatch(g.name || "Untitled", q);
-    const tagsWrap = document.createElement("div"); tagsWrap.className = "tags";
-    (g.tags || []).slice(0,4).forEach(t=>{
-      const tg = document.createElement("div"); tg.className = "tag"; tg.textContent = t;
-      tagsWrap.appendChild(tg);
-    });
-
-    const hover = document.createElement("div"); hover.className = "hover-details";
-    const desc = document.createElement("div"); desc.className = "hover-desc"; desc.textContent = g.description || "";
-    const actions = document.createElement("div"); actions.className = "hover-actions";
-    const playBtn = document.createElement("button"); playBtn.className = "play-btn"; playBtn.textContent = "Play";
-    playBtn.onclick = (e)=>{ e.stopPropagation(); showGamePage(g); };
-    actions.appendChild(playBtn);
-    hover.appendChild(desc); hover.appendChild(actions);
-
-    body.appendChild(title); body.appendChild(tagsWrap);
-    card.appendChild(favBtn); card.appendChild(thumb); card.appendChild(body); card.appendChild(hover);
-    card.onclick = ()=> showGamePage(g);
+    const card=document.createElement("div");card.className="game-card";
+    const favBtn=document.createElement("div");favBtn.className="fav-btn";favBtn.title="Favorite";
+    const isFav=favIds.includes(g.id||g.name);
+    favBtn.innerHTML=isFav?"★":"☆";favBtn.style.color=isFav?"gold":"white";
+    favBtn.onclick=e=>{e.stopPropagation();toggleFavorite(g);};
+    const thumb=document.createElement("img");thumb.className="thumbnail";thumb.loading="lazy";thumb.src=g.game_image_icon||g.thumbnail||"";thumb.alt=g.name||"";
+    const body=document.createElement("div");body.className="card-body";
+    const title=document.createElement("div");title.className="title";title.innerHTML=highlightMatch(g.name||"Untitled",q);
+    const tagsWrap=document.createElement("div");tagsWrap.className="tags";
+    (g.tags||[]).slice(0,4).forEach(t=>{const tg=document.createElement("div");tg.className="tag";tg.textContent=t;tagsWrap.appendChild(tg);});
+    const hover=document.createElement("div");hover.className="hover-details";
+    const desc=document.createElement("div");desc.className="hover-desc";desc.textContent=g.description||"";
+    const actions=document.createElement("div");actions.className="hover-actions";
+    const playBtn=document.createElement("button");playBtn.className="play-btn";playBtn.textContent="Play";playBtn.onclick=e=>{e.stopPropagation();showGamePage(g);};
+    actions.appendChild(playBtn);hover.appendChild(desc);hover.appendChild(actions);
+    body.appendChild(title);body.appendChild(tagsWrap);
+    card.appendChild(favBtn);card.appendChild(thumb);card.appendChild(body);card.appendChild(hover);
+    card.onclick=()=>showGamePage(g);
     grid.appendChild(card);
   });
-
   app.appendChild(grid);
 }
 
-/* ===========================
-   FAVORITES VIEW
-   =========================== */
+/* favorites view */
 function showFavorites(){
-  const favs = getFavorites();
-  app.innerHTML = "";
-  const title = document.createElement("div"); title.style.fontWeight=700; title.style.marginBottom="10px"; title.textContent = "Favorites";
-  app.appendChild(title);
+  const favs=getFavorites();app.innerHTML="";
+  const title=document.createElement("div");title.style.fontWeight=700;title.style.marginBottom="10px";title.textContent="Favorites";app.appendChild(title);
   if(!favs.length){
-    const no = document.createElement("div");
-    no.className = "no-results";
-    no.textContent = "No favorites yet.";
-    app.appendChild(no);
-    return;
+    const no=document.createElement("div");no.className="no-results";no.textContent="No favorites yet.";app.appendChild(no);return;
   }
-  const grid = document.createElement("div"); grid.className = "game-list";
+  const grid=document.createElement("div");grid.className="game-list";
   favs.forEach(f=>{
-    const card = document.createElement("div"); card.className = "game-card";
-    card.innerHTML = `<img class="thumbnail" src="${f.thumb}"><div class="card-body"><div class="title">${escapeHtml(f.name)}</div></div>`;
-    card.onclick = ()=> {
-      const g = gamesCache.find(x=> (x.id && x.id===f.id) || x.name===f.name);
-      if(g) showGamePage(g); else window.open(f.url || "#", "_blank");
+    const card=document.createElement("div");card.className="game-card";
+    card.innerHTML=`<img class="thumbnail" src="${f.thumb}"><div class="card-body"><div class="title">${escapeHtml(f.name)}</div></div>`;
+    card.onclick=()=>{
+      const g=gamesCache.find(x=>(x.id&&x.id===f.id)||x.name===f.name);
+      if(g)showGamePage(g);else window.open(f.url||"#","_blank");
     };
     grid.appendChild(card);
   });
   app.appendChild(grid);
 }
 
-/* ===========================
-   GAME PAGE (with fullscreen)
-   =========================== */
+/* game page + fullscreen */
+function addBack(label,cb){
+  const back=document.createElement("div");
+  back.style.cursor="pointer";back.style.color="var(--muted)";back.style.marginBottom="8px";
+  back.textContent=label;back.onclick=cb;app.appendChild(back);
+}
+function addFsHeader(titleText,attachIframeFn){
+  const header=document.createElement("div");
+  header.style.display="flex";header.style.alignItems="center";header.style.justifyContent="space-between";
+  header.style.marginBottom="6px";
+  const t=document.createElement("div");t.style.fontWeight=700;t.style.fontSize=".95rem";t.textContent=titleText;
+  const fsBtn=document.createElement("button");fsBtn.className="btn btn-ghost";fsBtn.style.padding=".35rem .8rem";fsBtn.textContent="Fullscreen";
+  let iframeRef=null;
+  fsBtn.onclick=()=>{if(iframeRef&&iframeRef.requestFullscreen)iframeRef.requestFullscreen();else if(iframeRef&&iframeRef.webkitRequestFullscreen)iframeRef.webkitRequestFullscreen();};
+  header.appendChild(t);header.appendChild(fsBtn);app.appendChild(header);
+  iframeRef=attachIframeFn();
+}
 function showGamePage(game){
-  app.innerHTML = "";
-
-  const back = document.createElement("div");
-  back.style.cursor="pointer"; back.style.color="var(--muted)"; back.style.marginBottom="8px";
-  back.textContent = "← Back to games";
-  back.onclick = ()=> showGameList();
-  app.appendChild(back);
-
+  app.innerHTML="";addBack("← Back to games",showGameList);
   let iframe;
-
-  const headerRow = document.createElement("div");
-  headerRow.style.display = "flex";
-  headerRow.style.alignItems = "center";
-  headerRow.style.justifyContent = "space-between";
-  headerRow.style.marginBottom = "6px";
-
-  const title = document.createElement("div");
-  title.style.fontWeight = "700";
-  title.style.color = "var(--text)";
-  title.style.fontSize = "0.95rem";
-  title.textContent = game.name || "Game";
-
-  const fsBtn = document.createElement("button");
-  fsBtn.className = "btn btn-ghost";
-  fsBtn.textContent = "Fullscreen";
-  fsBtn.style.padding = ".35rem .8rem";
-  fsBtn.onclick = ()=>{
-    if(iframe && iframe.requestFullscreen){
-      iframe.requestFullscreen();
-    }else if(iframe && iframe.webkitRequestFullscreen){
-      iframe.webkitRequestFullscreen();
-    }
-  };
-
-  headerRow.appendChild(title);
-  headerRow.appendChild(fsBtn);
-  app.appendChild(headerRow);
-
-  const loadWrap = document.createElement("div"); loadWrap.style.marginBottom="8px"; loadWrap.style.textAlign="center";
-  const localSpinner = document.createElement("div"); localSpinner.className = "spinner"; localSpinner.style.width="42px"; localSpinner.style.height="42px"; localSpinner.style.borderWidth="5px"; localSpinner.style.display="inline-block";
-  loadWrap.appendChild(localSpinner);
-  app.appendChild(loadWrap);
-
-  iframe = document.createElement("iframe");
-  iframe.style.width = "100%"; iframe.style.height = "78vh"; iframe.style.border = "none"; iframe.style.borderRadius = "10px"; iframe.style.background="#000";
-  iframe.setAttribute("allowfullscreen","true");
-  iframe.setAttribute("allow","fullscreen");
-  iframe.allowFullscreen = true;
-
-  if(game.iframe) iframe.srcdoc = game.iframe;
-  else if(game.game_url) iframe.src = game.game_url;
-  else if(game.url) iframe.src = game.url;
-  else iframe.srcdoc = `<body style="background:#000;color:#fff;display:flex;align-items:center;justify-content:center;height:100vh;margin:0"><div><h2>${escapeHtml(game.name||"Game")}</h2><p style="color:#bbb">No playable source provided.</p></div></body>`;
-
-  iframe.onload = ()=> loadWrap.remove();
-  app.appendChild(iframe);
-
+  const loader=document.createElement("div");loader.style.textAlign="center";loader.style.marginBottom="8px";
+  const sp=document.createElement("div");sp.className="spinner";sp.style.width="42px";sp.style.height="42px";sp.style.borderWidth="5px";sp.style.display="inline-block";
+  loader.appendChild(sp);app.appendChild(loader);
+  addFsHeader(game.name||"Game",()=>{
+    iframe=document.createElement("iframe");
+    iframe.style.cssText="width:100%;height:78vh;border:none;border-radius:10px;background:#000";
+    iframe.setAttribute("allowfullscreen","true");iframe.setAttribute("allow","fullscreen");
+    if(game.iframe)iframe.srcdoc=game.iframe;
+    else if(game.game_url)iframe.src=game.game_url;
+    else if(game.url)iframe.src=game.url;
+    else iframe.srcdoc=`<body style="margin:0;background:#000;color:#fff;display:flex;align-items:center;justify-content:center;height:100vh"><div><h2>${escapeHtml(game.name||"Game")}</h2><p style="color:#bbb">No playable source provided.</p></div></body>`;
+    iframe.onload=()=>loader.remove();app.appendChild(iframe);return iframe;
+  });
   pushRecentlyPlayed(game);
 }
 
-/* ===========================
-   PROXY BROWSER VIEW (with fullscreen)
-   =========================== */
+/* proxy view */
 function showProxyBrowser(){
-  app.innerHTML = "";
-  const back = document.createElement("div");
-  back.style.cursor="pointer"; back.style.color="var(--muted)"; back.style.marginBottom="8px";
-  back.textContent = "← Back to games";
-  back.onclick = ()=> showGameList();
-  app.appendChild(back);
-
-  let iframe;
-
-  const headerRow = document.createElement("div");
-  headerRow.style.display = "flex";
-  headerRow.style.alignItems = "center";
-  headerRow.style.justifyContent = "space-between";
-  headerRow.style.marginBottom = "6px";
-
-  const title = document.createElement("div");
-  title.style.fontWeight = "700";
-  title.style.color = "var(--text)";
-  title.style.fontSize = "0.95rem";
-  title.textContent = "Proxy Browser";
-
-  const fsBtn = document.createElement("button");
-  fsBtn.className = "btn btn-ghost";
-  fsBtn.textContent = "Fullscreen";
-  fsBtn.style.padding = ".35rem .8rem";
-  fsBtn.onclick = ()=>{
-    if(iframe && iframe.requestFullscreen){
-      iframe.requestFullscreen();
-    }else if(iframe && iframe.webkitRequestFullscreen){
-      iframe.webkitRequestFullscreen();
-    }
-  };
-
-  headerRow.appendChild(title);
-  headerRow.appendChild(fsBtn);
-  app.appendChild(headerRow);
-
-  const note = document.createElement("div");
-  note.style.fontSize = ".9rem";
-  note.style.color = "var(--muted)";
-  note.style.marginBottom = "8px";
-  note.textContent = "This loads the Astral Proxy Browser shell, which itself uses your UV proxy.";
+  app.innerHTML="";
+  addBack("← Back to games",showGameList);
+  const note=document.createElement("div");
+  note.style.fontSize=".9rem";note.style.color="var(--muted)";note.style.marginBottom="8px";
+  note.textContent="This loads the Astral Proxy Browser shell.";
   app.appendChild(note);
-
-  const wrap = document.createElement("div"); wrap.style.textAlign="center"; wrap.style.marginBottom="8px";
-  const localSpinner = document.createElement("div"); localSpinner.className="spinner"; localSpinner.style.width="42px"; localSpinner.style.height="42px"; localSpinner.style.borderWidth="5px"; localSpinner.style.display="inline-block";
-  wrap.appendChild(localSpinner);
-  app.appendChild(wrap);
-
-  iframe = document.createElement("iframe");
-  iframe.src = PROXY_URL;
-  iframe.style.width = "100%";
-  iframe.style.height = "78vh";
-  iframe.style.border = "none";
-  iframe.style.borderRadius = "10px";
-  iframe.style.background = "#000";
-  iframe.setAttribute("allowfullscreen","true");
-  iframe.setAttribute("allow","fullscreen");
-  iframe.allowFullscreen = true;
-  iframe.onload = ()=> wrap.remove();
-  app.appendChild(iframe);
+  let iframe;
+  const loader=document.createElement("div");loader.style.textAlign="center";loader.style.marginBottom="8px";
+  const sp=document.createElement("div");sp.className="spinner";sp.style.width="42px";sp.style.height="42px";sp.style.borderWidth="5px";sp.style.display="inline-block";
+  loader.appendChild(sp);app.appendChild(loader);
+  addFsHeader("Proxy Browser",()=>{
+    iframe=document.createElement("iframe");
+    iframe.src=PROXY_URL;iframe.style.cssText="width:100%;height:78vh;border:none;border-radius:10px;background:#000";
+    iframe.setAttribute("allowfullscreen","true");iframe.setAttribute("allow","fullscreen");
+    iframe.onload=()=>loader.remove();app.appendChild(iframe);return iframe;
+  });
 }
 
-/* ===========================
-   GAME REQUESTS VIEW
-   =========================== */
+/* requests view */
 function showRequests(){
-  app.innerHTML = "";
-  const back = document.createElement("div");
-  back.style.cursor="pointer"; back.style.color="var(--muted)"; back.style.marginBottom="8px";
-  back.textContent = "← Back to games";
-  back.onclick = ()=> showGameList();
-  app.appendChild(back);
-
-  let iframe;
-
-  const headerRow = document.createElement("div");
-  headerRow.style.display = "flex";
-  headerRow.style.alignItems = "center";
-  headerRow.style.justifyContent = "space-between";
-  headerRow.style.marginBottom = "6px";
-
-  const title = document.createElement("div");
-  title.style.fontWeight = "700";
-  title.style.color = "var(--text)";
-  title.style.fontSize = "0.95rem";
-  title.textContent = "Game Requests";
-
-  const fsBtn = document.createElement("button");
-  fsBtn.className = "btn btn-ghost";
-  fsBtn.textContent = "Fullscreen";
-  fsBtn.style.padding = ".35rem .8rem";
-  fsBtn.onclick = ()=>{
-    if(iframe && iframe.requestFullscreen){
-      iframe.requestFullscreen();
-    }else if(iframe && iframe.webkitRequestFullscreen){
-      iframe.webkitRequestFullscreen();
-    }
-  };
-
-  headerRow.appendChild(title);
-  headerRow.appendChild(fsBtn);
-  app.appendChild(headerRow);
-
-  const note = document.createElement("div");
-  note.style.fontSize = ".9rem";
-  note.style.color = "var(--muted)";
-  note.style.marginBottom = "8px";
-  note.textContent = "Use this form to request new games for Astral Employment.";
+  app.innerHTML="";
+  addBack("← Back to games",showGameList);
+  const note=document.createElement("div");
+  note.style.fontSize=".9rem";note.style.color="var(--muted)";note.style.marginBottom="8px";
+  note.textContent="Use this form to request new games.";
   app.appendChild(note);
-
-  const wrap = document.createElement("div"); wrap.style.textAlign="center"; wrap.style.marginBottom="8px";
-  const localSpinner = document.createElement("div"); localSpinner.className="spinner"; localSpinner.style.width="42px"; localSpinner.style.height="42px"; localSpinner.style.borderWidth="5px"; localSpinner.style.display="inline-block";
-  wrap.appendChild(localSpinner);
-  app.appendChild(wrap);
-
-  iframe = document.createElement("iframe");
-  iframe.src = REQUEST_FORM_URL;
-  iframe.style.width = "100%";
-  iframe.style.height = "78vh";
-  iframe.style.border = "none";
-  iframe.style.borderRadius = "10px";
-  iframe.style.background = "#000";
-  iframe.setAttribute("allowfullscreen","true");
-  iframe.setAttribute("allow","fullscreen");
-  iframe.allowFullscreen = true;
-  iframe.onload = ()=> wrap.remove();
-  app.appendChild(iframe);
+  let iframe;
+  const loader=document.createElement("div");loader.style.textAlign="center";loader.style.marginBottom="8px";
+  const sp=document.createElement("div");sp.className="spinner";sp.style.width="42px";sp.style.height="42px";sp.style.borderWidth="5px";sp.style.display="inline-block";
+  loader.appendChild(sp);app.appendChild(loader);
+  addFsHeader("Game Requests",()=>{
+    iframe=document.createElement("iframe");
+    iframe.src=REQUEST_FORM_URL;iframe.style.cssText="width:100%;height:78vh;border:none;border-radius:10px;background:#000";
+    iframe.setAttribute("allowfullscreen","true");iframe.setAttribute("allow","fullscreen");
+    iframe.onload=()=>loader.remove();app.appendChild(iframe);return iframe;
+  });
 }
 
-/* ===========================
-   CHAT
-   =========================== */
-function renderChatMessage(key, raw, container){
-  const isObject = raw && typeof raw === "object";
-  const data = isObject ? raw : { text:String(raw), userName:"User", userId:"legacy", ts: Date.now(), admin:false, deleted:false };
-  const msgEl = document.createElement("div");
-  msgEl.style.margin=".25rem 0";
-  msgEl.style.padding=".5rem";
-  msgEl.style.borderRadius="6px";
-  msgEl.style.background="rgba(0,0,0,0.22)";
-  msgEl.dataset.key = key;
+/* chat */
+function renderChatMessage(key,raw,container){
+  const isObject=raw&&typeof raw==="object";
+  const data=isObject?raw:{text:String(raw),userName:"User",userId:"legacy",ts:Date.now(),admin:false,deleted:false};
+  if(!data.userId)data.userId="unknown_"+Math.random().toString(36).slice(2,8);
 
-  const header = document.createElement("div");
-  header.style.display = "flex";
-  header.style.alignItems = "center";
-  header.style.justifyContent = "space-between";
-  header.style.marginBottom = "2px";
+  const msg=document.createElement("div");
+  msg.style.cssText="margin:.25rem 0;padding:.5rem;border-radius:6px;background:rgba(0,0,0,.22)";
+  msg.dataset.key=key;
 
-  const nameSpan = document.createElement("span");
-  nameSpan.textContent = data.userName || "User";
-  nameSpan.style.fontWeight = "600";
-  nameSpan.style.fontSize = ".85rem";
-  if(data.admin){
-    nameSpan.style.color = "#facc15"; // gold
-  } else {
-    nameSpan.style.color = "var(--text)";
-  }
+  const header=document.createElement("div");
+  header.style.cssText="display:flex;align-items:center;justify-content:space-between;margin-bottom:2px";
 
-  const rightMeta = document.createElement("div");
-  rightMeta.style.display = "flex";
-  rightMeta.style.alignItems = "center";
-  rightMeta.style.gap = "6px";
+  const nameSpan=document.createElement("span");
+  nameSpan.textContent=data.userName||"User";
+  nameSpan.style.fontWeight="600";nameSpan.style.fontSize=".85rem";
+  nameSpan.style.color=data.admin?"#facc15":"var(--text)";
 
-  const timeSpan = document.createElement("span");
-  timeSpan.style.fontSize = ".7rem";
-  timeSpan.style.color = "var(--muted)";
-  if(data.ts){
-    const d = new Date(data.ts);
-    timeSpan.textContent = d.toLocaleTimeString([], {hour:"2-digit",minute:"2-digit"});
-  } else {
-    timeSpan.textContent = "";
-  }
-  rightMeta.appendChild(timeSpan);
+  const right=document.createElement("div");
+  right.style.cssText="display:flex;align-items:center;gap:6px";
 
-  // Admin controls: delete + timeout (only for admins, only on non-deleted messages and with real userId)
-  if(admin && !data.deleted && data.userId && data.userId !== "legacy"){
-    const delBtn = document.createElement("button");
-    delBtn.textContent = "Delete";
-    delBtn.className = "btn btn-ghost";
-    delBtn.style.padding = ".15rem .5rem";
-    delBtn.style.fontSize = ".7rem";
-    delBtn.onclick = ()=>{
-      db.ref("chat").child(key).update({
-        deleted:true,
-        text:"[message removed by admin]"
-      });
-    };
+  const timeSpan=document.createElement("span");
+  timeSpan.style.fontSize=".7rem";timeSpan.style.color="var(--muted)";
+  if(data.ts){timeSpan.textContent=new Date(data.ts).toLocaleTimeString([],{hour:"2-digit",minute:"2-digit"});}
+  right.appendChild(timeSpan);
 
-    const timeoutBtn = document.createElement("button");
-    timeoutBtn.textContent = "Timeout 10m";
-    timeoutBtn.className = "btn btn-ghost";
-    timeoutBtn.style.padding = ".15rem .5rem";
-    timeoutBtn.style.fontSize = ".7rem";
-    timeoutBtn.onclick = ()=>{
-      const userId = data.userId;
-      if(!userId) return;
-      const expiresAt = Date.now() + 10*60*1000;
-      db.ref(TIMEOUTS_PATH + "/" + userId).set(expiresAt);
+  if(admin && !data.deleted){
+    const delBtn=document.createElement("button");
+    delBtn.textContent="Delete";delBtn.className="btn btn-ghost";
+    delBtn.style.cssText="padding:.15rem .5rem;font-size:.7rem";
+    delBtn.onclick=()=>{db.ref("chat").child(key).update({deleted:true,text:"[message removed by admin]"});};
+    const timeoutBtn=document.createElement("button");
+    timeoutBtn.textContent="Timeout 10m";timeoutBtn.className="btn btn-ghost";
+    timeoutBtn.style.cssText="padding:.15rem .5rem;font-size:.7rem";
+    timeoutBtn.onclick=()=>{
+      if(!data.userId)return;
+      const expires=Date.now()+10*60*1000;
+      db.ref(TIMEOUTS_PATH+"/"+data.userId).set(expires);
       alert("User timed out for 10 minutes.");
     };
-
-    rightMeta.appendChild(delBtn);
-    rightMeta.appendChild(timeoutBtn);
+    right.appendChild(delBtn);right.appendChild(timeoutBtn);
   }
 
-  header.appendChild(nameSpan);
-  header.appendChild(rightMeta);
+  header.appendChild(nameSpan);header.appendChild(right);
 
-  const body = document.createElement("div");
-  const textSpan = document.createElement("div");
-  textSpan.style.fontSize = ".85rem";
+  const body=document.createElement("div");
+  const textDiv=document.createElement("div");
+  textDiv.style.fontSize=".85rem";
   if(data.deleted){
-    textSpan.textContent = "[message removed by admin]";
-    textSpan.style.color = "var(--muted)";
-    textSpan.style.fontStyle = "italic";
-  }else{
-    textSpan.textContent = data.text || "";
-  }
-  body.appendChild(textSpan);
+    textDiv.textContent="[message removed by admin]";
+    textDiv.style.color="var(--muted)";textDiv.style.fontStyle="italic";
+  }else{textDiv.textContent=data.text||"";}
+  body.appendChild(textDiv);
 
-  msgEl.appendChild(header);
-  msgEl.appendChild(body);
-
-  container.appendChild(msgEl);
-  container.scrollTop = container.scrollHeight;
-  chatMessageElements[key] = msgEl;
+  msg.appendChild(header);msg.appendChild(body);
+  container.appendChild(msg);container.scrollTop=container.scrollHeight;
+  chatMessageElements[key]=msg;
 }
-
-function updateChatMessage(key, raw){
-  const el = chatMessageElements[key];
-  if(!el) return;
-  const isObject = raw && typeof raw === "object";
-  const data = isObject ? raw : { text:String(raw), userName:"User", userId:"legacy", ts:Date.now(), admin:false, deleted:false };
-  const textDiv = el.querySelector("div:last-child div");
-  if(!textDiv) return;
+function updateChatMessage(key,raw){
+  const el=chatMessageElements[key];if(!el)return;
+  const isObject=raw&&typeof raw==="object";
+  const data=isObject?raw:{text:String(raw),userName:"User",userId:"legacy",ts:Date.now(),admin:false,deleted:false};
+  const textDiv=el.querySelector("div:last-child div");if(!textDiv)return;
   if(data.deleted){
-    textDiv.textContent = "[message removed by admin]";
-    textDiv.style.color = "var(--muted)";
-    textDiv.style.fontStyle = "italic";
+    textDiv.textContent="[message removed by admin]";
+    textDiv.style.color="var(--muted)";textDiv.style.fontStyle="italic";
   }else{
-    textDiv.textContent = data.text || "";
-    textDiv.style.color = "var(--text)";
-    textDiv.style.fontStyle = "normal";
+    textDiv.textContent=data.text||"";
+    textDiv.style.color="var(--text)";textDiv.style.fontStyle="normal";
   }
 }
-
 function showChat(){
-  currentUser = ensureChatUser();
-
-  app.innerHTML = "";
-  const back = document.createElement("div");
-  back.style.cursor="pointer"; back.style.color="var(--muted)"; back.style.marginBottom="8px";
-  back.textContent = "← Back to games";
-  back.onclick = ()=> showGameList();
-  app.appendChild(back);
-
-  const info = document.createElement("div");
-  info.style.fontSize = ".85rem";
-  info.style.color = "var(--muted)";
-  info.style.marginBottom = "6px";
-  info.textContent = `You are chatting as ${currentUser.name}. Admin names appear in gold.`;
+  currentUser=ensureChatUser();
+  app.innerHTML="";
+  addBack("← Back to games",showGameList);
+  const info=document.createElement("div");
+  info.style.fontSize=".85rem";info.style.color="var(--muted)";info.style.marginBottom="6px";
+  info.textContent=`You are chatting as ${currentUser.name}. Admin names appear in gold.`;
   app.appendChild(info);
 
-  const container = document.createElement("div");
-  container.innerHTML = `<div id="chatMessages" style="height:55vh;overflow:auto;background:rgba(255,255,255,0.02);padding:.6rem;border-radius:8px"></div>
-    <div style="display:flex;gap:.4rem;margin-top:.6rem">
-      <input id="chatInput" class="input" placeholder="Message..." style="flex:1">
-      <button id="chatSend" class="btn btn-primary">Send</button>
-    </div>`;
+  const container=document.createElement("div");
+  container.innerHTML=`<div id="chatMessages" style="height:55vh;overflow:auto;background:rgba(255,255,255,.02);padding:.6rem;border-radius:8px"></div>
+  <div style="display:flex;gap:.4rem;margin-top:.6rem">
+    <input id="chatInput" class="input" placeholder="Message..." style="flex:1;margin-bottom:0">
+    <button id="chatSend" class="btn btn-primary">Send</button>
+  </div>`;
   app.appendChild(container);
 
-  const msgs = document.getElementById("chatMessages");
-  Object.keys(chatMessageElements).forEach(k=> delete chatMessageElements[k]);
-  msgs.innerHTML = "";
+  const msgs=document.getElementById("chatMessages");
+  Object.keys(chatMessageElements).forEach(k=>delete chatMessageElements[k]);
+  msgs.innerHTML="";
 
-  const messagesRef = db.ref("chat");
+  const messagesRef=db.ref("chat");
   messagesRef.off();
-  messagesRef.on("child_added", snap=>{
-    renderChatMessage(snap.key, snap.val(), msgs);
-  });
-  messagesRef.on("child_changed", snap=>{
-    updateChatMessage(snap.key, snap.val());
-  });
+  messagesRef.on("child_added",snap=>renderChatMessage(snap.key,snap.val(),msgs));
+  messagesRef.on("child_changed",snap=>updateChatMessage(snap.key,snap.val()));
 
-  document.getElementById("chatSend").onclick = async ()=>{
-    const input = document.getElementById("chatInput");
-    const v = input.value.trim();
-    if(!v) return;
-
-    // Check timeout
+  document.getElementById("chatSend").onclick=async()=>{
+    const input=document.getElementById("chatInput");
+    const v=input.value.trim();if(!v)return;
     try{
-      const snap = await db.ref(TIMEOUTS_PATH + "/" + currentUser.id).once("value");
-      const expires = snap.val();
-      const now = Date.now();
-      if(expires && expires > now){
-        const minsLeft = Math.ceil((expires - now)/60000);
-        alert("You are timed out for " + minsLeft + " more minute(s).");
-        return;
+      const snap=await db.ref(TIMEOUTS_PATH+"/"+currentUser.id).once("value");
+      const expires=snap.val(),now=Date.now();
+      if(expires && expires>now){
+        const mins=Math.ceil((expires-now)/60000);
+        alert("You are timed out for "+mins+" more minute(s).");return;
       }
-    }catch(e){
-      console.error("timeout check error", e);
-    }
-
-    const payload = {
-      text: v,
-      userId: currentUser.id,
-      userName: currentUser.name,
-      ts: Date.now(),
-      admin: !!admin,
-      deleted: false
-    };
-    db.ref("chat").push(payload);
-    input.value = "";
+    }catch(e){console.error("timeout check",e);}
+    const payload={text:v,userId:currentUser.id,userName:currentUser.name,ts:Date.now(),admin:!!admin,deleted:false};
+    db.ref("chat").push(payload);input.value="";
   };
 }
 
-/* ===========================
-   OTHER WEBSITES (admin-controlled)
-   =========================== */
+/* other websites */
 function showOther(){
-  app.innerHTML = "";
-  const back = document.createElement("div");
-  back.style.cursor="pointer"; back.style.color="var(--muted)"; back.style.marginBottom="8px";
-  back.textContent = "← Back to games";
-  back.onclick = ()=> showGameList();
-  app.appendChild(back);
-
-  const title = document.createElement("div");
-  title.style.fontWeight = "700";
-  title.style.marginBottom = "8px";
-  title.textContent = "Other Websites";
+  app.innerHTML="";
+  addBack("← Back to games",showGameList);
+  const title=document.createElement("div");
+  title.style.fontWeight=700;title.style.marginBottom="8px";title.textContent="Other Websites";
   app.appendChild(title);
-
-  const container = document.createElement("div");
-  container.id = "otherLinksContainer";
-  container.style.display = "flex";
-  container.style.flexDirection = "column";
-  container.style.gap = "8px";
+  const container=document.createElement("div");
+  container.id="otherLinksContainer";container.style.display="flex";container.style.flexDirection="column";container.style.gap="8px";
   app.appendChild(container);
-
   db.ref(OTHER_LINKS_PATH).once("value").then(snap=>{
-    const val = snap.val();
-    let links = [];
-    if(Array.isArray(val)){
-      links = val.filter(Boolean);
-    } else if(val && typeof val === "object"){
-      links = Object.values(val);
-    }
+    const val=snap.val();let links=[];
+    if(Array.isArray(val))links=val.filter(Boolean);
+    else if(val&&typeof val==="object")links=Object.values(val);
     if(!links.length){
-      const msg = document.createElement("div");
-      msg.textContent = "No links configured yet. Ask an admin to add some in the Admin Panel.";
-      msg.style.color = "var(--muted)";
-      container.appendChild(msg);
-      return;
+      const msg=document.createElement("div");msg.textContent="No links configured yet. Ask an admin to add some.";msg.style.color="var(--muted)";
+      container.appendChild(msg);return;
     }
     links.forEach(link=>{
-      if(!link || !link.url) return;
-      const row = document.createElement("div");
-      row.style.display = "flex";
-      row.style.flexDirection = "column";
-
-      const a = document.createElement("a");
-      a.href = link.url;
-      a.target = "_blank";
-      a.textContent = link.label || link.url;
-      a.style.color = "var(--accent)";
-      a.style.textDecoration = "none";
-      a.style.marginBottom = "2px";
-
-      const urlText = document.createElement("div");
-      urlText.textContent = link.url;
-      urlText.style.fontSize = ".8rem";
-      urlText.style.color = "var(--muted)";
-
-      row.appendChild(a);
-      row.appendChild(urlText);
-      container.appendChild(row);
+      if(!link||!link.url)return;
+      const row=document.createElement("div");row.style.display="flex";row.style.flexDirection="column";
+      const a=document.createElement("a");
+      a.href=link.url;a.target="_blank";a.textContent=link.label||link.url;
+      a.style.color="var(--accent)";a.style.textDecoration="none";a.style.marginBottom="2px";
+      const urlText=document.createElement("div");
+      urlText.textContent=link.url;urlText.style.fontSize=".8rem";urlText.style.color="var(--muted)";
+      row.appendChild(a);row.appendChild(urlText);container.appendChild(row);
     });
-  }).catch(err=>{
-    console.error("load other links error", err);
-    const msg = document.createElement("div");
-    msg.textContent = "Could not load links.";
-    msg.style.color = "var(--muted)";
-    container.appendChild(msg);
+  }).catch(e=>{
+    console.error("links",e);
+    const msg=document.createElement("div");msg.textContent="Could not load links.";msg.style.color="var(--muted)";container.appendChild(msg);
   });
 }
 
-/* ===========================
-   SEARCH
-   =========================== */
-searchBox.addEventListener("input", debounce(()=> showGameList(), 180));
-function highlightMatch(text, q){
-  if(!q) return escapeHtml(text||"");
-  const idx = (text||"").toLowerCase().indexOf(q.toLowerCase());
-  if(idx === -1) return escapeHtml(text);
-  const before = escapeHtml(text.slice(0, idx));
-  const match = escapeHtml(text.slice(idx, idx+q.length));
-  const after = escapeHtml(text.slice(idx+q.length));
-  return `${before}<mark style="background:rgba(10,157,255,0.18);padding:.03rem .08rem;border-radius:3px;color:#fff">${match}</mark>${after}`;
+/* admin theme */
+function applyAdminThemeIfSet(){
+  if(!admin)return;
+  db.ref(ADMIN_THEME_PATH).once("value").then(snap=>{
+    const url=snap.val();
+    if(url){
+      mainContent.classList.add("admin-theme");
+      mainContent.style.backgroundImage=`linear-gradient(rgba(0,0,0,.35),rgba(0,0,0,.35)),url("${url}")`;
+      mainContent.style.backgroundSize="cover";
+    }else{
+      mainContent.classList.remove("admin-theme");
+      mainContent.style.backgroundImage="";
+    }
+  });
 }
+db.ref(ADMIN_THEME_PATH).on("value",snap=>{
+  if(!admin)return;
+  const url=snap.val();
+  if(url){
+    mainContent.classList.add("admin-theme");
+    mainContent.style.backgroundImage=`linear-gradient(rgba(0,0,0,.35),rgba(0,0,0,.35)),url("${url}")`;
+  }else{
+    mainContent.classList.remove("admin-theme");
+    mainContent.style.backgroundImage="";
+  }
+});
+if(admin)applyAdminThemeIfSet();
 
-/* ===========================
-   ADMIN LOGIN & PANEL
-   =========================== */
+/* admin panel */
 function openAdminLogin(){
-  if(admin){ openAdminPanel(); return; }
-  const backdrop = document.createElement("div");
-  backdrop.className = "modal-backdrop";
-  backdrop.innerHTML = `<div class="modal"><h3>Admin Login</h3><input id="aPw" class="input" placeholder="Admin password" type="password"><div style="display:flex;gap:.5rem;margin-top:.6rem"><button id="aCancel" class="btn btn-ghost">Cancel</button><button id="aEnter" class="btn btn-primary">Login</button></div><div id="aMsg" style="margin-top:.6rem;color:var(--muted)"></div></div>`;
+  if(admin){openAdminPanel();return;}
+  const backdrop=document.createElement("div");
+  backdrop.className="modal-backdrop";
+  backdrop.innerHTML=`<div class="modal"><h3>Admin Login</h3><input id="aPw" class="input" placeholder="Admin password" type="password"><div style="display:flex;gap:.5rem;margin-top:.6rem"><button id="aCancel" class="btn btn-ghost">Cancel</button><button id="aEnter" class="btn btn-primary">Login</button></div><div id="aMsg" style="margin-top:.6rem;color:var(--muted)"></div></div>`;
   document.body.appendChild(backdrop);
-  document.getElementById("aCancel").onclick = ()=> backdrop.remove();
-  document.getElementById("aEnter").onclick = async ()=>{
-    const v = document.getElementById("aPw").value || "";
-    const h = await sha256Hex(v);
-    if(h === HASH_ADMIN){
-      sessionStorage.setItem("astral_admin","1");
-      admin = true;
-      backdrop.remove();
-      openAdminPanel();
-      applyAdminThemeIfSet();
-    } else {
-      document.getElementById("aMsg").textContent = "Invalid";
-      document.getElementById("aPw").value = "";
+  document.getElementById("aCancel").onclick=()=>backdrop.remove();
+  document.getElementById("aEnter").onclick=async()=>{
+    const v=document.getElementById("aPw").value||"",h=await sha256Hex(v.trim());
+    if(h===HASH_ADMIN){
+      sessionStorage.setItem("astral_admin","1");admin=true;backdrop.remove();applyAdminThemeIfSet();openAdminPanel();
+    }else{
+      document.getElementById("aMsg").textContent="Invalid";document.getElementById("aPw").value="";
     }
   };
 }
-
 function openAdminPanel(){
-  app.innerHTML = "";
-  const back = document.createElement("div");
-  back.style.cursor="pointer"; back.style.color="var(--muted)"; back.style.marginBottom="10px";
-  back.textContent = "← Back";
-  back.onclick = ()=> showGameList();
-  app.appendChild(back);
-
-  const container = document.createElement("div");
-  container.innerHTML = `
+  app.innerHTML="";
+  addBack("← Back",showGameList);
+  const container=document.createElement("div");
+  container.innerHTML=`
     <h2 style="margin-bottom:.6rem">Admin Panel</h2>
-
-    <!-- Announcement -->
     <div style="margin-bottom:.9rem">
       <label style="display:block;margin-bottom:.25rem;color:var(--muted)">Edit Announcement</label>
-      <textarea id="admAnn" style="width:100%;min-height:120px;border-radius:8px;background:rgba(255,255,255,0.02);border:none;color:var(--text);padding:.6rem"></textarea>
+      <textarea id="admAnn" style="width:100%;min-height:120px;border-radius:8px;background:rgba(255,255,255,.02);border:none;color:var(--text);padding:.6rem"></textarea>
       <div style="margin-top:.5rem;display:flex;gap:.5rem;justify-content:flex-end">
         <button id="admSave" class="btn btn-primary">Save Announcement</button>
       </div>
     </div>
-
-    <hr style="border:none;border-top:1px solid rgba(255,255,255,0.04);margin:1rem 0;">
-
-    <!-- Theme -->
+    <hr style="border:none;border-top:1px solid rgba(255,255,255,.04);margin:1rem 0;">
     <div style="margin-bottom:.9rem">
       <label style="display:block;margin-bottom:.25rem;color:var(--muted)">Admin Theme Background URL</label>
-      <input id="admTheme" class="input" placeholder="Paste image URL for admin background (public URL)">
+      <input id="admTheme" class="input" placeholder="Paste image URL">
       <div style="display:flex;gap:.5rem;justify-content:flex-end;margin-top:.5rem">
         <button id="admThemeSave" class="btn btn-primary">Save Theme</button>
       </div>
-      <div style="margin-top:.6rem;color:var(--muted);font-size:.9rem">When saved, the admin theme will appear for anyone logged in as admin.</div>
     </div>
-
-    <hr style="border:none;border-top:1px solid rgba(255,255,255,0.04);margin:1rem 0;">
-
-    <!-- Other Websites links -->
+    <hr style="border:none;border-top:1px solid rgba(255,255,255,.04);margin:1rem 0;">
     <div style="margin-bottom:.9rem">
       <h3 style="margin-bottom:.4rem">Other Websites Links</h3>
       <div style="display:flex;gap:.5rem;flex-wrap:wrap;margin-bottom:.4rem">
-        <input id="admLinkLabel" class="input" placeholder="Label (e.g. Homework, Docs)" style="flex:1;min-width:120px">
+        <input id="admLinkLabel" class="input" placeholder="Label" style="flex:1;min-width:120px">
         <input id="admLinkUrl" class="input" placeholder="https://example.com" style="flex:2;min-width:180px">
       </div>
       <div style="display:flex;gap:.5rem;justify-content:flex-end;margin-bottom:.6rem">
         <button id="admAddLink" class="btn btn-primary">Add / Update Link</button>
       </div>
       <div id="admLinksList" style="display:flex;flex-direction:column;gap:.4rem"></div>
-      <div style="margin-top:.4rem;color:var(--muted);font-size:.85rem">These links appear in the “Websites” tab for everyone.</div>
     </div>
-
-    <hr style="border:none;border-top:1px solid rgba(255,255,255,0.04);margin:1rem 0;">
-
-    <!-- Custom games -->
+    <hr style="border:none;border-top:1px solid rgba(255,255,255,.04);margin:1rem 0;">
     <div style="margin-bottom:.9rem">
       <h3 style="margin-bottom:.4rem">Custom Games</h3>
       <div style="display:flex;flex-direction:column;gap:.4rem;margin-bottom:.5rem">
@@ -1315,307 +832,157 @@ function openAdminPanel(){
         <button id="admAddGame" class="btn btn-primary">Add Game</button>
       </div>
       <div id="admGamesList" style="display:flex;flex-direction:column;gap:.4rem"></div>
-      <div style="margin-top:.4rem;color:var(--muted);font-size:.85rem">These games are added on top of the main catalog.</div>
     </div>
-
     <div style="margin-top:1rem">
       <button id="admLogout" class="btn btn-ghost">Logout Admin</button>
-    </div>
-  `;
+    </div>`;
   app.appendChild(container);
 
-  // Load current announcement
   db.ref(ANN_PATH).once("value").then(snap=>{
-    const v = snap.val(); document.getElementById("admAnn").value = v && v.text ? v.text : "";
+    const v=snap.val();document.getElementById("admAnn").value=(v&&v.text)||"";
   });
-
-  // Load theme URL
   db.ref(ADMIN_THEME_PATH).once("value").then(snap=>{
-    const v = snap.val(); document.getElementById("admTheme").value = v || "";
+    document.getElementById("admTheme").value=snap.val()||"";
   });
 
-  // Websites section
-  let linksArr = [];
-  const linksListEl = document.getElementById("admLinksList");
-
+  /* other links */
+  let linksArr=[];const linksListEl=document.getElementById("admLinksList");
   function renderLinksList(){
-    linksListEl.innerHTML = "";
+    linksListEl.innerHTML="";
     if(!linksArr.length){
-      const msg = document.createElement("div");
-      msg.textContent = "No links yet.";
-      msg.style.color = "var(--muted)";
-      msg.style.fontSize = ".9rem";
-      linksListEl.appendChild(msg);
-      return;
+      const msg=document.createElement("div");msg.textContent="No links yet.";msg.style.color="var(--muted)";msg.style.fontSize=".9rem";
+      linksListEl.appendChild(msg);return;
     }
-    linksArr.forEach((link, idx)=>{
-      if(!link) return;
-      const row = document.createElement("div");
-      row.style.display = "flex";
-      row.style.alignItems = "center";
-      row.style.gap = "8px";
-
-      const label = document.createElement("div");
-      label.textContent = link.label || "(no label)";
-      label.style.flex = "0 0 120px";
-      label.style.fontWeight = "600";
-
-      const urlDiv = document.createElement("div");
-      urlDiv.textContent = link.url || "";
-      urlDiv.style.flex = "1";
-      urlDiv.style.fontSize = ".85rem";
-      urlDiv.style.color = "var(--muted)";
-
-      const delBtn = document.createElement("button");
-      delBtn.textContent = "Delete";
-      delBtn.className = "btn btn-ghost";
-      delBtn.style.padding = ".35rem .7rem";
-      delBtn.onclick = async ()=>{
-        linksArr.splice(idx,1);
-        await db.ref(OTHER_LINKS_PATH).set(linksArr);
-        renderLinksList();
-      };
-
-      row.appendChild(label);
-      row.appendChild(urlDiv);
-      row.appendChild(delBtn);
-      linksListEl.appendChild(row);
+    linksArr.forEach((link,idx)=>{
+      if(!link)return;
+      const row=document.createElement("div");row.style.cssText="display:flex;align-items:center;gap:8px";
+      const label=document.createElement("div");label.textContent=link.label||"(no label)";label.style.flex="0 0 120px";label.style.fontWeight="600";
+      const url=document.createElement("div");url.textContent=link.url||"";url.style.flex="1";url.style.fontSize=".8rem";url.style.color="var(--muted)";url.style.whiteSpace="nowrap";url.style.overflow="hidden";url.style.textOverflow="ellipsis";
+      const del=document.createElement("button");del.textContent="Delete";del.className="btn btn-ghost";del.style.cssText="padding:.3rem .6rem;font-size:.75rem";
+      del.onclick=async()=>{linksArr.splice(idx,1);await db.ref(OTHER_LINKS_PATH).set(linksArr);renderLinksList();};
+      row.appendChild(label);row.appendChild(url);row.appendChild(del);linksListEl.appendChild(row);
     });
   }
-
   db.ref(OTHER_LINKS_PATH).once("value").then(snap=>{
-    const val = snap.val();
-    if(Array.isArray(val)){
-      linksArr = val.filter(Boolean);
-    } else if(val && typeof val === "object"){
-      linksArr = Object.values(val);
-    } else {
-      linksArr = [];
-    }
+    const val=snap.val();
+    if(Array.isArray(val))linksArr=val.filter(Boolean);
+    else if(val&&typeof val==="object")linksArr=Object.values(val);
+    else linksArr=[];
     renderLinksList();
   });
 
-  document.getElementById("admAddLink").onclick = async ()=>{
-    const labelInput = document.getElementById("admLinkLabel");
-    const urlInput = document.getElementById("admLinkUrl");
-    const label = (labelInput.value || "").trim();
-    const url = (urlInput.value || "").trim();
-    if(!url){
-      alert("URL is required.");
-      return;
-    }
-    const existingIndex = linksArr.findIndex(l => l && l.url === url);
-    const newObj = { label: label || url, url };
-    if(existingIndex >= 0){
-      linksArr[existingIndex] = newObj;
-    } else {
-      linksArr.push(newObj);
-    }
+  document.getElementById("admAddLink").onclick=async()=>{
+    const labelInput=document.getElementById("admLinkLabel"),urlInput=document.getElementById("admLinkUrl");
+    const label=(labelInput.value||"").trim(),url=(urlInput.value||"").trim();
+    if(!url){alert("URL is required.");return;}
+    const idx=linksArr.findIndex(l=>l&&l.url===url);
+    const obj={label:label||url,url};
+    if(idx>=0)linksArr[idx]=obj;else linksArr.push(obj);
     await db.ref(OTHER_LINKS_PATH).set(linksArr);
-    labelInput.value = "";
-    urlInput.value = "";
-    renderLinksList();
+    labelInput.value="";urlInput.value="";renderLinksList();
   };
 
-  // Announcement save
-  document.getElementById("admSave").onclick = async ()=>{
-    const txt = document.getElementById("admAnn").value || "";
-    await db.ref(ANN_PATH).set({ text: txt, updatedAt: Date.now() });
+  /* announcement + theme */
+  document.getElementById("admSave").onclick=async()=>{
+    const txt=document.getElementById("admAnn").value||"";
+    await db.ref(ANN_PATH).set({text:txt,updatedAt:Date.now()});
     alert("Announcement saved.");
   };
-
-  // Theme save
-  document.getElementById("admThemeSave").onclick = async ()=>{
-    const url = document.getElementById("admTheme").value.trim();
-    await db.ref(ADMIN_THEME_PATH).set(url || "");
-    alert("Admin theme saved.");
-    applyAdminThemeIfSet();
+  document.getElementById("admThemeSave").onclick=async()=>{
+    const url=document.getElementById("admTheme").value.trim();
+    await db.ref(ADMIN_THEME_PATH).set(url||"");
+    alert("Theme saved.");applyAdminThemeIfSet();
   };
 
-  // Custom games section
-  const gamesListEl = document.getElementById("admGamesList");
-  let adminGamesLocal = [];
-
+  /* custom games */
+  const gamesListEl=document.getElementById("admGamesList");let adminGamesLocal=[];
   function renderAdminGamesList(){
-    gamesListEl.innerHTML = "";
+    gamesListEl.innerHTML="";
     if(!adminGamesLocal.length){
-      const msg = document.createElement("div");
-      msg.textContent = "No custom games yet.";
-      msg.style.color = "var(--muted)";
-      msg.style.fontSize = ".9rem";
-      gamesListEl.appendChild(msg);
-      return;
+      const msg=document.createElement("div");msg.textContent="No custom games yet.";msg.style.color="var(--muted)";msg.style.fontSize=".9rem";
+      gamesListEl.appendChild(msg);return;
     }
     adminGamesLocal.forEach(entry=>{
-      const row = document.createElement("div");
-      row.style.display = "flex";
-      row.style.alignItems = "center";
-      row.style.gap = "8px";
-      row.style.background = "rgba(255,255,255,0.02)";
-      row.style.borderRadius = "8px";
-      row.style.padding = ".4rem .5rem";
-
-      const name = document.createElement("div");
-      name.textContent = entry.data.name || "(no name)";
-      name.style.flex = "0 0 140px";
-      name.style.fontWeight = "600";
-
-      const cat = document.createElement("div");
-      cat.textContent = entry.data.category || "";
-      cat.style.fontSize = ".8rem";
-      cat.style.color = "var(--muted)";
-      cat.style.flex = "0 0 80px";
-
-      const url = document.createElement("div");
-      url.textContent = entry.data.game_url || entry.data.url || "";
-      url.style.flex = "1";
-      url.style.fontSize = ".8rem";
-      url.style.color = "var(--muted)";
-      url.style.overflow = "hidden";
-      url.style.textOverflow = "ellipsis";
-      url.style.whiteSpace = "nowrap";
-
-      const del = document.createElement("button");
-      del.textContent = "Delete";
-      del.className = "btn btn-ghost";
-      del.style.padding = ".3rem .6rem";
-      del.style.fontSize = ".75rem";
-      del.onclick = async ()=>{
-        await db.ref(ADMIN_GAMES_PATH).child(entry.key).remove();
-        adminGamesLocal = adminGamesLocal.filter(x=>x.key !== entry.key);
-        renderAdminGamesList();
-        // Refresh games cache so it's removed from game list
-        loadGames().then(()=> showGameList());
-      };
-
-      row.appendChild(name);
-      row.appendChild(cat);
-      row.appendChild(url);
-      row.appendChild(del);
-      gamesListEl.appendChild(row);
+      const row=document.createElement("div");
+      row.style.cssText="display:flex;align-items:center;gap:8px;background:rgba(255,255,255,.02);border-radius:8px;padding:.4rem .5rem";
+      const name=document.createElement("div");name.textContent=entry.data.name||"(no name)";name.style.flex="0 0 140px";name.style.fontWeight="600";
+      const cat=document.createElement("div");cat.textContent=entry.data.category||"";cat.style.fontSize=".8rem";cat.style.color="var(--muted)";cat.style.flex="0 0 80px";
+      const url=document.createElement("div");url.textContent=entry.data.game_url||entry.data.url||"";url.style.flex="1";url.style.fontSize=".8rem";url.style.color="var(--muted)";url.style.whiteSpace="nowrap";url.style.overflow="hidden";url.style.textOverflow="ellipsis";
+      const del=document.createElement("button");del.textContent="Delete";del.className="btn btn-ghost";del.style.cssText="padding:.3rem .6rem;font-size:.75rem";
+      del.onclick=async()=>{await db.ref(ADMIN_GAMES_PATH).child(entry.key).remove();adminGamesLocal=adminGamesLocal.filter(x=>x.key!==entry.key);renderAdminGamesList();loadGames().then(showGameList);};
+      row.appendChild(name);row.appendChild(cat);row.appendChild(url);row.appendChild(del);gamesListEl.appendChild(row);
     });
   }
-
   db.ref(ADMIN_GAMES_PATH).once("value").then(snap=>{
-    const val = snap.val() || {};
-    adminGamesLocal = Object.keys(val).map(k=>({key:k, data:val[k]}));
-    renderAdminGamesList();
+    const val=snap.val()||{};adminGamesLocal=Object.keys(val).map(k=>({key:k,data:val[k]}));renderAdminGamesList();
   });
-
-  document.getElementById("admAddGame").onclick = async ()=>{
-    const name = (document.getElementById("admGameName").value || "").trim();
-    const url = (document.getElementById("admGameUrl").value || "").trim();
-    const thumb = (document.getElementById("admGameThumb").value || "").trim();
-    const desc = (document.getElementById("admGameDesc").value || "").trim();
-    const tagsRaw = (document.getElementById("admGameTags").value || "").trim();
-    const category = (document.getElementById("admGameCategory").value || "").trim();
-
-    if(!name || !url){
-      alert("Name and URL are required.");
-      return;
-    }
-    const tags = tagsRaw ? tagsRaw.split(",").map(t=>t.trim()).filter(Boolean) : [];
-    const gameObj = {
-      name,
-      game_url:url,
-      game_image_icon: thumb || "",
-      description: desc || "",
-      tags,
-      category,
-      createdAt: Date.now()
-    };
-
-    const newRef = await db.ref(ADMIN_GAMES_PATH).push(gameObj);
-    adminGamesLocal.push({key:newRef.key, data:gameObj});
+  document.getElementById("admAddGame").onclick=async()=>{
+    const name=(document.getElementById("admGameName").value||"").trim();
+    const url=(document.getElementById("admGameUrl").value||"").trim();
+    const thumb=(document.getElementById("admGameThumb").value||"").trim();
+    const desc=(document.getElementById("admGameDesc").value||"").trim();
+    const tagsRaw=(document.getElementById("admGameTags").value||"").trim();
+    const category=(document.getElementById("admGameCategory").value||"").trim();
+    if(!name||!url){alert("Name and URL are required.");return;}
+    const tags=tagsRaw?tagsRaw.split(",").map(t=>t.trim()).filter(Boolean):[];
+    const gameObj={name,game_url:url,game_image_icon:thumb,description:desc,tags,category,createdAt:Date.now()};
+    const ref=await db.ref(ADMIN_GAMES_PATH).push(gameObj);
+    adminGamesLocal.push({key:ref.key,data:gameObj});
     renderAdminGamesList();
-
-    // Clear inputs
-    document.getElementById("admGameName").value = "";
-    document.getElementById("admGameUrl").value = "";
-    document.getElementById("admGameThumb").value = "";
-    document.getElementById("admGameDesc").value = "";
-    document.getElementById("admGameTags").value = "";
-    document.getElementById("admGameCategory").value = "";
-
-    alert("Game added. It will appear in the catalog.");
-    // Reload game list so the new game is available immediately
-    loadGames().then(()=> showGameList());
+    document.getElementById("admGameName").value="";
+    document.getElementById("admGameUrl").value="";
+    document.getElementById("admGameThumb").value="";
+    document.getElementById("admGameDesc").value="";
+    document.getElementById("admGameTags").value="";
+    document.getElementById("admGameCategory").value="";
+    alert("Game added.");loadGames().then(showGameList);
   };
 
-  // Logout
-  document.getElementById("admLogout").onclick = ()=>{
-    admin = false; sessionStorage.removeItem("astral_admin");
-    mainContent.classList.remove("admin-theme");
-    mainContent.style.backgroundImage = "";
-    showGameList();
+  document.getElementById("admLogout").onclick=()=>{
+    admin=false;sessionStorage.removeItem("astral_admin");
+    mainContent.classList.remove("admin-theme");mainContent.style.backgroundImage="";showGameList();
   };
 }
 
-function applyAdminThemeIfSet(){
-  if(!admin) return;
-  db.ref(ADMIN_THEME_PATH).once("value").then(snap=>{
-    const url = snap.val();
-    if(url){
-      mainContent.classList.add("admin-theme");
-      mainContent.style.backgroundImage = `linear-gradient(rgba(0,0,0,0.35),rgba(0,0,0,0.35)), url("${url}")`;
-      mainContent.style.backgroundSize = "cover";
-    } else {
-      mainContent.classList.add("admin-theme");
-      mainContent.style.backgroundImage = "radial-gradient(circle at 20% 20%, rgba(155,227,255,0.08), transparent 10%), radial-gradient(circle at 80% 80%, rgba(107,104,255,0.05), transparent 8%), linear-gradient(180deg, rgba(8,8,12,0.5), rgba(3,3,6,0.6))";
-      mainContent.style.backgroundSize = "cover";
-    }
-  });
-}
-db.ref(ADMIN_THEME_PATH).on("value", snap=>{
-  if(!admin) return;
-  const url = snap.val();
-  if(url){
-    mainContent.classList.add("admin-theme");
-    mainContent.style.backgroundImage = `linear-gradient(rgba(0,0,0,0.35),rgba(0,0,0,0.35)), url("${url}")`;
-    mainContent.style.backgroundSize = "cover";
-  } else {
-    mainContent.classList.remove("admin-theme");
-    mainContent.style.backgroundImage = "";
-  }
-});
-if(admin) applyAdminThemeIfSet();
+/* search */
+searchBox.addEventListener("input",debounce(showGameList,180));
 
-/* ===========================
-   LOGIN & ENTER HUB
-   =========================== */
-// ensure no previous access flags (so refresh always restores login)
+/* nav wiring */
+document.getElementById("navToggle").onclick=toggleNav;
+document.getElementById("navCollapse").onclick=toggleNav;
+document.getElementById("navGames").onclick=()=>{toggleNav();showGameList();};
+document.getElementById("navFavorites").onclick=()=>{toggleNav();showFavorites();};
+document.getElementById("navChat").onclick=()=>{toggleNav();showChat();};
+document.getElementById("navRequests").onclick=()=>{toggleNav();showRequests();};
+document.getElementById("navOther").onclick=()=>{toggleNav();showOther();};
+document.getElementById("navProxy").onclick=()=>{toggleNav();showProxyBrowser();};
+document.getElementById("navAdmin").onclick=()=>{toggleNav();openAdminLogin();};
+document.getElementById("toggleDark").onclick=toggleTheme;
+
+/* LOGIN FLOW: always require password on refresh */
 sessionStorage.removeItem("astral_access");
-
-document.getElementById("enterBtn").addEventListener("click", async ()=>{
-  const val = document.getElementById("passwordInput").value || "";
-  const h = await sha256Hex(val.trim());
-  if(h === HASH_MAIN){
-    document.getElementById("passwordInput").value = "";
-    document.getElementById("homeScreen").style.display = "none";
-    document.getElementById("landingScreen").style.display = "flex";
-  } else {
-    document.getElementById("errorMsg").textContent = "Incorrect access code";
-    document.getElementById("passwordInput").value = "";
+document.getElementById("enterBtn").onclick=async()=>{
+  const val=document.getElementById("passwordInput").value||"",h=await sha256Hex(val.trim());
+  if(h===HASH_MAIN){
+    document.getElementById("passwordInput").value="";
+    document.getElementById("homeScreen").style.display="none";
+    document.getElementById("landingScreen").style.display="flex";
+  }else{
+    const err=document.getElementById("errorMsg");
+    err.textContent="Incorrect access code";
+    document.getElementById("passwordInput").value="";
     document.getElementById("passwordInput").animate(
-      [{transform:'translateX(0)'},{transform:'translateX(-6px)'},{transform:'translateX(6px)'},{transform:'translateX(0)'}],
+      [{transform:"translateX(0)"},{transform:"translateX(-6px)"},{transform:"translateX(6px)"},{transform:"translateX(0)"}],
       {duration:220}
     );
   }
-});
-
-document.getElementById("enterHubBtn").addEventListener("click", async ()=>{
-  document.getElementById("landingScreen").style.display = "none";
-  mainContent.style.display = "block";
-  sideNav.style.display = "flex";
-  showSpinner();
-  await loadGames();
-  hideSpinner();
-  showGameList();
-});
-
-document.getElementById("navGames").addEventListener("keydown", e=>{ if(e.key==="Enter") { toggleNav(); showGameList(); } });
-
-mainContent.style.display = "none";
+};
+document.getElementById("enterHubBtn").onclick=async()=>{
+  document.getElementById("landingScreen").style.display="none";
+  mainContent.style.display="block";sideNav.style.display="flex";
+  showSpinner();await loadGames();hideSpinner();showGameList();
+};
+mainContent.style.display="none";
 </script>
 </body>
 </html>
