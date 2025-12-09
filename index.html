@@ -1,978 +1,1253 @@
-/* ========= CONFIG ========= */
-const HASH_MAIN  = "875b0cbe469a54473cd975c129b87fadaa6d15d6dacf0634ea24b70e0b58c04b"; // "DIHALB"
-const HASH_ADMIN = "23c28e809cef8751da4a6393e9cb183b8d969f77ab0ade39e6b282e19e40378f"; // "th!nBlu3"
-
-const GAMES_JSON_URL = "https://raw.githubusercontent.com/swarmintelli/Unblocked-Games-CDN/main/games.json";
-const PROXY_URL = "https://mememastertime-del.github.io/Unblocked-Games/proxy-browser.html";
-const REQUEST_FORM_URL = "https://docs.google.com/forms/d/e/1FAIpQLSeCfC4vHF_dR_iV-9n9Af6X3SrYsWwFG3CjAsbuoHBwOH3nUg/viewform?usp=dialog";
-
-const firebaseConfig = {
-  apiKey:"AIzaSyAyHooV5floB-DdLAFdczfgEuDPEWtfGgA",
-  authDomain:"chatroom-4e6e4.firebaseapp.com",
-  databaseURL:"https://chatroom-4e6e4-default-rtdb.firebaseio.com",
-  projectId:"chatroom-4e6e4",
-  storageBucket:"chatroom-4e6e4.firebasestorage.app",
-  messagingSenderId:"352956674536",
-  appId:"1:352956674536:web:1942c8198827e8f5f6b45d"
-};
-firebase.initializeApp(firebaseConfig);
-const db = firebase.database();
-const ANN_PATH          = "announcement/latest";
-const ADMIN_THEME_PATH  = "admin/themeBg";
-const OTHER_LINKS_PATH  = "admin/otherLinks";
-const ADMIN_GAMES_PATH  = "adminGames";
-const TIMEOUTS_PATH     = "timeouts";
-
-const emojiMap = {
-  all:"✨",action:"🎯",adventure:"🗺️",puzzle:"🧩",racing:"🚗",
-  multiplayer:"🤝",strategy:"♟️",sports:"🏅",classics:"🎮"
-};
-const categories = ["all","action","adventure","puzzle","racing","multiplayer","strategy","sports","classics"];
-
-let gamesCache = [];
-let category = "all";
-let admin = sessionStorage.getItem("astral_admin") === "1";
-const RP_KEY = "astral_recently_played_v2";
-const FAV_KEY = "astral_favorites_v1";
-const CHAT_USER_KEY = "astral_chat_user_v1";
-let currentUser = null;
-let chatMessageElements = {};
-
-/* DOM refs */
-const sideNav        = document.getElementById("sideNav");
-const mainContent    = document.getElementById("mainContent");
-const spinnerOverlay = document.getElementById("spinnerOverlay");
-const searchBox      = document.getElementById("searchBox");
-const categoryBar    = document.getElementById("categoryBar");
-const app            = document.getElementById("app");
-const announcementBar= document.getElementById("announcementBar");
-
-/* ========= HELPERS ========= */
-function debounce(fn, wait=120){
-  let t; return (...args)=>{clearTimeout(t); t=setTimeout(()=>fn(...args),wait);};
-}
-function escapeHtml(s){
-  return String(s||"").replace(/[&<>"']/g,m=>(
-    {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[m]
-  ));
-}
-async function sha256Hex(str){
-  const enc = new TextEncoder().encode(str);
-  const d   = await crypto.subtle.digest("SHA-256", enc);
-  return Array.from(new Uint8Array(d)).map(b=>b.toString(16).padStart(2,"0")).join("");
-}
-(function initTheme(){
-  const saved = localStorage.getItem("astral_theme") || "dark";
-  document.documentElement.setAttribute("data-theme", saved);
-})();
-function toggleTheme(){
-  const cur  = document.documentElement.getAttribute("data-theme");
-  const next = cur === "dark" ? "light" : "dark";
-  document.documentElement.setAttribute("data-theme", next);
-  localStorage.setItem("astral_theme", next);
-}
-function toggleNav(){ sideNav.classList.toggle("open"); }
-function showSpinner(){ spinnerOverlay.classList.add("show"); }
-function hideSpinner(){ spinnerOverlay.classList.remove("show"); }
-
-/* ========= ANNOUNCEMENT ========= */
-db.ref(ANN_PATH).on("value", snap=>{
-  const v = snap.val();
-  if(!v || !v.text){
-    announcementBar.textContent = "No announcements right now.";
-  }else{
-    const ts = v.updatedAt ? new Date(v.updatedAt).toLocaleString() : "";
-    announcementBar.innerHTML =
-      `<strong style="display:block;margin-bottom:.25rem">Announcement</strong>`+
-      `<div>${escapeHtml(v.text)}</div>`+
-      `<div style="font-size:.78rem;color:var(--muted);margin-top:.4rem">Last updated: ${escapeHtml(ts)}</div>`;
-  }
-}, ()=>{
-  announcementBar.textContent = "Announcements unavailable.";
-});
-
-/* ========= CHAT USER ========= */
-function ensureChatUser(){
-  try{
-    const raw = localStorage.getItem(CHAT_USER_KEY);
-    if(raw){
-      const p = JSON.parse(raw);
-      if(p && p.id && p.name) return p;
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <title>Astral Employment</title>
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;800&display=swap" rel="stylesheet">
+  <style>
+    :root{
+      --bg:#07070a;
+      --panel:#0f1113;
+      --muted:#bfc7d0;
+      --accent:#0a9dff;
+      --card:#161717;
+      --text:#eaf2ff;
+      --nav-collapsed:68px;
+      --nav-expanded:220px;
     }
-  }catch{}
-  const id   = "u_" + Math.random().toString(36).slice(2,10);
-  const name = "Worker-" + Math.floor(1000 + Math.random()*9000);
-  const obj  = {id,name};
-  localStorage.setItem(CHAT_USER_KEY, JSON.stringify(obj));
-  return obj;
-}
+    html[data-theme="light"]{
+      --bg:#f6f7fb;
+      --panel:#ffffff;
+      --muted:#475569;
+      --card:#ffffff;
+      --text:#0b1220;
+    }
+    *{box-sizing:border-box;margin:0;padding:0}
+    body{
+      font-family:Inter,system-ui,-apple-system,"Segoe UI",Roboto,Arial;
+      background:var(--bg);color:var(--text);height:100vh;overflow:hidden;
+    }
 
-/* ========= GAMES LOADING ========= */
-async function loadAdminGames(){
-  const snap = await db.ref(ADMIN_GAMES_PATH).once("value");
-  const val  = snap.val() || {};
-  const arr  = [];
-  Object.keys(val).forEach(k=>{
-    const g = val[k] || {};
-    arr.push({...g, id:k, _adminId:k, source:"admin"});
-  });
-  return arr;
-}
-function enrichTags(g){
-  const combined = ((g.name||"") + " " + (g.description||"")).toLowerCase();
-  const baseTags = Array.isArray(g.tags) ? g.tags.map(t=>String(t).toLowerCase()) : [];
-  const s        = new Set(baseTags);
-  if(g.category) s.add(String(g.category).toLowerCase());
-  if(/race|racing|driver|speed|track/.test(combined))      s.add("racing");
-  if(/puzzl|match|connect|logic|brain|blocks/.test(combined)) s.add("puzzle");
-  if(/adventur|quest|explor|journey|island/.test(combined))   s.add("adventure");
-  if(/multipl|versus|vs\.|co-op|coop|team|lobby/.test(combined)) s.add("multiplayer");
-  if(/fight|battle|shoot|war|combat|attack|zombi|arena/.test(combined)) s.add("action");
-  if(/chess|strategy|tower|td |tycoon|simul|manage/.test(combined)) s.add("strategy");
-  if(/soccer|football|basket|baseball|tennis|golf|sports/.test(combined)) s.add("sports");
-  if(!s.size) s.add("classics");
-  g.tags = Array.from(s);
-}
-async function loadGames(){
-  try{
-    showSpinner();
-    const resp = await fetch(GAMES_JSON_URL);
-    let baseGames = await resp.json();
-    if(!Array.isArray(baseGames)) baseGames = [];
-    baseGames.forEach(enrichTags);
-    const adminGames = await loadAdminGames();
-    adminGames.forEach(enrichTags);
-    gamesCache = baseGames.concat(adminGames);
-    buildCategoryBar();
-    hideSpinner();
-    return gamesCache;
-  }catch(e){
-    console.error("loadGames", e);
-    hideSpinner();
-    gamesCache = [];
-    buildCategoryBar();
-    return [];
-  }
-}
+    /* login + landing */
+    #homeScreen,#landingScreen{
+      height:100vh;display:flex;align-items:center;justify-content:center;padding:1rem;
+    }
+    #homeScreen{flex-direction:column;gap:.9rem;text-align:center}
+    #homeScreen h1{font-size:2.4rem;font-weight:800;color:#fff}
+    #announcementBar{
+      max-width:360px;padding:.7rem;border-radius:10px;background:rgba(255,255,255,.02);
+      border:1px solid rgba(255,255,255,.05);font-size:.95rem;color:var(--muted);
+    }
+    #passwordInput{
+      width:280px;padding:.7rem;border-radius:10px;border:none;background:#151515;
+      color:#fff;font-size:1rem;
+    }
+    #enterBtn{
+      width:220px;padding:.7rem;border-radius:10px;border:none;cursor:pointer;
+      background:var(--accent);color:#fff;font-weight:700;
+    }
+    #errorMsg{color:#ff6b6b;font-size:.9rem;min-height:1rem}
+    #landingScreen{display:none}
+    .hero{max-width:900px;width:100%;display:flex;flex-direction:column;gap:1rem}
+    .feature-list{margin-top:.7rem;display:flex;flex-direction:column;gap:.4rem}
+    .btn{
+      border:none;border-radius:10px;padding:.7rem 1rem;cursor:pointer;font-weight:700;
+    }
+    .btn-primary{background:var(--accent);color:#fff}
+    .btn-ghost{
+      background:transparent;color:var(--muted);
+      border:1px solid rgba(255,255,255,.05);
+    }
 
-/* ========= CATEGORY BAR ========= */
-function buildCategoryBar(){
-  categoryBar.innerHTML = "";
-  categories.forEach(cat=>{
-    const b = document.createElement("button");
-    b.className = "cat-btn" + (cat === category ? " active" : "");
-    b.innerHTML = `<span style="margin-right:.4rem">${emojiMap[cat] || "🔹"}</span>`+
-                  `<span style="text-transform:capitalize">${cat==="all"?"All":cat}</span>`;
-    b.onclick = ()=>{category = cat; showGameList();};
-    categoryBar.appendChild(b);
-  });
-}
+    /* spinner */
+    #spinnerOverlay{
+      position:fixed;inset:0;display:flex;align-items:center;justify-content:center;
+      background:linear-gradient(180deg,rgba(0,0,0,.35),rgba(0,0,0,.6));
+      z-index:120;visibility:hidden;opacity:0;transition:opacity .22s,visibility .22s;
+    }
+    #spinnerOverlay.show{visibility:visible;opacity:1}
+    .spinner{
+      width:84px;height:84px;border-radius:50%;border:8px solid rgba(255,255,255,.06);
+      border-top-color:var(--accent);animation:spin 1s linear infinite;
+      box-shadow:0 8px 30px rgba(0,0,0,.6);
+    }
+    @keyframes spin{from{transform:rotate(0)}to{transform:rotate(360deg)}}
 
-/* ========= RECENT & FAVORITES ========= */
-function getRecentlyPlayed(){
-  try{ return JSON.parse(localStorage.getItem(RP_KEY) || "[]"); }
-  catch{ return []; }
-}
-function pushRecentlyPlayed(game){
-  try{
-    const arr = getRecentlyPlayed();
-    const entry = {
-      id   : game.id || game.name || Math.random().toString(36).slice(2,8),
-      name : game.name || "Untitled",
-      thumb: game.game_image_icon || game.thumbnail || "",
-      url  : game.game_url || game.url || game.iframe || "",
-      ts   : Date.now()
+    /* sidenav */
+    #sideNav{
+      position:fixed;left:0;top:0;height:100vh;width:var(--nav-collapsed);
+      background:linear-gradient(180deg,var(--panel),#0b0d10);
+      display:none;flex-direction:column;align-items:center;
+      padding:.6rem .4rem;gap:.6rem;transition:width .22s,left .22s;
+      z-index:60;box-shadow:2px 0 18px rgba(0,0,0,.5);
+    }
+    #sideNav.open{width:var(--nav-expanded)}
+    .logo-wrap{display:flex;align-items:center;gap:.6rem;padding:.4rem;width:100%;justify-content:center}
+    .logo-wrap .label{font-weight:800;font-size:1.02rem;color:var(--text);opacity:0;transition:opacity .22s}
+    #sideNav.open .label{opacity:1}
+    #navToggle{cursor:pointer;width:100%;display:flex;justify-content:center;padding:.4rem 0}
+    .nav-item{
+      width:100%;display:flex;align-items:center;gap:.7rem;padding:.6rem;border-radius:10px;
+      color:var(--muted);cursor:pointer;transition:background .18s,color .12s;white-space:nowrap;
+    }
+    .nav-item:hover{background:rgba(255,255,255,.03);color:#fff}
+    .nav-item .icon{font-size:1.15rem;width:28px;text-align:center}
+    .nav-label{opacity:0;transition:opacity .22s}
+    #sideNav.open .nav-label{opacity:1}
+
+    /* main content */
+    #mainContent{
+      position:absolute;top:0;left:var(--nav-collapsed);width:calc(100% - var(--nav-collapsed));
+      height:100vh;padding:1rem 1.2rem;overflow:auto;transition:background .25s,left .22s,width .22s;
+      display:none;
+    }
+    #sideNav.open + #mainContent{
+      left:var(--nav-expanded);width:calc(100% - var(--nav-expanded));
+    }
+    .top-row{display:flex;align-items:center;gap:1rem;margin-bottom:.9rem;flex-wrap:wrap}
+    #searchBox{
+      padding:.6rem .9rem;width:320px;border-radius:10px;border:none;
+      background:rgba(255,255,255,.02);color:var(--text);
+    }
+    .controls-right{margin-left:auto;display:flex;gap:.5rem;align-items:center}
+    #categoryBar{display:flex;gap:.5rem;overflow-x:auto;padding-bottom:.5rem;margin-bottom:1rem}
+    .cat-btn{
+      display:flex;align-items:center;gap:.4rem;padding:.45rem .7rem;border-radius:999px;
+      background:rgba(255,255,255,.02);color:var(--muted);cursor:pointer;border:1px solid transparent;
+    }
+    .cat-btn.active{
+      background:linear-gradient(90deg,rgba(10,157,255,.12),rgba(10,157,255,.06));
+      color:#fff;border-color:rgba(10,157,255,.05);
+    }
+
+    /* game layout */
+    .featured-row,.recent-row{display:flex;gap:1rem;margin-bottom:1.1rem;flex-wrap:wrap}
+    .featured-card{
+      flex:1;min-width:260px;display:flex;gap:1rem;background:linear-gradient(180deg,rgba(255,255,255,.02),transparent);
+      padding:1rem;border-radius:12px;align-items:center;
+    }
+    .recent-item{width:140px;display:flex;flex-direction:column;gap:.45rem;align-items:center;cursor:pointer;color:var(--muted)}
+    .game-list{display:grid;grid-template-columns:repeat(auto-fill,minmax(210px,1fr));gap:1rem;margin-bottom:3rem}
+    .game-card{
+      background:var(--card);border-radius:12px;overflow:hidden;position:relative;cursor:pointer;
+      transition:transform .18s,box-shadow .18s;height:260px;display:flex;flex-direction:column;
+    }
+    .game-card:hover{transform:translateY(-6px);box-shadow:0 18px 70px rgba(0,0,0,.6)}
+    .thumbnail{width:100%;height:120px;object-fit:cover}
+    .card-body{padding:.8rem;display:flex;flex-direction:column;gap:.5rem;flex:1}
+    .title{font-weight:700;font-size:1rem;color:var(--text);line-height:1.1;height:2.4em;overflow:hidden}
+    .tags{display:flex;gap:.4rem;flex-wrap:wrap;margin-top:auto}
+    .tag{font-size:.75rem;padding:.25rem .45rem;border-radius:8px;background:rgba(255,255,255,.03);color:var(--muted)}
+    .hover-details{
+      position:absolute;inset:0;background:linear-gradient(180deg,rgba(5,5,5,0),rgba(2,2,2,.9));
+      opacity:0;transform:translateY(6px);transition:all .22s;display:flex;flex-direction:column;justify-content:flex-end;padding:1rem;
+    }
+    .game-card:hover .hover-details{opacity:1;transform:translateY(0)}
+    .hover-desc{color:var(--muted);font-size:.92rem;margin-bottom:.6rem;max-height:3.2em;overflow:hidden}
+    .hover-actions{display:flex;gap:.5rem;align-items:center}
+    .play-btn{padding:.5rem .8rem;border-radius:8px;background:var(--accent);color:#fff;border:none;cursor:pointer;font-weight:700}
+    .fav-btn{
+      position:absolute;top:8px;right:8px;background:rgba(0,0,0,.35);border-radius:8px;
+      padding:.28rem;cursor:pointer;border:1px solid rgba(255,255,255,.04);
+    }
+    .no-results{text-align:center;color:var(--muted);padding:2rem}
+
+    /* admin theme */
+    .admin-theme{
+      background-size:cover;background-position:center;
+      box-shadow:inset 0 0 0 9999px rgba(0,0,0,.22);
+    }
+
+    /* modal */
+    .modal-backdrop{position:fixed;inset:0;display:flex;align-items:center;justify-content:center;background:rgba(0,0,0,.6);z-index:200}
+    .modal{width:420px;max-width:94%;background:linear-gradient(180deg,#0f1113,#0b0d10);padding:1rem;border-radius:12px}
+    .input{
+      width:100%;padding:.6rem .8rem;border-radius:8px;border:none;
+      background:#151515;color:#fff;margin-bottom:.7rem;
+    }
+
+    /* responsive */
+    @media(max-width:900px){
+      #sideNav{position:fixed;width:72%;left:-72%}
+      #sideNav.open{left:0}
+      #mainContent{left:0;width:100%;padding:.9rem}
+      #sideNav.open + #mainContent{left:0;width:100%}
+    }
+  </style>
+</head>
+<body>
+  <!-- Global spinner -->
+  <div id="spinnerOverlay"><div class="spinner"></div></div>
+
+  <!-- LOGIN -->
+  <div id="homeScreen">
+    <h1>Astral Employment</h1>
+    <div id="announcementBar">Loading announcement...</div>
+    <input id="passwordInput" type="password" placeholder="Access Code">
+    <button id="enterBtn">Enter</button>
+    <div id="errorMsg"></div>
+  </div>
+
+  <!-- LANDING -->
+  <div id="landingScreen">
+    <div class="hero">
+      <div>
+        <h1>Welcome to Astral Employment</h1>
+        <div class="feature-list">
+          <span>Game card hover details</span>
+          <span>Featured & Recently Played</span>
+          <span>Favorites & Dark Mode</span>
+          <span>Proxy, Requests & Admin Tools</span>
+        </div>
+        <button id="enterHubBtn" class="btn btn-primary" style="margin-top:.9rem">Enter Hub</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- SIDE NAV -->
+  <div id="sideNav">
+    <div id="navToggle">
+      <div class="logo-wrap">
+        <svg width="38" height="38" viewBox="0 0 64 64" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+          <defs>
+            <radialGradient id="neb" cx="30%" cy="30%">
+              <stop offset="0%" stop-color="#9be3ff"/>
+              <stop offset="60%" stop-color="#6b68ff"/>
+              <stop offset="100%" stop-color="#2a1b5f" stop-opacity="0"/>
+            </radialGradient>
+          </defs>
+          <circle cx="32" cy="32" r="18" fill="url(#neb)"></circle>
+          <g transform="translate(32,32)">
+            <path d="M0-12 L3 -4 L12 -2 L3 2 L0 12 L-3 2 L-12 -2 L-3 -4 Z" fill="#fff" opacity="0.95">
+              <animateTransform attributeName="transform" type="rotate" from="0" to="360" dur="14s" repeatCount="indefinite"/>
+            </path>
+          </g>
+        </svg>
+        <div class="label">Astral Employment</div>
+      </div>
+    </div>
+
+    <div id="navGames" class="nav-item"><div class="icon">🎮</div><div class="nav-label">Games</div></div>
+    <div id="navFavorites" class="nav-item"><div class="icon">⭐</div><div class="nav-label">Favorites</div></div>
+    <div id="navChat" class="nav-item"><div class="icon">💬</div><div class="nav-label">Chat</div></div>
+    <div id="navRequests" class="nav-item"><div class="icon">📮</div><div class="nav-label">Requests</div></div>
+    <div id="navOther" class="nav-item"><div class="icon">🌐</div><div class="nav-label">Websites</div></div>
+    <div id="navProxy" class="nav-item"><div class="icon">🕸️</div><div class="nav-label">Proxy (Offline)</div></div>
+    <div id="navAdmin" class="nav-item"><div class="icon">🔐</div><div class="nav-label">Admin</div></div>
+
+    <div style="flex:1"></div>
+
+    <div id="toggleDark" class="nav-item"><div class="icon">🌓</div><div class="nav-label">Dark Mode</div></div>
+    <div id="navCollapse" class="nav-item"><div class="icon">◀️</div><div class="nav-label">Collapse</div></div>
+  </div>
+
+  <!-- MAIN CONTENT -->
+  <div id="mainContent">
+    <div class="top-row">
+      <input id="searchBox" type="search" placeholder="Search games...">
+      <div class="controls-right">
+        <div id="categoryBar"></div>
+      </div>
+    </div>
+    <div id="app"></div>
+  </div>
+
+  <!-- Firebase -->
+  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-database-compat.js"></script>
+
+  <!-- Main logic -->
+  <script>
+    /* ========= PASSWORD HASHES ========= */
+    const HASH_MAIN  = "875b0cbe469a54473cd975c129b87fadaa6d15d6dacf0634ea24b70e0b58c04b"; // DIHALB
+    const HASH_ADMIN = "23c28e809cef8751da4a6393e9cb183b8d969f77ab0ade39e6b282e19e40378f"; // th!nBlu3
+
+    /* ========= CONFIG ========= */
+    const GAMES_JSON_URL = "https://raw.githubusercontent.com/swarmintelli/Unblocked-Games-CDN/main/games.json";
+    const REQUEST_FORM_URL = "https://docs.google.com/forms/d/e/1FAIpQLSeCfC4vHF_dR_iV-9n9Af6X3SrYsWwFG3CjAsbuoHBwOH3nUg/viewform?usp=dialog";
+
+    const firebaseConfig = {
+      apiKey:"AIzaSyAyHooV5floB-DdLAFdczfgEuDPEWtfGgA",
+      authDomain:"chatroom-4e6e4.firebaseapp.com",
+      databaseURL:"https://chatroom-4e6e4-default-rtdb.firebaseio.com",
+      projectId:"chatroom-4e6e4",
+      storageBucket:"chatroom-4e6e4.firebasestorage.app",
+      messagingSenderId:"352956674536",
+      appId:"1:352956674536:web:1942c8198827e8f5f6b45d"
     };
-    const filtered = arr.filter(x=>x.id !== entry.id);
-    filtered.unshift(entry);
-    localStorage.setItem(RP_KEY, JSON.stringify(filtered.slice(0,6)));
-  }catch(e){ console.error("rp", e); }
-}
-function getFavorites(){
-  try{ return JSON.parse(localStorage.getItem(FAV_KEY) || "[]"); }
-  catch{ return []; }
-}
-function toggleFavorite(game){
-  const favs = getFavorites();
-  const id   = game.id || game.name;
-  const exists = favs.find(x=>x.id === id);
-  if(exists){
-    localStorage.setItem(FAV_KEY, JSON.stringify(favs.filter(x=>x.id !== id)));
-  }else{
-    favs.unshift({
-      id,
-      name:game.name || "Untitled",
-      thumb:game.game_image_icon || "",
-      url:game.game_url || game.url || ""
-    });
-    localStorage.setItem(FAV_KEY, JSON.stringify(favs.slice(0,200)));
-  }
-  showGameList();
-}
+    firebase.initializeApp(firebaseConfig);
+    const db = firebase.database();
+    const ANN_PATH         = "announcement/latest";
+    const ADMIN_THEME_PATH = "admin/themeBg";
+    const OTHER_LINKS_PATH = "admin/otherLinks";
+    const ADMIN_GAMES_PATH = "adminGames";
+    const TIMEOUTS_PATH    = "timeouts";
 
-/* ========= TEXT HIGHLIGHT ========= */
-function highlightMatch(text,q){
-  if(!q) return escapeHtml(text||"");
-  const idx = (text||"").toLowerCase().indexOf(q.toLowerCase());
-  if(idx === -1) return escapeHtml(text);
-  const before = escapeHtml(text.slice(0,idx));
-  const match  = escapeHtml(text.slice(idx,idx+q.length));
-  const after  = escapeHtml(text.slice(idx+q.length));
-  return `${before}<mark style="background:rgba(10,157,255,.18);padding:.03rem .08rem;border-radius:3px;color:#fff">${match}</mark>${after}`;
-}
-
-/* ========= GAME LIST / HOME ========= */
-function showGameList(){
-  if(!gamesCache.length){ loadGames().then(showGameList); return; }
-  app.innerHTML = "";
-
-  /* featured */
-  const featured = gamesCache.filter(g=>g.featured).slice(0,3);
-  if(featured.length){
-    const fr = document.createElement("div"); fr.className="featured-row";
-    featured.forEach(f=>{
-      const c = document.createElement("div"); c.className="featured-card";
-      const img = document.createElement("img");
-      img.src = f.game_image_icon || f.thumbnail || "";
-      img.alt = f.name || "";
-      img.style.cssText="width:140px;height:90px;border-radius:8px;object-fit:cover";
-      const meta = document.createElement("div");
-      const t = document.createElement("div"); t.style.fontWeight=700; t.textContent = f.name || "Untitled";
-      const d = document.createElement("div"); d.style.color="var(--muted)"; d.style.marginTop=".45rem"; d.textContent = f.description || "";
-      const pb = document.createElement("button"); pb.className="btn btn-primary"; pb.style.marginTop="10px"; pb.textContent="Play"; pb.onclick=()=>showGamePage(f);
-      meta.appendChild(t); meta.appendChild(d); meta.appendChild(pb);
-      c.appendChild(img); c.appendChild(meta); fr.appendChild(c);
-    });
-    app.appendChild(fr);
-  }
-
-  /* recently played */
-  const rp = getRecentlyPlayed();
-  if(rp.length){
-    const rr = document.createElement("div"); rr.className="recent-row";
-    const label = document.createElement("div");
-    label.style.fontWeight=700; label.style.marginRight="8px"; label.textContent="Recently Played";
-    rr.appendChild(label);
-    rp.forEach(it=>{
-      const ri = document.createElement("div"); ri.className="recent-item";
-      const im = document.createElement("img");
-      im.src = it.thumb || "";
-      im.alt = it.name;
-      im.style.cssText="width:120px;height:70px;border-radius:8px;object-fit:cover";
-      const nm = document.createElement("div");
-      nm.style.fontSize=".92rem"; nm.style.color="var(--muted)"; nm.textContent = it.name;
-      ri.appendChild(im); ri.appendChild(nm);
-      ri.onclick = ()=>{
-        const found = gamesCache.find(g=>g.name===it.name || g.id===it.id);
-        if(found) showGamePage(found);
-        else window.open(it.url, "_blank");
-      };
-      rr.appendChild(ri);
-    });
-    app.appendChild(rr);
-  }
-
-  const q = (searchBox.value||"").trim().toLowerCase();
-  const favIds = getFavorites().map(f=>f.id);
-
-  const filtered = gamesCache.filter(g=>{
-    const name = (g.name||"").toLowerCase();
-    const desc = (g.description||"").toLowerCase();
-    const tags = (g.tags||[]).map(t=>String(t).toLowerCase());
-    const matchesQuery = !q || name.includes(q) || desc.includes(q) || tags.some(t=>t.includes(q));
-    const matchesCategory = category === "all" || tags.includes(category);
-    return matchesQuery && matchesCategory;
-  });
-
-  if(!filtered.length){
-    const no=document.createElement("div");no.className="no-results";
-    no.textContent = q?`No results for "${q}".`:"No games found."; app.appendChild(no); return;
-  }
-
-  const grid = document.createElement("div"); grid.className="game-list";
-  filtered.forEach(g=>{
-    const card = document.createElement("div"); card.className="game-card";
-    const favBtn = document.createElement("div"); favBtn.className="fav-btn"; favBtn.title="Favorite";
-    const isFav = favIds.includes(g.id || g.name);
-    favBtn.innerHTML = isFav ? "★" : "☆"; favBtn.style.color = isFav ? "gold" : "white";
-    favBtn.onclick = e=>{e.stopPropagation();toggleFavorite(g);};
-    const thumb = document.createElement("img"); thumb.className="thumbnail"; thumb.loading="lazy";
-    thumb.src = g.game_image_icon || g.thumbnail || ""; thumb.alt = g.name || "";
-    const body = document.createElement("div"); body.className="card-body";
-    const title = document.createElement("div"); title.className="title";
-    title.innerHTML = highlightMatch(g.name || "Untitled", q);
-    const tagsWrap = document.createElement("div"); tagsWrap.className="tags";
-    (g.tags||[]).slice(0,4).forEach(t=>{
-      const tg=document.createElement("div");tg.className="tag";tg.textContent=t;tagsWrap.appendChild(tg);
-    });
-    const hover=document.createElement("div");hover.className="hover-details";
-    const desc=document.createElement("div");desc.className="hover-desc";desc.textContent=g.description||"";
-    const actions=document.createElement("div");actions.className="hover-actions";
-    const playBtn=document.createElement("button");playBtn.className="play-btn";playBtn.textContent="Play";
-    playBtn.onclick=e=>{e.stopPropagation();showGamePage(g);};
-    actions.appendChild(playBtn);hover.appendChild(desc);hover.appendChild(actions);
-    body.appendChild(title);body.appendChild(tagsWrap);
-    card.appendChild(favBtn);card.appendChild(thumb);card.appendChild(body);card.appendChild(hover);
-    card.onclick=()=>showGamePage(g);
-    grid.appendChild(card);
-  });
-  app.appendChild(grid);
-}
-
-/* ========= FAVORITES VIEW ========= */
-function showFavorites(){
-  const favs=getFavorites();app.innerHTML="";
-  const title=document.createElement("div");
-  title.style.fontWeight=700;title.style.marginBottom="10px";title.textContent="Favorites";
-  app.appendChild(title);
-  if(!favs.length){
-    const no=document.createElement("div");no.className="no-results";no.textContent="No favorites yet.";app.appendChild(no);return;
-  }
-  const grid=document.createElement("div");grid.className="game-list";
-  favs.forEach(f=>{
-    const card=document.createElement("div");card.className="game-card";
-    card.innerHTML=`<img class="thumbnail" src="${f.thumb}"><div class="card-body"><div class="title">${escapeHtml(f.name)}</div></div>`;
-    card.onclick=()=>{
-      const g=gamesCache.find(x=>(x.id&&x.id===f.id)||x.name===f.name);
-      if(g)showGamePage(g);else window.open(f.url||"#","_blank");
+    const emojiMap = {
+      all:"✨",action:"🎯",adventure:"🗺️",puzzle:"🧩",racing:"🚗",
+      multiplayer:"🤝",strategy:"♟️",sports:"🏅",classics:"🎮"
     };
-    grid.appendChild(card);
-  });
-  app.appendChild(grid);
-}
+    const categories = ["all","action","adventure","puzzle","racing","multiplayer","strategy","sports","classics"];
 
-/* ========= COMMON UI HELPERS ========= */
-function addBack(label,cb){
-  const back=document.createElement("div");
-  back.style.cursor="pointer";back.style.color="var(--muted)";back.style.marginBottom="8px";
-  back.textContent=label;back.onclick=cb;app.appendChild(back);
-}
-function addFsSection(titleText, buildIframe){
-  let iframeRef=null;
-  const header=document.createElement("div");
-  header.style.display="flex";header.style.alignItems="center";
-  header.style.justifyContent="space-between";header.style.marginBottom="6px";
-  const t=document.createElement("div");
-  t.style.fontWeight=700;t.style.fontSize=".95rem";t.textContent=titleText;
-  const fsBtn=document.createElement("button");
-  fsBtn.className="btn btn-ghost";fsBtn.style.padding=".35rem .8rem";fsBtn.textContent="Fullscreen";
-  fsBtn.onclick=()=>{
-    if(iframeRef && iframeRef.requestFullscreen) iframeRef.requestFullscreen();
-    else if(iframeRef && iframeRef.webkitRequestFullscreen) iframeRef.webkitRequestFullscreen();
-  };
-  header.appendChild(t);header.appendChild(fsBtn);app.appendChild(header);
-  iframeRef = buildIframe();
-}
+    let gamesCache = [];
+    let category   = "all";
+    let admin      = sessionStorage.getItem("astral_admin") === "1";
 
-/* ========= GAME PAGE ========= */
-function showGamePage(game){
-  app.innerHTML="";
-  addBack("← Back to games",showGameList);
+    const RP_KEY       = "astral_recently_played_v2";
+    const FAV_KEY      = "astral_favorites_v1";
+    const CHAT_USER_KEY= "astral_chat_user_v1";
 
-  const loader=document.createElement("div");
-  loader.style.textAlign="center";loader.style.marginBottom="8px";
-  const sp=document.createElement("div");
-  sp.className="spinner";sp.style.width="42px";sp.style.height="42px";sp.style.borderWidth="5px";sp.style.display="inline-block";
-  loader.appendChild(sp);app.appendChild(loader);
+    let currentUser          = null;
+    let chatMessageElements  = {};
 
-  addFsSection(game.name || "Game", ()=>{
-    const iframe=document.createElement("iframe");
-    iframe.style.cssText="width:100%;height:78vh;border:none;border-radius:10px;background:#000";
-    iframe.setAttribute("allowfullscreen","true");
-    iframe.setAttribute("allow","fullscreen");
-    if(game.iframe) iframe.srcdoc = game.iframe;
-    else if(game.game_url) iframe.src = game.game_url;
-    else if(game.url) iframe.src = game.url;
-    else iframe.srcdoc =
-      `<body style="margin:0;background:#000;color:#fff;display:flex;align-items:center;justify-content:center;height:100vh">`+
-      `<div><h2>${escapeHtml(game.name||"Game")}</h2><p style="color:#bbb">No playable source provided.</p></div></body>`;
-    iframe.onload=()=>loader.remove();
-    app.appendChild(iframe);
-    return iframe;
-  });
+    /* ========= DOM REFS ========= */
+    const sideNav        = document.getElementById("sideNav");
+    const mainContent    = document.getElementById("mainContent");
+    const spinnerOverlay = document.getElementById("spinnerOverlay");
+    const searchBox      = document.getElementById("searchBox");
+    const categoryBar    = document.getElementById("categoryBar");
+    const app            = document.getElementById("app");
+    const announcementBar= document.getElementById("announcementBar");
 
-  pushRecentlyPlayed(game);
-}
+    /* ========= HELPERS ========= */
+    (function initTheme(){
+      const saved = localStorage.getItem("astral_theme") || "dark";
+      document.documentElement.setAttribute("data-theme", saved);
+    })();
 
-/* ========= PROXY & REQUESTS ========= */
-function showProxyBrowser(){
-  app.innerHTML="";
-  addBack("← Back to games",showGameList);
-  const note=document.createElement("div");
-  note.style.fontSize=".9rem";note.style.color="var(--muted)";note.style.marginBottom="8px";
-  note.textContent="This loads the Astral Proxy Browser shell.";
-  app.appendChild(note);
-
-  const loader=document.createElement("div");
-  loader.style.textAlign="center";loader.style.marginBottom="8px";
-  const sp=document.createElement("div");
-  sp.className="spinner";sp.style.width="42px";sp.style.height="42px";sp.style.borderWidth="5px";sp.style.display="inline-block";
-  loader.appendChild(sp);app.appendChild(loader);
-
-  addFsSection("Proxy Browser",()=>{
-    const iframe=document.createElement("iframe");
-    iframe.src=PROXY_URL;
-    iframe.style.cssText="width:100%;height:78vh;border:none;border-radius:10px;background:#000";
-    iframe.setAttribute("allowfullscreen","true");
-    iframe.setAttribute("allow","fullscreen");
-    iframe.onload=()=>loader.remove();
-    app.appendChild(iframe);
-    return iframe;
-  });
-}
-function showRequests(){
-  app.innerHTML="";
-  addBack("← Back to games",showGameList);
-  const note=document.createElement("div");
-  note.style.fontSize=".9rem";note.style.color="var(--muted)";note.style.marginBottom="8px";
-  note.textContent="Use this form to request new games.";
-  app.appendChild(note);
-
-  const loader=document.createElement("div");
-  loader.style.textAlign="center";loader.style.marginBottom="8px";
-  const sp=document.createElement("div");
-  sp.className="spinner";sp.style.width="42px";sp.style.height="42px";sp.style.borderWidth="5px";sp.style.display="inline-block";
-  loader.appendChild(sp);app.appendChild(loader);
-
-  addFsSection("Game Requests",()=>{
-    const iframe=document.createElement("iframe");
-    iframe.src=REQUEST_FORM_URL;
-    iframe.style.cssText="width:100%;height:78vh;border:none;border-radius:10px;background:#000";
-    iframe.setAttribute("allowfullscreen","true");
-    iframe.setAttribute("allow","fullscreen");
-    iframe.onload=()=>loader.remove();
-    app.appendChild(iframe);
-    return iframe;
-  });
-}
-
-/* ========= CHAT ========= */
-function renderChatMessage(key, raw, container){
-  const isObject = raw && typeof raw === "object";
-  const data = isObject ? raw : {
-    text:String(raw),userName:"User",userId:"legacy",
-    ts:Date.now(),admin:false,deleted:false
-  };
-  if(!data.userId) data.userId = "unknown_"+Math.random().toString(36).slice(2,8);
-
-  const msg=document.createElement("div");
-  msg.style.cssText="margin:.25rem 0;padding:.5rem;border-radius:6px;background:rgba(0,0,0,.22)";
-  msg.dataset.key=key;
-
-  const header=document.createElement("div");
-  header.style.cssText="display:flex;align-items:center;justify-content:space-between;margin-bottom:2px";
-
-  const nameSpan=document.createElement("span");
-  nameSpan.textContent=data.userName||"User";
-  nameSpan.style.fontWeight="600";nameSpan.style.fontSize=".85rem";
-  nameSpan.style.color=data.admin ? "#facc15" : "var(--text)";
-
-  const right=document.createElement("div");
-  right.style.cssText="display:flex;align-items:center;gap:6px";
-
-  const timeSpan=document.createElement("span");
-  timeSpan.style.fontSize=".7rem";timeSpan.style.color="var(--muted)";
-  if(data.ts){
-    timeSpan.textContent = new Date(data.ts)
-      .toLocaleTimeString([], {hour:"2-digit",minute:"2-digit"});
-  }
-  right.appendChild(timeSpan);
-
-  // Admin controls: delete + timeout any user
-  if(admin && !data.deleted){
-    const delBtn=document.createElement("button");
-    delBtn.textContent="Delete";
-    delBtn.className="btn btn-ghost";
-    delBtn.style.cssText="padding:.15rem .5rem;font-size:.7rem";
-    delBtn.onclick=()=>{
-      db.ref("chat").child(key).update({
-        deleted:true,
-        text:"[message removed by admin]"
-      });
-    };
-
-    const timeoutBtn=document.createElement("button");
-    timeoutBtn.textContent="Timeout 10m";
-    timeoutBtn.className="btn btn-ghost";
-    timeoutBtn.style.cssText="padding:.15rem .5rem;font-size:.7rem";
-    timeoutBtn.onclick=()=>{
-      if(!data.userId) return;
-      const expires = Date.now() + 10*60*1000;
-      db.ref(TIMEOUTS_PATH + "/" + data.userId).set(expires);
-      alert("User timed out for 10 minutes.");
-    };
-
-    right.appendChild(delBtn);
-    right.appendChild(timeoutBtn);
-  }
-
-  header.appendChild(nameSpan);header.appendChild(right);
-
-  const body=document.createElement("div");
-  const textDiv=document.createElement("div");
-  textDiv.style.fontSize=".85rem";
-  if(data.deleted){
-    textDiv.textContent="[message removed by admin]";
-    textDiv.style.color="var(--muted)";textDiv.style.fontStyle="italic";
-  }else{
-    textDiv.textContent=data.text||"";
-  }
-  body.appendChild(textDiv);
-
-  msg.appendChild(header);msg.appendChild(body);
-  container.appendChild(msg);
-  container.scrollTop = container.scrollHeight;
-  chatMessageElements[key] = msg;
-}
-function updateChatMessage(key, raw){
-  const el = chatMessageElements[key]; if(!el) return;
-  const isObject = raw && typeof raw === "object";
-  const data = isObject ? raw : {
-    text:String(raw),userName:"User",userId:"legacy",
-    ts:Date.now(),admin:false,deleted:false
-  };
-  const textDiv = el.querySelector("div:last-child div"); if(!textDiv) return;
-  if(data.deleted){
-    textDiv.textContent="[message removed by admin]";
-    textDiv.style.color="var(--muted)";
-    textDiv.style.fontStyle="italic";
-  }else{
-    textDiv.textContent=data.text||"";
-    textDiv.style.color="var(--text)";
-    textDiv.style.fontStyle="normal";
-  }
-}
-function showChat(){
-  currentUser = ensureChatUser();
-  app.innerHTML="";
-  addBack("← Back to games",showGameList);
-  const info=document.createElement("div");
-  info.style.fontSize=".85rem";info.style.color="var(--muted)";info.style.marginBottom="6px";
-  info.textContent=`You are chatting as ${currentUser.name}. Admin names appear in gold.`;
-  app.appendChild(info);
-
-  const container=document.createElement("div");
-  container.innerHTML =
-    `<div id="chatMessages" style="height:55vh;overflow:auto;background:rgba(255,255,255,.02);padding:.6rem;border-radius:8px"></div>`+
-    `<div style="display:flex;gap:.4rem;margin-top:.6rem">`+
-      `<input id="chatInput" class="input" placeholder="Message..." style="flex:1;margin-bottom:0">`+
-      `<button id="chatSend" class="btn btn-primary">Send</button>`+
-    `</div>`;
-  app.appendChild(container);
-
-  const msgs=document.getElementById("chatMessages");
-  chatMessageElements = {};
-  msgs.innerHTML = "";
-
-  const messagesRef = db.ref("chat");
-  messagesRef.off();
-  messagesRef.on("child_added", snap=>renderChatMessage(snap.key,snap.val(),msgs));
-  messagesRef.on("child_changed", snap=>updateChatMessage(snap.key,snap.val()));
-
-  document.getElementById("chatSend").onclick = async ()=>{
-    const input=document.getElementById("chatInput");
-    const v=input.value.trim(); if(!v) return;
-
-    // timeout check
-    try{
-      const snap = await db.ref(TIMEOUTS_PATH + "/" + currentUser.id).once("value");
-      const expires = snap.val();
-      const now = Date.now();
-      if(expires && expires > now){
-        const mins = Math.ceil((expires-now)/60000);
-        alert("You are timed out for "+mins+" more minute(s).");
-        return;
+    function toggleTheme(){
+      const cur  = document.documentElement.getAttribute("data-theme");
+      const next = cur === "dark" ? "light" : "dark";
+      document.documentElement.setAttribute("data-theme", next);
+      localStorage.setItem("astral_theme", next);
+    }
+    function debounce(fn, wait=120){
+      let t;return(...args)=>{clearTimeout(t);t=setTimeout(()=>fn(...args),wait);};
+    }
+    function escapeHtml(s){
+      return String(s||"").replace(/[&<>"']/g,m=>(
+        {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[m]
+      ));
+    }
+    async function sha256Hex(str){
+      if(!window.crypto || !window.crypto.subtle){
+        // Fallback: plain compare later
+        return "NO_HASH_SUPPORT";
       }
-    }catch(e){ console.error("timeout check",e); }
-
-    const payload = {
-      text:v,
-      userId:currentUser.id,
-      userName:currentUser.name,
-      ts:Date.now(),
-      admin:!!admin,
-      deleted:false
-    };
-    db.ref("chat").push(payload);
-    input.value="";
-  };
-}
-
-/* ========= OTHER WEBSITES ========= */
-function showOther(){
-  app.innerHTML="";
-  addBack("← Back to games",showGameList);
-  const title=document.createElement("div");
-  title.style.fontWeight=700;title.style.marginBottom="8px";title.textContent="Other Websites";
-  app.appendChild(title);
-  const container=document.createElement("div");
-  container.id="otherLinksContainer";
-  container.style.display="flex";container.style.flexDirection="column";container.style.gap="8px";
-  app.appendChild(container);
-  db.ref(OTHER_LINKS_PATH).once("value").then(snap=>{
-    const val=snap.val();let links=[];
-    if(Array.isArray(val)) links=val.filter(Boolean);
-    else if(val && typeof val==="object") links=Object.values(val);
-    if(!links.length){
-      const msg=document.createElement("div");
-      msg.textContent="No links configured yet. Ask an admin to add some.";
-      msg.style.color="var(--muted)";
-      container.appendChild(msg);return;
+      const enc = new TextEncoder().encode(str);
+      const d   = await crypto.subtle.digest("SHA-256", enc);
+      return Array.from(new Uint8Array(d)).map(b=>b.toString(16).padStart(2,"0")).join("");
     }
-    links.forEach(link=>{
-      if(!link || !link.url) return;
-      const row=document.createElement("div");
-      row.style.display="flex";row.style.flexDirection="column";
-      const a=document.createElement("a");
-      a.href=link.url;a.target="_blank";a.textContent=link.label||link.url;
-      a.style.color="var(--accent)";a.style.textDecoration="none";a.style.marginBottom="2px";
-      const urlText=document.createElement("div");
-      urlText.textContent=link.url;urlText.style.fontSize=".8rem";urlText.style.color="var(--muted)";
-      row.appendChild(a);row.appendChild(urlText);container.appendChild(row);
+    function toggleNav(){ sideNav.classList.toggle("open"); }
+    function showSpinner(){ spinnerOverlay.classList.add("show"); }
+    function hideSpinner(){ spinnerOverlay.classList.remove("show"); }
+
+    /* ========= ANNOUNCEMENT BAR ========= */
+    db.ref(ANN_PATH).on("value", snap=>{
+      const v = snap.val();
+      if(!v || !v.text){
+        announcementBar.textContent = "No announcements right now.";
+      }else{
+        const ts = v.updatedAt ? new Date(v.updatedAt).toLocaleString() : "";
+        announcementBar.innerHTML =
+          `<strong style="display:block;margin-bottom:.25rem">Announcement</strong>`+
+          `<div>${escapeHtml(v.text)}</div>`+
+          `<div style="font-size:.78rem;color:var(--muted);margin-top:.4rem">Last updated: ${escapeHtml(ts)}</div>`;
+      }
+    }, ()=>{
+      announcementBar.textContent = "Announcements unavailable.";
     });
-  }).catch(e=>{
-    console.error("links",e);
-    const msg=document.createElement("div");
-    msg.textContent="Could not load links.";msg.style.color="var(--muted)";
-    container.appendChild(msg);
-  });
-}
 
-/* ========= ADMIN THEME ========= */
-function applyAdminThemeIfSet(){
-  if(!admin) return;
-  db.ref(ADMIN_THEME_PATH).once("value").then(snap=>{
-    const url=snap.val();
-    if(url){
-      mainContent.classList.add("admin-theme");
-      mainContent.style.backgroundImage =
-        `linear-gradient(rgba(0,0,0,.35),rgba(0,0,0,.35)),url("${url}")`;
-      mainContent.style.backgroundSize="cover";
-    }else{
-      mainContent.classList.remove("admin-theme");
-      mainContent.style.backgroundImage="";
+    /* ========= CHAT USER ========= */
+    function ensureChatUser(){
+      try{
+        const raw = localStorage.getItem(CHAT_USER_KEY);
+        if(raw){
+          const p = JSON.parse(raw);
+          if(p && p.id && p.name) return p;
+        }
+      }catch{}
+      const id   = "u_" + Math.random().toString(36).slice(2,10);
+      const name = "Worker-" + Math.floor(1000 + Math.random()*9000);
+      const obj  = {id,name};
+      localStorage.setItem(CHAT_USER_KEY, JSON.stringify(obj));
+      return obj;
     }
-  });
-}
-db.ref(ADMIN_THEME_PATH).on("value", snap=>{
-  if(!admin) return;
-  const url=snap.val();
-  if(url){
-    mainContent.classList.add("admin-theme");
-    mainContent.style.backgroundImage =
-      `linear-gradient(rgba(0,0,0,.35),rgba(0,0,0,.35)),url("${url}")`;
-  }else{
-    mainContent.classList.remove("admin-theme");
-    mainContent.style.backgroundImage="";
-  }
-});
-if(admin) applyAdminThemeIfSet();
 
-/* ========= ADMIN PANEL ========= */
-function openAdminLogin(){
-  if(admin){ openAdminPanel(); return; }
-  const backdrop=document.createElement("div");
-  backdrop.className="modal-backdrop";
-  backdrop.innerHTML =
-    `<div class="modal">`+
-      `<h3>Admin Login</h3>`+
-      `<input id="aPw" class="input" placeholder="Admin password" type="password">`+
-      `<div style="display:flex;gap:.5rem;margin-top:.6rem">`+
-        `<button id="aCancel" class="btn btn-ghost">Cancel</button>`+
-        `<button id="aEnter" class="btn btn-primary">Login</button>`+
-      `</div>`+
-      `<div id="aMsg" style="margin-top:.6rem;color:var(--muted)"></div>`+
-    `</div>`;
-  document.body.appendChild(backdrop);
-  document.getElementById("aCancel").onclick = ()=>backdrop.remove();
-  document.getElementById("aEnter").onclick  = async ()=>{
-    const v = document.getElementById("aPw").value || "";
-    const h = await sha256Hex(v.trim());
-    if(h === HASH_ADMIN){
-      sessionStorage.setItem("astral_admin","1");
-      admin = true;
-      backdrop.remove();
-      applyAdminThemeIfSet();
-      openAdminPanel();
-    }else{
-      document.getElementById("aMsg").textContent = "Invalid";
-      document.getElementById("aPw").value = "";
+    /* ========= GAMES LOADING ========= */
+    async function loadAdminGames(){
+      const snap = await db.ref(ADMIN_GAMES_PATH).once("value");
+      const val  = snap.val() || {};
+      const arr  = [];
+      Object.keys(val).forEach(k=>{
+        const g = val[k] || {};
+        arr.push({...g,id:k,_adminId:k,source:"admin"});
+      });
+      return arr;
     }
-  };
-}
+    function enrichTags(g){
+      const combined = ((g.name||"") + " " + (g.description||"")).toLowerCase();
+      const baseTags = Array.isArray(g.tags) ? g.tags.map(t=>String(t).toLowerCase()) : [];
+      const s        = new Set(baseTags);
+      if(g.category) s.add(String(g.category).toLowerCase());
+      if(/race|racing|driver|speed|track/.test(combined)) s.add("racing");
+      if(/puzzl|match|connect|logic|brain|blocks/.test(combined)) s.add("puzzle");
+      if(/adventur|quest|explor|journey|island/.test(combined)) s.add("adventure");
+      if(/multipl|versus|vs\.|co-op|coop|team|lobby/.test(combined)) s.add("multiplayer");
+      if(/fight|battle|shoot|war|combat|attack|zombi|arena/.test(combined)) s.add("action");
+      if(/chess|strategy|tower|td |tycoon|simul|manage/.test(combined)) s.add("strategy");
+      if(/soccer|football|basket|baseball|tennis|golf|sports/.test(combined)) s.add("sports");
+      if(!s.size) s.add("classics");
+      g.tags = Array.from(s);
+    }
+    async function loadGames(){
+      try{
+        showSpinner();
+        const resp = await fetch(GAMES_JSON_URL);
+        let baseGames = await resp.json();
+        if(!Array.isArray(baseGames)) baseGames = [];
+        baseGames.forEach(enrichTags);
+        const adminGames = await loadAdminGames();
+        adminGames.forEach(enrichTags);
+        gamesCache = baseGames.concat(adminGames);
+        buildCategoryBar();
+        hideSpinner();
+        return gamesCache;
+      }catch(e){
+        console.error("loadGames",e);
+        hideSpinner();
+        gamesCache = [];
+        buildCategoryBar();
+        return [];
+      }
+    }
 
-function openAdminPanel(){
-  app.innerHTML="";
-  addBack("← Back",showGameList);
-  const container=document.createElement("div");
-  container.innerHTML = `
-    <h2 style="margin-bottom:.6rem">Admin Panel</h2>
+    /* ========= CATEGORY BAR ========= */
+    function buildCategoryBar(){
+      categoryBar.innerHTML = "";
+      categories.forEach(cat=>{
+        const b = document.createElement("button");
+        b.className = "cat-btn" + (cat===category?" active":"");
+        b.innerHTML =
+          `<span style="margin-right:.4rem">${emojiMap[cat] || "🔹"}</span>`+
+          `<span style="text-transform:capitalize">${cat==="all"?"All":cat}</span>`;
+        b.onclick = ()=>{category = cat; showGameList();};
+        categoryBar.appendChild(b);
+      });
+    }
 
-    <div style="margin-bottom:.9rem">
-      <label style="display:block;margin-bottom:.25rem;color:var(--muted)">Edit Announcement</label>
-      <textarea id="admAnn" style="width:100%;min-height:120px;border-radius:8px;background:rgba(255,255,255,.02);border:none;color:var(--text);padding:.6rem"></textarea>
-      <div style="margin-top:.5rem;display:flex;gap:.5rem;justify-content:flex-end">
-        <button id="admSave" class="btn btn-primary">Save Announcement</button>
-      </div>
-    </div>
+    /* ========= RECENT & FAVORITES ========= */
+    function getRecentlyPlayed(){
+      try{return JSON.parse(localStorage.getItem(RP_KEY)||"[]");}catch{return[]}
+    }
+    function pushRecentlyPlayed(game){
+      try{
+        const arr = getRecentlyPlayed();
+        const entry = {
+          id   : game.id || game.name || Math.random().toString(36).slice(2,8),
+          name : game.name || "Untitled",
+          thumb: game.game_image_icon || game.thumbnail || "",
+          url  : game.game_url || game.url || game.iframe || "",
+          ts   : Date.now()
+        };
+        const filtered = arr.filter(x=>x.id!==entry.id);
+        filtered.unshift(entry);
+        localStorage.setItem(RP_KEY, JSON.stringify(filtered.slice(0,6)));
+      }catch(e){console.error("rp",e);}
+    }
+    function getFavorites(){
+      try{return JSON.parse(localStorage.getItem(FAV_KEY)||"[]");}catch{return[]}
+    }
+    function toggleFavorite(game){
+      const favs = getFavorites();
+      const id   = game.id || game.name;
+      const exists = favs.find(x=>x.id===id);
+      if(exists){
+        localStorage.setItem(FAV_KEY, JSON.stringify(favs.filter(x=>x.id!==id)));
+      }else{
+        favs.unshift({
+          id,
+          name:game.name || "Untitled",
+          thumb:game.game_image_icon || "",
+          url:game.game_url || game.url || ""
+        });
+        localStorage.setItem(FAV_KEY, JSON.stringify(favs.slice(0,200)));
+      }
+      showGameList();
+    }
 
-    <hr style="border:none;border-top:1px solid rgba(255,255,255,.04);margin:1rem 0;">
+    /* ========= HIGHLIGHT ========= */
+    function highlightMatch(text,q){
+      if(!q) return escapeHtml(text||"");
+      const idx = (text||"").toLowerCase().indexOf(q.toLowerCase());
+      if(idx===-1) return escapeHtml(text);
+      const before = escapeHtml(text.slice(0,idx));
+      const match  = escapeHtml(text.slice(idx,idx+q.length));
+      const after  = escapeHtml(text.slice(idx+q.length));
+      return `${before}<mark style="background:rgba(10,157,255,.18);padding:.03rem .08rem;border-radius:3px;color:#fff">${match}</mark>${after}`;
+    }
 
-    <div style="margin-bottom:.9rem">
-      <label style="display:block;margin-bottom:.25rem;color:var(--muted)">Admin Theme Background URL</label>
-      <input id="admTheme" class="input" placeholder="Paste image URL">
-      <div style="display:flex;gap:.5rem;justify-content:flex-end;margin-top:.5rem">
-        <button id="admThemeSave" class="btn btn-primary">Save Theme</button>
-      </div>
-    </div>
+    /* ========= GAME LIST ========= */
+    function showGameList(){
+      if(!gamesCache.length){loadGames().then(showGameList);return;}
+      app.innerHTML = "";
 
-    <hr style="border:none;border-top:1px solid rgba(255,255,255,.04);margin:1rem 0;">
+      // Featured
+      const featured = gamesCache.filter(g=>g.featured).slice(0,3);
+      if(featured.length){
+        const fr = document.createElement("div");fr.className="featured-row";
+        featured.forEach(f=>{
+          const c = document.createElement("div");c.className="featured-card";
+          const img = document.createElement("img");
+          img.src = f.game_image_icon || f.thumbnail || "";
+          img.alt = f.name || "";
+          img.style.cssText = "width:140px;height:90px;border-radius:8px;object-fit:cover";
+          const meta = document.createElement("div");
+          const t = document.createElement("div");
+          t.style.fontWeight=700;t.textContent=f.name||"Untitled";
+          const d = document.createElement("div");
+          d.style.color="var(--muted)";d.style.marginTop=".45rem";d.textContent=f.description||"";
+          const pb = document.createElement("button");
+          pb.className="btn btn-primary";pb.style.marginTop="10px";pb.textContent="Play";
+          pb.onclick=()=>showGamePage(f);
+          meta.appendChild(t);meta.appendChild(d);meta.appendChild(pb);
+          c.appendChild(img);c.appendChild(meta);fr.appendChild(c);
+        });
+        app.appendChild(fr);
+      }
 
-    <div style="margin-bottom:.9rem">
-      <h3 style="margin-bottom:.4rem">Other Websites Links</h3>
-      <div style="display:flex;gap:.5rem;flex-wrap:wrap;margin-bottom:.4rem">
-        <input id="admLinkLabel" class="input" placeholder="Label" style="flex:1;min-width:120px">
-        <input id="admLinkUrl" class="input" placeholder="https://example.com" style="flex:2;min-width:180px">
-      </div>
-      <div style="display:flex;gap:.5rem;justify-content:flex-end;margin-bottom:.6rem">
-        <button id="admAddLink" class="btn btn-primary">Add / Update Link</button>
-      </div>
-      <div id="admLinksList" style="display:flex;flex-direction:column;gap:.4rem"></div>
-    </div>
+      // Recently played
+      const rp = getRecentlyPlayed();
+      if(rp.length){
+        const rr = document.createElement("div");rr.className="recent-row";
+        const label = document.createElement("div");
+        label.style.fontWeight=700;label.style.marginRight="8px";label.textContent="Recently Played";
+        rr.appendChild(label);
+        rp.forEach(it=>{
+          const ri=document.createElement("div");ri.className="recent-item";
+          const im=document.createElement("img");
+          im.src=it.thumb||"";im.alt=it.name;
+          im.style.cssText="width:120px;height:70px;border-radius:8px;object-fit:cover";
+          const nm=document.createElement("div");
+          nm.style.fontSize=".92rem";nm.style.color="var(--muted)";
+          nm.textContent=it.name;
+          ri.appendChild(im);ri.appendChild(nm);
+          ri.onclick=()=>{
+            const found=gamesCache.find(g=>g.name===it.name||g.id===it.id);
+            if(found)showGamePage(found);else if(it.url)window.open(it.url,"_blank");
+          };
+          rr.appendChild(ri);
+        });
+        app.appendChild(rr);
+      }
 
-    <hr style="border:none;border-top:1px solid rgba(255,255,255,.04);margin:1rem 0;">
+      const q=(searchBox.value||"").trim().toLowerCase();
+      const favIds=getFavorites().map(f=>f.id);
 
-    <div style="margin-bottom:.9rem">
-      <h3 style="margin-bottom:.4rem">Custom Games</h3>
-      <div style="display:flex;flex-direction:column;gap:.4rem;margin-bottom:.5rem">
-        <input id="admGameName" class="input" placeholder="Game name">
-        <input id="admGameUrl" class="input" placeholder="Game URL (https://...)">
-        <input id="admGameThumb" class="input" placeholder="Thumbnail URL (optional)">
-        <input id="admGameDesc" class="input" placeholder="Short description (optional)">
-        <input id="admGameTags" class="input" placeholder="Tags (comma separated, optional)">
-        <select id="admGameCategory" class="input" style="padding:.4rem .6rem;">
-          <option value="">Choose category (optional)</option>
-          <option value="action">Action</option>
-          <option value="adventure">Adventure</option>
-          <option value="puzzle">Puzzle</option>
-          <option value="racing">Racing</option>
-          <option value="multiplayer">Multiplayer</option>
-          <option value="strategy">Strategy</option>
-          <option value="sports">Sports</option>
-          <option value="classics">Classics</option>
-        </select>
-      </div>
-      <div style="display:flex;gap:.5rem;justify-content:flex-end;margin-bottom:.5rem">
-        <button id="admAddGame" class="btn btn-primary">Add Game</button>
-      </div>
-      <div id="admGamesList" style="display:flex;flex-direction:column;gap:.4rem"></div>
-    </div>
+      const filtered=gamesCache.filter(g=>{
+        const name=(g.name||"").toLowerCase();
+        const desc=(g.description||"").toLowerCase();
+        const tags=(g.tags||[]).map(t=>String(t).toLowerCase());
+        const matchesQuery=!q || name.includes(q) || desc.includes(q) || tags.some(t=>t.includes(q));
+        const matchesCategory=category==="all" || tags.includes(category);
+        return matchesQuery && matchesCategory;
+      });
 
-    <div style="margin-top:1rem">
-      <button id="admLogout" class="btn btn-ghost">Logout Admin</button>
-    </div>
-  `;
-  app.appendChild(container);
+      if(!filtered.length){
+        const no=document.createElement("div");no.className="no-results";
+        no.textContent=q?`No results for "${q}".`:"No games found.";app.appendChild(no);return;
+      }
 
-  // announcement
-  db.ref(ANN_PATH).once("value").then(snap=>{
-    const v=snap.val(); document.getElementById("admAnn").value = (v && v.text) || "";
-  });
+      const grid=document.createElement("div");grid.className="game-list";
+      filtered.forEach(g=>{
+        const card=document.createElement("div");card.className="game-card";
+        const favBtn=document.createElement("div");favBtn.className="fav-btn";favBtn.title="Favorite";
+        const isFav=favIds.includes(g.id||g.name);
+        favBtn.innerHTML=isFav?"★":"☆";
+        favBtn.style.color=isFav?"gold":"white";
+        favBtn.onclick=e=>{e.stopPropagation();toggleFavorite(g);};
+        const thumb=document.createElement("img");
+        thumb.className="thumbnail";thumb.loading="lazy";
+        thumb.src=g.game_image_icon||g.thumbnail||"";thumb.alt=g.name||"";
+        const body=document.createElement("div");body.className="card-body";
+        const title=document.createElement("div");
+        title.className="title";title.innerHTML=highlightMatch(g.name||"Untitled",q);
+        const tagsWrap=document.createElement("div");tagsWrap.className="tags";
+        (g.tags||[]).slice(0,4).forEach(t=>{
+          const tg=document.createElement("div");tg.className="tag";tg.textContent=t;tagsWrap.appendChild(tg);
+        });
+        const hover=document.createElement("div");hover.className="hover-details";
+        const desc=document.createElement("div");desc.className="hover-desc";desc.textContent=g.description||"";
+        const actions=document.createElement("div");actions.className="hover-actions";
+        const playBtn=document.createElement("button");
+        playBtn.className="play-btn";playBtn.textContent="Play";
+        playBtn.onclick=e=>{e.stopPropagation();showGamePage(g);};
+        actions.appendChild(playBtn);hover.appendChild(desc);hover.appendChild(actions);
+        body.appendChild(title);body.appendChild(tagsWrap);
+        card.appendChild(favBtn);card.appendChild(thumb);card.appendChild(body);card.appendChild(hover);
+        card.onclick=()=>showGamePage(g);
+        grid.appendChild(card);
+      });
+      app.appendChild(grid);
+    }
 
-  // theme
-  db.ref(ADMIN_THEME_PATH).once("value").then(snap=>{
-    document.getElementById("admTheme").value = snap.val() || "";
-  });
+    /* ========= FAVORITES ========= */
+    function showFavorites(){
+      const favs=getFavorites();app.innerHTML="";
+      const title=document.createElement("div");
+      title.style.fontWeight=700;title.style.marginBottom="10px";title.textContent="Favorites";
+      app.appendChild(title);
+      if(!favs.length){
+        const no=document.createElement("div");no.className="no-results";
+        no.textContent="No favorites yet.";app.appendChild(no);return;
+      }
+      const grid=document.createElement("div");grid.className="game-list";
+      favs.forEach(f=>{
+        const card=document.createElement("div");card.className="game-card";
+        card.innerHTML=`<img class="thumbnail" src="${f.thumb||""}"><div class="card-body"><div class="title">${escapeHtml(f.name||"Untitled")}</div></div>`;
+        card.onclick=()=>{
+          const g=gamesCache.find(x=>(x.id&&x.id===f.id)||x.name===f.name);
+          if(g)showGamePage(g);else if(f.url)window.open(f.url,"_blank");
+        };
+        grid.appendChild(card);
+      });
+      app.appendChild(grid);
+    }
 
-  // other links
-  let linksArr=[]; const linksListEl=document.getElementById("admLinksList");
-  function renderLinksList(){
-    linksListEl.innerHTML="";
-    if(!linksArr.length){
+    /* ========= COMMON UI HELPERS ========= */
+    function addBack(label,cb){
+      const back=document.createElement("div");
+      back.style.cursor="pointer";back.style.color="var(--muted)";back.style.marginBottom="8px";
+      back.textContent=label;back.onclick=cb;app.appendChild(back);
+    }
+    function addFsSection(titleText,buildIframe){
+      let iframeRef=null;
+      const header=document.createElement("div");
+      header.style.display="flex";header.style.alignItems="center";
+      header.style.justifyContent="space-between";header.style.marginBottom="6px";
+      const t=document.createElement("div");
+      t.style.fontWeight=700;t.style.fontSize=".95rem";t.textContent=titleText;
+      const fsBtn=document.createElement("button");
+      fsBtn.className="btn btn-ghost";fsBtn.style.padding=".35rem .8rem";fsBtn.textContent="Fullscreen";
+      fsBtn.onclick=()=>{
+        if(iframeRef && iframeRef.requestFullscreen)iframeRef.requestFullscreen();
+        else if(iframeRef && iframeRef.webkitRequestFullscreen)iframeRef.webkitRequestFullscreen();
+      };
+      header.appendChild(t);header.appendChild(fsBtn);app.appendChild(header);
+      iframeRef = buildIframe();
+    }
+
+    /* ========= GAME PAGE ========= */
+    function showGamePage(game){
+      app.innerHTML="";
+      addBack("← Back to games",showGameList);
+
+      const loader=document.createElement("div");
+      loader.style.textAlign="center";loader.style.marginBottom="8px";
+      const sp=document.createElement("div");
+      sp.className="spinner";sp.style.width="42px";sp.style.height="42px";
+      sp.style.borderWidth="5px";sp.style.display="inline-block";
+      loader.appendChild(sp);app.appendChild(loader);
+
+      addFsSection(game.name||"Game",()=>{
+        const iframe=document.createElement("iframe");
+        iframe.style.cssText="width:100%;height:78vh;border:none;border-radius:10px;background:#000";
+        iframe.setAttribute("allowfullscreen","true");
+        iframe.setAttribute("allow","fullscreen");
+        if(game.iframe)iframe.srcdoc=game.iframe;
+        else if(game.game_url)iframe.src=game.game_url;
+        else if(game.url)iframe.src=game.url;
+        else iframe.srcdoc=
+          `<body style="margin:0;background:#000;color:#fff;display:flex;align-items:center;justify-content:center;height:100vh">`+
+          `<div><h2>${escapeHtml(game.name||"Game")}</h2>`+
+          `<p style="color:#bbb">No playable source provided.</p></div></body>`;
+        iframe.onload=()=>loader.remove();
+        app.appendChild(iframe);
+        return iframe;
+      });
+
+      pushRecentlyPlayed(game);
+    }
+
+    /* ========= REQUESTS ========= */
+    function showRequests(){
+      app.innerHTML="";
+      addBack("← Back to games",showGameList);
+      const note=document.createElement("div");
+      note.style.fontSize=".9rem";note.style.color="var(--muted)";
+      note.style.marginBottom="8px";
+      note.textContent="Use this form to request new games.";
+      app.appendChild(note);
+
+      const loader=document.createElement("div");
+      loader.style.textAlign="center";loader.style.marginBottom="8px";
+      const sp=document.createElement("div");
+      sp.className="spinner";sp.style.width="42px";sp.style.height="42px";
+      sp.style.borderWidth="5px";sp.style.display="inline-block";
+      loader.appendChild(sp);app.appendChild(loader);
+
+      addFsSection("Game Requests",()=>{
+        const iframe=document.createElement("iframe");
+        iframe.src=REQUEST_FORM_URL;
+        iframe.style.cssText="width:100%;height:78vh;border:none;border-radius:10px;background:#000";
+        iframe.setAttribute("allowfullscreen","true");
+        iframe.setAttribute("allow","fullscreen");
+        iframe.onload=()=>loader.remove();
+        app.appendChild(iframe);
+        return iframe;
+      });
+    }
+
+    /* ========= PROXY PLACEHOLDER ========= */
+    function showProxyPlaceholder(){
+      app.innerHTML="";
+      addBack("← Back to games",showGameList);
+
+      const shell=document.createElement("div");
+      shell.style.cssText=
+        "border-radius:16px;padding:1.4rem;background:radial-gradient(circle at 0 0,rgba(148,163,253,.18),transparent),"+
+        "radial-gradient(circle at 100% 100%,rgba(45,212,191,.16),transparent);"+
+        "border:1px solid rgba(148,163,253,.2);box-shadow:0 22px 60px rgba(0,0,0,.7);text-align:center;";
+      const title=document.createElement("div");
+      title.style.fontSize="1.2rem";title.style.fontWeight="800";
+      title.style.marginBottom=".4rem";title.textContent="✨ Proxy Portal Offline";
+      const text=document.createElement("div");
+      text.style.fontSize=".95rem";text.style.color="var(--muted)";
+      text.style.marginBottom=".9rem";
+      text.textContent="The network gateway is temporarily closed. Admins may restore access at any time.";
+      const hint=document.createElement("div");
+      hint.style.fontSize=".8rem";hint.style.color="var(--muted)";
+      hint.textContent="You can still enjoy games, chat, favorites, and requests while the proxy is offline.";
+      shell.appendChild(title);shell.appendChild(text);shell.appendChild(hint);
+      app.appendChild(shell);
+    }
+
+    /* ========= CHAT ========= */
+    function renderChatMessage(key,raw,container){
+      const isObject = raw && typeof raw==="object";
+      const data = isObject ? raw : {
+        text:String(raw),userName:"User",userId:"legacy",
+        ts:Date.now(),admin:false,deleted:false
+      };
+      if(!data.userId) data.userId="unknown_"+Math.random().toString(36).slice(2,8);
+
       const msg=document.createElement("div");
-      msg.textContent="No links yet.";msg.style.color="var(--muted)";
-      msg.style.fontSize=".9rem";linksListEl.appendChild(msg);return;
+      msg.style.cssText="margin:.25rem 0;padding:.5rem;border-radius:6px;background:rgba(0,0,0,.22)";
+      msg.dataset.key=key;
+
+      const header=document.createElement("div");
+      header.style.cssText="display:flex;align-items:center;justify-content:space-between;margin-bottom:2px";
+
+      const nameSpan=document.createElement("span");
+      nameSpan.textContent=data.userName||"User";
+      nameSpan.style.fontWeight="600";nameSpan.style.fontSize=".85rem";
+      nameSpan.style.color=data.admin?"#facc15":"var(--text)";
+
+      const right=document.createElement("div");
+      right.style.cssText="display:flex;align-items:center;gap:6px";
+
+      const timeSpan=document.createElement("span");
+      timeSpan.style.fontSize=".7rem";timeSpan.style.color="var(--muted)";
+      if(data.ts){
+        timeSpan.textContent=new Date(data.ts)
+          .toLocaleTimeString([],{hour:"2-digit",minute:"2-digit"});
+      }
+      right.appendChild(timeSpan);
+
+      if(admin && !data.deleted){
+        const delBtn=document.createElement("button");
+        delBtn.textContent="Delete";delBtn.className="btn btn-ghost";
+        delBtn.style.cssText="padding:.15rem .5rem;font-size:.7rem";
+        delBtn.onclick=()=>{
+          db.ref("chat").child(key).update({
+            deleted:true,
+            text:"[message removed by admin]"
+          });
+        };
+        const timeoutBtn=document.createElement("button");
+        timeoutBtn.textContent="Timeout 10m";timeoutBtn.className="btn btn-ghost";
+        timeoutBtn.style.cssText="padding:.15rem .5rem;font-size:.7rem";
+        timeoutBtn.onclick=()=>{
+          if(!data.userId)return;
+          const expires=Date.now()+10*60*1000;
+          db.ref(TIMEOUTS_PATH+"/"+data.userId).set(expires);
+          alert("User timed out for 10 minutes.");
+        };
+        right.appendChild(delBtn);right.appendChild(timeoutBtn);
+      }
+
+      header.appendChild(nameSpan);header.appendChild(right);
+
+      const body=document.createElement("div");
+      const textDiv=document.createElement("div");
+      textDiv.style.fontSize=".85rem";
+      if(data.deleted){
+        textDiv.textContent="[message removed by admin]";
+        textDiv.style.color="var(--muted)";
+        textDiv.style.fontStyle="italic";
+      }else{
+        textDiv.textContent=data.text||"";
+      }
+      body.appendChild(textDiv);
+
+      msg.appendChild(header);msg.appendChild(body);
+      container.appendChild(msg);
+      container.scrollTop=container.scrollHeight;
+      chatMessageElements[key]=msg;
     }
-    linksArr.forEach((link,idx)=>{
-      if(!link) return;
-      const row=document.createElement("div");
-      row.style.cssText="display:flex;align-items:center;gap:8px";
-      const label=document.createElement("div");
-      label.textContent=link.label||"(no label)";
-      label.style.flex="0 0 120px";label.style.fontWeight="600";
-      const url=document.createElement("div");
-      url.textContent=link.url||"";
-      url.style.flex="1";url.style.fontSize=".8rem";url.style.color="var(--muted)";
-      url.style.whiteSpace="nowrap";url.style.overflow="hidden";url.style.textOverflow="ellipsis";
-      const del=document.createElement("button");
-      del.textContent="Delete";del.className="btn btn-ghost";
-      del.style.cssText="padding:.3rem .6rem;font-size:.75rem";
-      del.onclick=async()=>{
-        linksArr.splice(idx,1);
+    function updateChatMessage(key,raw){
+      const el=chatMessageElements[key];if(!el)return;
+      const isObject=raw && typeof raw==="object";
+      const data=isObject?raw:{
+        text:String(raw),userName:"User",userId:"legacy",
+        ts:Date.now(),admin:false,deleted:false
+      };
+      const textDiv=el.querySelector("div:last-child div");if(!textDiv)return;
+      if(data.deleted){
+        textDiv.textContent="[message removed by admin]";
+        textDiv.style.color="var(--muted)";
+        textDiv.style.fontStyle="italic";
+      }else{
+        textDiv.textContent=data.text||"";
+        textDiv.style.color="var(--text)";
+        textDiv.style.fontStyle="normal";
+      }
+    }
+    function showChat(){
+      currentUser=ensureChatUser();
+      app.innerHTML="";
+      addBack("← Back to games",showGameList);
+      const info=document.createElement("div");
+      info.style.fontSize=".85rem";info.style.color="var(--muted)";
+      info.style.marginBottom="6px";
+      info.textContent=`You are chatting as ${currentUser.name}. Admin names appear in gold.`;
+      app.appendChild(info);
+
+      const container=document.createElement("div");
+      container.innerHTML=
+        `<div id="chatMessages" style="height:55vh;overflow:auto;background:rgba(255,255,255,.02);padding:.6rem;border-radius:8px"></div>`+
+        `<div style="display:flex;gap:.4rem;margin-top:.6rem">`+
+          `<input id="chatInput" class="input" placeholder="Message..." style="flex:1;margin-bottom:0">`+
+          `<button id="chatSend" class="btn btn-primary">Send</button>`+
+        `</div>`;
+      app.appendChild(container);
+
+      const msgs=document.getElementById("chatMessages");
+      chatMessageElements={};msgs.innerHTML="";
+
+      const messagesRef=db.ref("chat");
+      messagesRef.off();
+      messagesRef.on("child_added",snap=>renderChatMessage(snap.key,snap.val(),msgs));
+      messagesRef.on("child_changed",snap=>updateChatMessage(snap.key,snap.val()));
+
+      document.getElementById("chatSend").onclick=async()=>{
+        const input=document.getElementById("chatInput");
+        const v=input.value.trim();if(!v)return;
+        try{
+          const snap=await db.ref(TIMEOUTS_PATH+"/"+currentUser.id).once("value");
+          const expires=snap.val();const now=Date.now();
+          if(expires && expires>now){
+            const mins=Math.ceil((expires-now)/60000);
+            alert("You are timed out for "+mins+" more minute(s).");
+            return;
+          }
+        }catch(e){console.error("timeout check",e);}
+        const payload={
+          text:v,userId:currentUser.id,userName:currentUser.name,
+          ts:Date.now(),admin:!!admin,deleted:false
+        };
+        db.ref("chat").push(payload);
+        input.value="";
+      };
+    }
+
+    /* ========= OTHER WEBSITES ========= */
+    function showOther(){
+      app.innerHTML="";
+      addBack("← Back to games",showGameList);
+      const title=document.createElement("div");
+      title.style.fontWeight=700;title.style.marginBottom="8px";
+      title.textContent="Other Websites";
+      app.appendChild(title);
+
+      const container=document.createElement("div");
+      container.id="otherLinksContainer";
+      container.style.display="flex";
+      container.style.flexDirection="column";
+      container.style.gap="8px";
+      app.appendChild(container);
+
+      db.ref(OTHER_LINKS_PATH).once("value").then(snap=>{
+        const val=snap.val();let links=[];
+        if(Array.isArray(val))links=val.filter(Boolean);
+        else if(val && typeof val==="object")links=Object.values(val);
+        if(!links.length){
+          const msg=document.createElement("div");
+          msg.textContent="No links configured yet. Ask an admin to add some.";
+          msg.style.color="var(--muted)";
+          container.appendChild(msg);return;
+        }
+        links.forEach(link=>{
+          if(!link || !link.url)return;
+          const row=document.createElement("div");
+          row.style.display="flex";row.style.flexDirection="column";
+          const a=document.createElement("a");
+          a.href=link.url;a.target="_blank";
+          a.textContent=link.label||link.url;
+          a.style.color="var(--accent)";
+          a.style.textDecoration="none";
+          a.style.marginBottom="2px";
+          const urlText=document.createElement("div");
+          urlText.textContent=link.url;
+          urlText.style.fontSize=".8rem";
+          urlText.style.color="var(--muted)";
+          row.appendChild(a);row.appendChild(urlText);
+          container.appendChild(row);
+        });
+      }).catch(e=>{
+        console.error("links",e);
+        const msg=document.createElement("div");
+        msg.textContent="Could not load links.";
+        msg.style.color="var(--muted)";
+        container.appendChild(msg);
+      });
+    }
+
+    /* ========= ADMIN THEME ========= */
+    function applyAdminThemeIfSet(){
+      if(!admin)return;
+      db.ref(ADMIN_THEME_PATH).once("value").then(snap=>{
+        const url=snap.val();
+        if(url){
+          mainContent.classList.add("admin-theme");
+          mainContent.style.backgroundImage=
+            `linear-gradient(rgba(0,0,0,.35),rgba(0,0,0,.35)),url("${url}")`;
+          mainContent.style.backgroundSize="cover";
+        }else{
+          mainContent.classList.remove("admin-theme");
+          mainContent.style.backgroundImage="";
+        }
+      });
+    }
+    db.ref(ADMIN_THEME_PATH).on("value",snap=>{
+      if(!admin)return;
+      const url=snap.val();
+      if(url){
+        mainContent.classList.add("admin-theme");
+        mainContent.style.backgroundImage=
+          `linear-gradient(rgba(0,0,0,.35),rgba(0,0,0,.35)),url("${url}")`;
+      }else{
+        mainContent.classList.remove("admin-theme");
+        mainContent.style.backgroundImage="";
+      }
+    });
+    if(admin)applyAdminThemeIfSet();
+
+    /* ========= ADMIN PANEL ========= */
+    function openAdminLogin(){
+      if(admin){openAdminPanel();return;}
+      const backdrop=document.createElement("div");
+      backdrop.className="modal-backdrop";
+      backdrop.innerHTML=
+        `<div class="modal">`+
+          `<h3>Admin Login</h3>`+
+          `<input id="aPw" class="input" placeholder="Admin password" type="password">`+
+          `<div style="display:flex;gap:.5rem;margin-top:.6rem">`+
+            `<button id="aCancel" class="btn btn-ghost">Cancel</button>`+
+            `<button id="aEnter" class="btn btn-primary">Login</button>`+
+          `</div>`+
+          `<div id="aMsg" style="margin-top:.6rem;color:var(--muted)"></div>`+
+        `</div>`;
+      document.body.appendChild(backdrop);
+      document.getElementById("aCancel").onclick=()=>backdrop.remove();
+      document.getElementById("aEnter").onclick=async()=>{
+        const v=document.getElementById("aPw").value||"";
+        const h=await sha256Hex(v.trim());
+        if(h===HASH_ADMIN || (!window.crypto || !window.crypto.subtle && v.trim()==="th!nBlu3")){
+          sessionStorage.setItem("astral_admin","1");
+          admin=true;
+          backdrop.remove();
+          applyAdminThemeIfSet();
+          openAdminPanel();
+        }else{
+          document.getElementById("aMsg").textContent="Invalid";
+          document.getElementById("aPw").value="";
+        }
+      };
+    }
+
+    function openAdminPanel(){
+      app.innerHTML="";
+      addBack("← Back",showGameList);
+      const container=document.createElement("div");
+      container.innerHTML=
+        `<h2 style="margin-bottom:.6rem">Admin Panel</h2>`+
+        `<div style="margin-bottom:.9rem">`+
+          `<label style="display:block;margin-bottom:.25rem;color:var(--muted)">Edit Announcement</label>`+
+          `<textarea id="admAnn" style="width:100%;min-height:120px;border-radius:8px;background:rgba(255,255,255,.02);border:none;color:var(--text);padding:.6rem"></textarea>`+
+          `<div style="margin-top:.5rem;display:flex;gap:.5rem;justify-content:flex-end">`+
+            `<button id="admSave" class="btn btn-primary">Save Announcement</button>`+
+          `</div>`+
+        `</div>`+
+        `<hr style="border:none;border-top:1px solid rgba(255,255,255,.04);margin:1rem 0;">`+
+        `<div style="margin-bottom:.9rem">`+
+          `<label style="display:block;margin-bottom:.25rem;color:var(--muted)">Admin Theme Background URL</label>`+
+          `<input id="admTheme" class="input" placeholder="Paste image URL">`+
+          `<div style="display:flex;gap:.5rem;justify-content:flex-end;margin-top:.5rem">`+
+            `<button id="admThemeSave" class="btn btn-primary">Save Theme</button>`+
+          `</div>`+
+        `</div>`+
+        `<hr style="border:none;border-top:1px solid rgba(255,255,255,.04);margin:1rem 0;">`+
+        `<div style="margin-bottom:.9rem">`+
+          `<h3 style="margin-bottom:.4rem">Other Websites Links</h3>`+
+          `<div style="display:flex;gap:.5rem;flex-wrap:wrap;margin-bottom:.4rem">`+
+            `<input id="admLinkLabel" class="input" placeholder="Label" style="flex:1;min-width:120px">`+
+            `<input id="admLinkUrl" class="input" placeholder="https://example.com" style="flex:2;min-width:180px">`+
+          `</div>`+
+          `<div style="display:flex;gap:.5rem;justify-content:flex-end;margin-bottom:.6rem">`+
+            `<button id="admAddLink" class="btn btn-primary">Add / Update Link</button>`+
+          `</div>`+
+          `<div id="admLinksList" style="display:flex;flex-direction:column;gap:.4rem"></div>`+
+        `</div>`+
+        `<hr style="border:none;border-top:1px solid rgba(255,255,255,.04);margin:1rem 0;">`+
+        `<div style="margin-bottom:.9rem">`+
+          `<h3 style="margin-bottom:.4rem">Custom Games</h3>`+
+          `<div style="display:flex;flex-direction:column;gap:.4rem;margin-bottom:.5rem">`+
+            `<input id="admGameName" class="input" placeholder="Game name">`+
+            `<input id="admGameUrl" class="input" placeholder="Game URL (https://...)">`+
+            `<input id="admGameThumb" class="input" placeholder="Thumbnail URL (optional)">`+
+            `<input id="admGameDesc" class="input" placeholder="Short description (optional)">`+
+            `<input id="admGameTags" class="input" placeholder="Tags (comma separated, optional)">`+
+            `<select id="admGameCategory" class="input" style="padding:.4rem .6rem;">`+
+              `<option value="">Choose category (optional)</option>`+
+              `<option value="action">Action</option>`+
+              `<option value="adventure">Adventure</option>`+
+              `<option value="puzzle">Puzzle</option>`+
+              `<option value="racing">Racing</option>`+
+              `<option value="multiplayer">Multiplayer</option>`+
+              `<option value="strategy">Strategy</option>`+
+              `<option value="sports">Sports</option>`+
+              `<option value="classics">Classics</option>`+
+            `</select>`+
+          `</div>`+
+          `<div style="display:flex;gap:.5rem;justify-content:flex-end;margin-bottom:.5rem">`+
+            `<button id="admAddGame" class="btn btn-primary">Add Game</button>`+
+          `</div>`+
+          `<div id="admGamesList" style="display:flex;flex-direction:column;gap:.4rem"></div>`+
+        `</div>`+
+        `<div style="margin-top:1rem">`+
+          `<button id="admLogout" class="btn btn-ghost">Logout Admin</button>`+
+        `</div>`;
+      app.appendChild(container);
+
+      // load announcement
+      db.ref(ANN_PATH).once("value").then(snap=>{
+        const v=snap.val();
+        document.getElementById("admAnn").value=(v && v.text)||"";
+      });
+      // theme
+      db.ref(ADMIN_THEME_PATH).once("value").then(snap=>{
+        document.getElementById("admTheme").value=snap.val()||"";
+      });
+
+      // links
+      let linksArr=[];const linksListEl=document.getElementById("admLinksList");
+      function renderLinksList(){
+        linksListEl.innerHTML="";
+        if(!linksArr.length){
+          const msg=document.createElement("div");
+          msg.textContent="No links yet.";msg.style.color="var(--muted)";
+          msg.style.fontSize=".9rem";linksListEl.appendChild(msg);return;
+        }
+        linksArr.forEach((link,idx)=>{
+          if(!link)return;
+          const row=document.createElement("div");
+          row.style.cssText="display:flex;align-items:center;gap:8px";
+          const label=document.createElement("div");
+          label.textContent=link.label||"(no label)";
+          label.style.flex="0 0 120px";label.style.fontWeight="600";
+          const url=document.createElement("div");
+          url.textContent=link.url||"";
+          url.style.flex="1";url.style.fontSize=".8rem";url.style.color="var(--muted)";
+          url.style.whiteSpace="nowrap";url.style.overflow="hidden";url.style.textOverflow="ellipsis";
+          const del=document.createElement("button");
+          del.textContent="Delete";del.className="btn btn-ghost";
+          del.style.cssText="padding:.3rem .6rem;font-size:.75rem";
+          del.onclick=async()=>{
+            linksArr.splice(idx,1);
+            await db.ref(OTHER_LINKS_PATH).set(linksArr);
+            renderLinksList();
+          };
+          row.appendChild(label);row.appendChild(url);row.appendChild(del);
+          linksListEl.appendChild(row);
+        });
+      }
+      db.ref(OTHER_LINKS_PATH).once("value").then(snap=>{
+        const val=snap.val();
+        if(Array.isArray(val))linksArr=val.filter(Boolean);
+        else if(val && typeof val==="object")linksArr=Object.values(val);
+        else linksArr=[];
+        renderLinksList();
+      });
+
+      document.getElementById("admAddLink").onclick=async()=>{
+        const labelInput=document.getElementById("admLinkLabel");
+        const urlInput=document.getElementById("admLinkUrl");
+        const label=(labelInput.value||"").trim();
+        const url=(urlInput.value||"").trim();
+        if(!url){alert("URL is required.");return;}
+        const idx=linksArr.findIndex(l=>l && l.url===url);
+        const obj={label:label||url,url};
+        if(idx>=0)linksArr[idx]=obj;else linksArr.push(obj);
         await db.ref(OTHER_LINKS_PATH).set(linksArr);
+        labelInput.value="";urlInput.value="";
         renderLinksList();
       };
-      row.appendChild(label);row.appendChild(url);row.appendChild(del);linksListEl.appendChild(row);
-    });
-  }
-  db.ref(OTHER_LINKS_PATH).once("value").then(snap=>{
-    const val=snap.val();
-    if(Array.isArray(val)) linksArr=val.filter(Boolean);
-    else if(val && typeof val==="object") linksArr=Object.values(val);
-    else linksArr=[];
-    renderLinksList();
-  });
 
-  document.getElementById("admAddLink").onclick = async ()=>{
-    const labelInput=document.getElementById("admLinkLabel");
-    const urlInput  =document.getElementById("admLinkUrl");
-    const label=(labelInput.value||"").trim();
-    const url  =(urlInput.value||"").trim();
-    if(!url){alert("URL is required.");return;}
-    const idx=linksArr.findIndex(l=>l && l.url===url);
-    const obj={label:label||url,url};
-    if(idx>=0) linksArr[idx]=obj;
-    else linksArr.push(obj);
-    await db.ref(OTHER_LINKS_PATH).set(linksArr);
-    labelInput.value="";urlInput.value="";
-    renderLinksList();
-  };
-
-  // save announcement + theme
-  document.getElementById("admSave").onclick = async ()=>{
-    const txt=document.getElementById("admAnn").value||"";
-    await db.ref(ANN_PATH).set({text:txt,updatedAt:Date.now()});
-    alert("Announcement saved.");
-  };
-  document.getElementById("admThemeSave").onclick = async ()=>{
-    const url=document.getElementById("admTheme").value.trim();
-    await db.ref(ADMIN_THEME_PATH).set(url||"");
-    alert("Theme saved.");applyAdminThemeIfSet();
-  };
-
-  // custom games
-  const gamesListEl=document.getElementById("admGamesList");
-  let adminGamesLocal=[];
-  function renderAdminGamesList(){
-    gamesListEl.innerHTML="";
-    if(!adminGamesLocal.length){
-      const msg=document.createElement("div");
-      msg.textContent="No custom games yet.";msg.style.color="var(--muted)";
-      msg.style.fontSize=".9rem";gamesListEl.appendChild(msg);return;
-    }
-    adminGamesLocal.forEach(entry=>{
-      const row=document.createElement("div");
-      row.style.cssText="display:flex;align-items:center;gap:8px;background:rgba(255,255,255,.02);border-radius:8px;padding:.4rem .5rem";
-      const name=document.createElement("div");
-      name.textContent=entry.data.name||"(no name)";
-      name.style.flex="0 0 140px";name.style.fontWeight="600";
-      const cat=document.createElement("div");
-      cat.textContent=entry.data.category||"";
-      cat.style.fontSize=".8rem";cat.style.color="var(--muted)";
-      cat.style.flex="0 0 80px";
-      const url=document.createElement("div");
-      url.textContent=entry.data.game_url||entry.data.url||"";
-      url.style.flex="1";url.style.fontSize=".8rem";url.style.color="var(--muted)";
-      url.style.whiteSpace="nowrap";url.style.overflow="hidden";url.style.textOverflow="ellipsis";
-      const del=document.createElement("button");
-      del.textContent="Delete";del.className="btn btn-ghost";
-      del.style.cssText="padding:.3rem .6rem;font-size:.75rem";
-      del.onclick=async()=>{
-        await db.ref(ADMIN_GAMES_PATH).child(entry.key).remove();
-        adminGamesLocal=adminGamesLocal.filter(x=>x.key!==entry.key);
-        renderAdminGamesList();
-        loadGames().then(showGameList);
+      // announcement + theme save
+      document.getElementById("admSave").onclick=async()=>{
+        const txt=document.getElementById("admAnn").value||"";
+        await db.ref(ANN_PATH).set({text:txt,updatedAt:Date.now()});
+        alert("Announcement saved.");
       };
-      row.appendChild(name);row.appendChild(cat);row.appendChild(url);row.appendChild(del);
-      gamesListEl.appendChild(row);
-    });
-  }
-  db.ref(ADMIN_GAMES_PATH).once("value").then(snap=>{
-    const val=snap.val()||{};
-    adminGamesLocal=Object.keys(val).map(k=>({key:k,data:val[k]}));
-    renderAdminGamesList();
-  });
+      document.getElementById("admThemeSave").onclick=async()=>{
+        const url=document.getElementById("admTheme").value.trim();
+        await db.ref(ADMIN_THEME_PATH).set(url||"");
+        alert("Theme saved.");applyAdminThemeIfSet();
+      };
 
-  document.getElementById("admAddGame").onclick = async ()=>{
-    const name=(document.getElementById("admGameName").value||"").trim();
-    const url =(document.getElementById("admGameUrl").value||"").trim();
-    const thumb=(document.getElementById("admGameThumb").value||"").trim();
-    const desc =(document.getElementById("admGameDesc").value||"").trim();
-    const tagsRaw=(document.getElementById("admGameTags").value||"").trim();
-    const category=(document.getElementById("admGameCategory").value||"").trim();
-    if(!name || !url){alert("Name and URL are required.");return;}
-    const tags = tagsRaw ? tagsRaw.split(",").map(t=>t.trim()).filter(Boolean) : [];
-    const gameObj={name,game_url:url,game_image_icon:thumb,description:desc,tags,category,createdAt:Date.now()};
-    const ref=await db.ref(ADMIN_GAMES_PATH).push(gameObj);
-    adminGamesLocal.push({key:ref.key,data:gameObj});
-    renderAdminGamesList();
-    document.getElementById("admGameName").value="";
-    document.getElementById("admGameUrl").value="";
-    document.getElementById("admGameThumb").value="";
-    document.getElementById("admGameDesc").value="";
-    document.getElementById("admGameTags").value="";
-    document.getElementById("admGameCategory").value="";
-    alert("Game added.");loadGames().then(showGameList);
-  };
+      // custom games
+      const gamesListEl=document.getElementById("admGamesList");
+      let adminGamesLocal=[];
+      function renderAdminGamesList(){
+        gamesListEl.innerHTML="";
+        if(!adminGamesLocal.length){
+          const msg=document.createElement("div");
+          msg.textContent="No custom games yet.";
+          msg.style.color="var(--muted)";
+          msg.style.fontSize=".9rem";
+          gamesListEl.appendChild(msg);return;
+        }
+        adminGamesLocal.forEach(entry=>{
+          const row=document.createElement("div");
+          row.style.cssText=
+            "display:flex;align-items:center;gap:8px;background:rgba(255,255,255,.02);"+
+            "border-radius:8px;padding:.4rem .5rem";
+          const name=document.createElement("div");
+          name.textContent=entry.data.name||"(no name)";
+          name.style.flex="0 0 140px";name.style.fontWeight="600";
+          const cat=document.createElement("div");
+          cat.textContent=entry.data.category||"";
+          cat.style.fontSize=".8rem";cat.style.color="var(--muted)";
+          cat.style.flex="0 0 80px";
+          const url=document.createElement("div");
+          url.textContent=entry.data.game_url||entry.data.url||"";
+          url.style.flex="1";url.style.fontSize=".8rem";url.style.color="var(--muted)";
+          url.style.whiteSpace="nowrap";url.style.overflow="hidden";url.style.textOverflow="ellipsis";
+          const del=document.createElement("button");
+          del.textContent="Delete";del.className="btn btn-ghost";
+          del.style.cssText="padding:.3rem .6rem;font-size:.75rem";
+          del.onclick=async()=>{
+            await db.ref(ADMIN_GAMES_PATH).child(entry.key).remove();
+            adminGamesLocal=adminGamesLocal.filter(x=>x.key!==entry.key);
+            renderAdminGamesList();
+            loadGames().then(showGameList);
+          };
+          row.appendChild(name);row.appendChild(cat);row.appendChild(url);row.appendChild(del);
+          gamesListEl.appendChild(row);
+        });
+      }
+      db.ref(ADMIN_GAMES_PATH).once("value").then(snap=>{
+        const val=snap.val()||{};
+        adminGamesLocal=Object.keys(val).map(k=>({key:k,data:val[k]}));
+        renderAdminGamesList();
+      });
 
-  document.getElementById("admLogout").onclick = ()=>{
-    admin=false;sessionStorage.removeItem("astral_admin");
-    mainContent.classList.remove("admin-theme");
-    mainContent.style.backgroundImage="";
-    showGameList();
-  };
-}
+      document.getElementById("admAddGame").onclick=async()=>{
+        const name=(document.getElementById("admGameName").value||"").trim();
+        const url=(document.getElementById("admGameUrl").value||"").trim();
+        const thumb=(document.getElementById("admGameThumb").value||"").trim();
+        const desc=(document.getElementById("admGameDesc").value||"").trim();
+        const tagsRaw=(document.getElementById("admGameTags").value||"").trim();
+        const category=(document.getElementById("admGameCategory").value||"").trim();
+        if(!name || !url){alert("Name and URL are required.");return;}
+        const tags=tagsRaw?tagsRaw.split(",").map(t=>t.trim()).filter(Boolean):[];
+        const gameObj={name,game_url:url,game_image_icon:thumb,description:desc,tags,category,createdAt:Date.now()};
+        const ref=await db.ref(ADMIN_GAMES_PATH).push(gameObj);
+        adminGamesLocal.push({key:ref.key,data:gameObj});
+        renderAdminGamesList();
+        document.getElementById("admGameName").value="";
+        document.getElementById("admGameUrl").value="";
+        document.getElementById("admGameThumb").value="";
+        document.getElementById("admGameDesc").value="";
+        document.getElementById("admGameTags").value="";
+        document.getElementById("admGameCategory").value="";
+        alert("Game added.");loadGames().then(showGameList);
+      };
 
-/* ========= SEARCH ========= */
-searchBox.addEventListener("input", debounce(showGameList,180));
+      document.getElementById("admLogout").onclick=()=>{
+        admin=false;sessionStorage.removeItem("astral_admin");
+        mainContent.classList.remove("admin-theme");
+        mainContent.style.backgroundImage="";
+        showGameList();
+      };
+    }
 
-/* ========= NAV WIRING ========= */
-document.getElementById("navToggle").onclick    = toggleNav;
-document.getElementById("navCollapse").onclick  = toggleNav;
-document.getElementById("navGames").onclick     = ()=>{toggleNav();showGameList();};
-document.getElementById("navFavorites").onclick = ()=>{toggleNav();showFavorites();};
-document.getElementById("navChat").onclick      = ()=>{toggleNav();showChat();};
-document.getElementById("navRequests").onclick  = ()=>{toggleNav();showRequests();};
-document.getElementById("navOther").onclick     = ()=>{toggleNav();showOther();};
-document.getElementById("navProxy").onclick     = ()=>{toggleNav();showProxyBrowser();};
-document.getElementById("navAdmin").onclick     = ()=>{toggleNav();openAdminLogin();};
-document.getElementById("toggleDark").onclick   = toggleTheme;
+    /* ========= SEARCH ========= */
+    searchBox.addEventListener("input",debounce(showGameList,180));
 
-/* ========= LOGIN FLOW ========= */
-// No session flag for main access -> always require password after refresh
-document.getElementById("enterBtn").onclick = async ()=>{
-  const val = document.getElementById("passwordInput").value || "";
-  const h   = await sha256Hex(val.trim());
-  if(h === HASH_MAIN){
-    document.getElementById("passwordInput").value = "";
-    document.getElementById("homeScreen").style.display   = "none";
-    document.getElementById("landingScreen").style.display= "flex";
-  }else{
-    const err=document.getElementById("errorMsg");
-    err.textContent = "Incorrect access code";
-    document.getElementById("passwordInput").value = "";
-    document.getElementById("passwordInput").animate(
-      [
-        {transform:"translateX(0)"},
-        {transform:"translateX(-6px)"},
-        {transform:"translateX(6px)"},
-        {transform:"translateX(0)"}
-      ],
-      {duration:220}
-    );
-  }
-};
+    /* ========= NAV WIRING ========= */
+    document.getElementById("navToggle").onclick    = toggleNav;
+    document.getElementById("navCollapse").onclick  = toggleNav;
+    document.getElementById("navGames").onclick     = ()=>{toggleNav();showGameList();};
+    document.getElementById("navFavorites").onclick = ()=>{toggleNav();showFavorites();};
+    document.getElementById("navChat").onclick      = ()=>{toggleNav();showChat();};
+    document.getElementById("navRequests").onclick  = ()=>{toggleNav();showRequests();};
+    document.getElementById("navOther").onclick     = ()=>{toggleNav();showOther();};
+    document.getElementById("navProxy").onclick     = ()=>{toggleNav();showProxyPlaceholder();};
+    document.getElementById("navAdmin").onclick     = ()=>{toggleNav();openAdminLogin();};
+    document.getElementById("toggleDark").onclick   = toggleTheme;
 
-document.getElementById("enterHubBtn").onclick = async ()=>{
-  document.getElementById("landingScreen").style.display="none";
-  mainContent.style.display="block";
-  sideNav.style.display="flex";
-  showSpinner();
-  await loadGames();
-  hideSpinner();
-  showGameList();
-};
+    /* ========= LOGIN FLOW ========= */
+    document.getElementById("enterBtn").onclick = async ()=>{
+      const val=document.getElementById("passwordInput").value||"";
+      const trimmed=val.trim();
+      const h=await sha256Hex(trimmed);
+      const ok = (h===HASH_MAIN) || (h==="NO_HASH_SUPPORT" && trimmed==="DIHALB");
+      if(ok){
+        document.getElementById("passwordInput").value="";
+        document.getElementById("homeScreen").style.display="none";
+        document.getElementById("landingScreen").style.display="flex";
+      }else{
+        const err=document.getElementById("errorMsg");
+        err.textContent="Incorrect access code";
+        document.getElementById("passwordInput").value="";
+        document.getElementById("passwordInput").animate(
+          [
+            {transform:"translateX(0)"},
+            {transform:"translateX(-6px)"},
+            {transform:"translateX(6px)"},
+            {transform:"translateX(0)"}
+          ],
+          {duration:220}
+        );
+      }
+    };
 
-// ensure hub hidden on load
-mainContent.style.display="none";
-sideNav.style.display="none";
+    document.getElementById("enterHubBtn").onclick = async ()=>{
+      document.getElementById("landingScreen").style.display="none";
+      mainContent.style.display="block";
+      sideNav.style.display="flex";
+      showSpinner();
+      await loadGames();
+      hideSpinner();
+      showGameList();
+    };
+
+    // on load: hide hub
+    mainContent.style.display="none";
+    sideNav.style.display="none";
+  </script>
+</body>
+</html>
